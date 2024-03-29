@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -121,8 +121,10 @@ func processVector(vecI interface{}, dims int) ([]float32, bool) {
 	return rv, true
 }
 
-func (fm *FieldMapping) processVector(propertyMightBeVector interface{},
-	pathString string, path []string, indexes []uint64, context *walkContext) bool {
+func (fm *FieldMapping) processVector(
+	propertyMightBeVector interface{},
+	pathString string, path []string, indexes []uint64, context *walkContext,
+) bool {
 	vector, ok := processVector(propertyMightBeVector, fm.Dims)
 	// Don't add field to document if vector is invalid
 	if !ok {
@@ -131,8 +133,10 @@ func (fm *FieldMapping) processVector(propertyMightBeVector interface{},
 
 	fieldName := getFieldName(pathString, path, fm)
 	options := fm.Options()
-	field := document.NewVectorFieldWithIndexingOptions(fieldName, indexes, vector,
-		fm.Dims, fm.Similarity, fm.VectorIndexOptimizedFor, options)
+	field := document.NewVectorFieldWithIndexingOptions(
+		fieldName, indexes, vector,
+		fm.Dims, fm.Similarity, fm.VectorIndexOptimizedFor, options,
+	)
 	context.doc.AddField(field)
 
 	// "_all" composite field is not applicable for vector field
@@ -143,8 +147,10 @@ func (fm *FieldMapping) processVector(propertyMightBeVector interface{},
 // -----------------------------------------------------------------------------
 // document validation functions
 
-func validateFieldMapping(field *FieldMapping, parentName string,
-	fieldAliasCtx map[string]*FieldMapping) error {
+func validateFieldMapping(
+	field *FieldMapping, parentName string,
+	fieldAliasCtx map[string]*FieldMapping,
+) error {
 	switch field.Type {
 	case "vector":
 		return validateVectorFieldAlias(field, parentName, fieldAliasCtx)
@@ -153,8 +159,10 @@ func validateFieldMapping(field *FieldMapping, parentName string,
 	}
 }
 
-func validateVectorFieldAlias(field *FieldMapping, parentName string,
-	fieldAliasCtx map[string]*FieldMapping) error {
+func validateVectorFieldAlias(
+	field *FieldMapping, parentName string,
+	fieldAliasCtx map[string]*FieldMapping,
+) error {
 
 	if field.Name == "" {
 		field.Name = parentName
@@ -184,15 +192,19 @@ func validateVectorFieldAlias(field *FieldMapping, parentName string,
 	// note: reading from a nil map is safe
 	if fieldAlias, ok := fieldAliasCtx[field.Name]; ok {
 		if field.Dims != fieldAlias.Dims {
-			return fmt.Errorf("field: '%s', invalid alias "+
-				"(different dimensions %d and %d)", fieldAlias.Name, field.Dims,
-				fieldAlias.Dims)
+			return fmt.Errorf(
+				"field: '%s', invalid alias "+
+					"(different dimensions %d and %d)", fieldAlias.Name, field.Dims,
+				fieldAlias.Dims,
+			)
 		}
 
 		if field.Similarity != fieldAlias.Similarity {
-			return fmt.Errorf("field: '%s', invalid alias "+
-				"(different similarity values %s and %s)", fieldAlias.Name,
-				field.Similarity, fieldAlias.Similarity)
+			return fmt.Errorf(
+				"field: '%s', invalid alias "+
+					"(different similarity values %s and %s)", fieldAlias.Name,
+				field.Similarity, fieldAlias.Similarity,
+			)
 		}
 
 		return nil
@@ -201,15 +213,19 @@ func validateVectorFieldAlias(field *FieldMapping, parentName string,
 	// # Validate field options
 
 	if field.Dims < MinVectorDims || field.Dims > MaxVectorDims {
-		return fmt.Errorf("field: '%s', invalid vector dimension: %d,"+
-			" value should be in range (%d, %d)", field.Name, field.Dims,
-			MinVectorDims, MaxVectorDims)
+		return fmt.Errorf(
+			"field: '%s', invalid vector dimension: %d,"+
+				" value should be in range (%d, %d)", field.Name, field.Dims,
+			MinVectorDims, MaxVectorDims,
+		)
 	}
 
 	if _, ok := index.SupportedSimilarityMetrics[field.Similarity]; !ok {
-		return fmt.Errorf("field: '%s', invalid similarity "+
-			"metric: '%s', valid metrics are: %+v", field.Name, field.Similarity,
-			reflect.ValueOf(index.SupportedSimilarityMetrics).MapKeys())
+		return fmt.Errorf(
+			"field: '%s', invalid similarity "+
+				"metric: '%s', valid metrics are: %+v", field.Name, field.Similarity,
+			reflect.ValueOf(index.SupportedSimilarityMetrics).MapKeys(),
+		)
 	}
 
 	if fieldAliasCtx != nil { // writing to a nil map is unsafe

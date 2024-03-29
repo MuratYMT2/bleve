@@ -25,8 +25,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/registry"
 	index "github.com/blevesearch/bleve_index_api"
 	store "github.com/blevesearch/upsidedown_store_api"
 
@@ -73,7 +73,11 @@ type docBackIndexRow struct {
 	backIndexRow *BackIndexRow
 }
 
-func NewUpsideDownCouch(storeName string, storeConfig map[string]interface{}, analysisQueue *index.AnalysisQueue) (index.Index, error) {
+func NewUpsideDownCouch(
+	storeName string,
+	storeConfig map[string]interface{},
+	analysisQueue *index.AnalysisQueue,
+) (index.Index, error) {
 	rv := &UpsideDownCouch{
 		version:       Version,
 		fieldCache:    NewFieldCache(),
@@ -153,7 +157,12 @@ func PutRowBuffer(rb *rowBuffer) {
 	rowBufferPool.Put(rb)
 }
 
-func (udc *UpsideDownCouch) batchRows(writer store.KVWriter, addRowsAll [][]UpsideDownCouchRow, updateRowsAll [][]UpsideDownCouchRow, deleteRowsAll [][]UpsideDownCouchRow) (err error) {
+func (udc *UpsideDownCouch) batchRows(
+	writer store.KVWriter,
+	addRowsAll [][]UpsideDownCouchRow,
+	updateRowsAll [][]UpsideDownCouchRow,
+	deleteRowsAll [][]UpsideDownCouchRow,
+) (err error) {
 	dictionaryDeltas := make(map[string]int64)
 
 	// count up bytes needed for buffering.
@@ -232,12 +241,14 @@ func (udc *UpsideDownCouch) batchRows(writer store.KVWriter, addRowsAll [][]Upsi
 		deleteKeyBytes +
 		2*(mergeKeyBytes+mergeValBytes)
 
-	buf, wb, err := writer.NewBatchEx(store.KVBatchOptions{
-		TotalBytes: totBytes,
-		NumSets:    addNum + updateNum,
-		NumDeletes: deleteNum,
-		NumMerges:  mergeNum,
-	})
+	buf, wb, err := writer.NewBatchEx(
+		store.KVBatchOptions{
+			TotalBytes: totBytes,
+			NumSets:    addNum + updateNum,
+			NumDeletes: deleteNum,
+			NumMerges:  mergeNum,
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -424,10 +435,12 @@ func (udc *UpsideDownCouch) Update(doc index.Document) (err error) {
 	resultChan := make(chan *AnalysisResult)
 
 	// put the work on the queue
-	udc.analysisQueue.Queue(func() {
-		ar := udc.analyze(doc)
-		resultChan <- ar
-	})
+	udc.analysisQueue.Queue(
+		func() {
+			ar := udc.analyze(doc)
+			resultChan <- ar
+		},
+	)
 
 	// wait for the result
 	result := <-resultChan
@@ -462,8 +475,10 @@ func (udc *UpsideDownCouch) Update(doc index.Document) (err error) {
 	return udc.UpdateWithAnalysis(doc, result, backIndexRow)
 }
 
-func (udc *UpsideDownCouch) UpdateWithAnalysis(doc index.Document,
-	result *AnalysisResult, backIndexRow *BackIndexRow) (err error) {
+func (udc *UpsideDownCouch) UpdateWithAnalysis(
+	doc index.Document,
+	result *AnalysisResult, backIndexRow *BackIndexRow,
+) (err error) {
 	// start a writer for this update
 	indexStart := time.Now()
 	var kvwriter store.KVWriter
@@ -509,7 +524,11 @@ func (udc *UpsideDownCouch) UpdateWithAnalysis(doc index.Document,
 	return
 }
 
-func (udc *UpsideDownCouch) mergeOldAndNew(backIndexRow *BackIndexRow, rows []IndexRow) (addRows []UpsideDownCouchRow, updateRows []UpsideDownCouchRow, deleteRows []UpsideDownCouchRow) {
+func (udc *UpsideDownCouch) mergeOldAndNew(backIndexRow *BackIndexRow, rows []IndexRow) (
+	addRows []UpsideDownCouchRow,
+	updateRows []UpsideDownCouchRow,
+	deleteRows []UpsideDownCouchRow,
+) {
 	addRows = make([]UpsideDownCouchRow, 0, len(rows))
 
 	if backIndexRow == nil {
@@ -595,17 +614,33 @@ func (udc *UpsideDownCouch) mergeOldAndNew(backIndexRow *BackIndexRow, rows []In
 	return addRows, updateRows, deleteRows
 }
 
-func (udc *UpsideDownCouch) storeField(docID []byte, field index.Field, fieldIndex uint16, rows []IndexRow, backIndexStoredEntries []*BackIndexStoreEntry) ([]IndexRow, []*BackIndexStoreEntry) {
+func (udc *UpsideDownCouch) storeField(
+	docID []byte,
+	field index.Field,
+	fieldIndex uint16,
+	rows []IndexRow,
+	backIndexStoredEntries []*BackIndexStoreEntry,
+) ([]IndexRow, []*BackIndexStoreEntry) {
 	fieldType := field.EncodedFieldType()
 	storedRow := NewStoredRow(docID, fieldIndex, field.ArrayPositions(), fieldType, field.Value())
 
 	// record the back index entry
-	backIndexStoredEntry := BackIndexStoreEntry{Field: proto.Uint32(uint32(fieldIndex)), ArrayPositions: field.ArrayPositions()}
+	backIndexStoredEntry := BackIndexStoreEntry{
+		Field: proto.Uint32(uint32(fieldIndex)), ArrayPositions: field.ArrayPositions(),
+	}
 
 	return append(rows, storedRow), append(backIndexStoredEntries, &backIndexStoredEntry)
 }
 
-func (udc *UpsideDownCouch) indexField(docID []byte, includeTermVectors bool, fieldIndex uint16, fieldLength int, tokenFreqs index.TokenFrequencies, rows []IndexRow, backIndexTermsEntries []*BackIndexTermsEntry) ([]IndexRow, []*BackIndexTermsEntry) {
+func (udc *UpsideDownCouch) indexField(
+	docID []byte,
+	includeTermVectors bool,
+	fieldIndex uint16,
+	fieldLength int,
+	tokenFreqs index.TokenFrequencies,
+	rows []IndexRow,
+	backIndexTermsEntries []*BackIndexTermsEntry,
+) ([]IndexRow, []*BackIndexTermsEntry) {
 	fieldNorm := float32(1.0 / math.Sqrt(float64(fieldLength)))
 
 	termFreqRows := make([]TermFrequencyRow, len(tokenFreqs))
@@ -616,8 +651,10 @@ func (udc *UpsideDownCouch) indexField(docID []byte, includeTermVectors bool, fi
 		termFreqRow := &termFreqRows[termFreqRowsUsed]
 		termFreqRowsUsed++
 
-		InitTermFrequencyRow(termFreqRow, tf.Term, fieldIndex, docID,
-			uint64(frequencyFromTokenFreq(tf)), fieldNorm)
+		InitTermFrequencyRow(
+			termFreqRow, tf.Term, fieldIndex, docID,
+			uint64(frequencyFromTokenFreq(tf)), fieldNorm,
+		)
 
 		if includeTermVectors {
 			termFreqRow.vectors, rows = udc.termVectorsFromTokenFreq(fieldIndex, tf, rows)
@@ -701,7 +738,11 @@ func (udc *UpsideDownCouch) Delete(id string) (err error) {
 	return
 }
 
-func (udc *UpsideDownCouch) deleteSingle(id string, backIndexRow *BackIndexRow, deleteRows []UpsideDownCouchRow) []UpsideDownCouchRow {
+func (udc *UpsideDownCouch) deleteSingle(
+	id string,
+	backIndexRow *BackIndexRow,
+	deleteRows []UpsideDownCouchRow,
+) []UpsideDownCouchRow {
 	idBytes := []byte(id)
 
 	for _, backIndexEntry := range backIndexRow.termsEntries {
@@ -742,7 +783,10 @@ func frequencyFromTokenFreq(tf *index.TokenFreq) int {
 	return tf.Frequency()
 }
 
-func (udc *UpsideDownCouch) termVectorsFromTokenFreq(field uint16, tf *index.TokenFreq, rows []IndexRow) ([]*TermVector, []IndexRow) {
+func (udc *UpsideDownCouch) termVectorsFromTokenFreq(field uint16, tf *index.TokenFreq, rows []IndexRow) (
+	[]*TermVector,
+	[]IndexRow,
+) {
 	a := make([]TermVector, len(tf.Locations))
 	rv := make([]*TermVector, len(tf.Locations))
 
@@ -815,10 +859,12 @@ func (udc *UpsideDownCouch) Batch(batch *index.Batch) (err error) {
 				doc := batch.IndexOps[k]
 				if doc != nil {
 					// put the work on the queue
-					udc.analysisQueue.Queue(func() {
-						ar := udc.analyze(doc)
-						resultChan <- ar
-					})
+					udc.analysisQueue.Queue(
+						func() {
+							ar := udc.analyze(doc)
+							resultChan <- ar
+						},
+					)
 				}
 			}
 		}()

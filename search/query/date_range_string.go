@@ -20,10 +20,10 @@ import (
 	"math"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/searcher"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/searcher"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -95,7 +95,12 @@ func (q *DateRangeStringQuery) DateTimeParserName() string {
 	return q.DateTimeParser
 }
 
-func (q *DateRangeStringQuery) Searcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping, options search.SearcherOptions) (search.Searcher, error) {
+func (q *DateRangeStringQuery) Searcher(
+	ctx context.Context,
+	i index.IndexReader,
+	m mapping.IndexMapping,
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	field := q.FieldVal
 	if q.FieldVal == "" {
 		field = m.DefaultSearchField()
@@ -129,7 +134,17 @@ func (q *DateRangeStringQuery) Searcher(ctx context.Context, i index.IndexReader
 	if err != nil {
 		return nil, err
 	}
-	return searcher.NewNumericRangeSearcher(ctx, i, min, max, q.InclusiveStart, q.InclusiveEnd, field, q.BoostVal.Value(), options)
+	return searcher.NewNumericRangeSearcher(
+		ctx,
+		i,
+		min,
+		max,
+		q.InclusiveStart,
+		q.InclusiveEnd,
+		field,
+		q.BoostVal.Value(),
+		options,
+	)
 }
 
 func (q *DateRangeStringQuery) parseEndpoints(startTime, endTime time.Time) (*float64, *float64, error) {

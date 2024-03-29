@@ -18,10 +18,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/highlight/format/ansi"
-	sfrag "github.com/blevesearch/bleve/v2/search/highlight/fragmenter/simple"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/highlight/format/ansi"
+	sfrag "github.com/MuratYMT2/bleve/v2/search/highlight/fragmenter/simple"
 )
 
 const (
@@ -58,7 +58,13 @@ func TestSimpleHighlighter(t *testing.T) {
 	}
 
 	expectedFragment := "the " + DefaultAnsiHighlight + "quick" + reset + " brown " + DefaultAnsiHighlight + "fox" + reset + " jumps over the lazy dog"
-	doc := document.NewDocument("a").AddField(document.NewTextField("desc", []uint64{}, []byte("the quick brown fox jumps over the lazy dog")))
+	doc := document.NewDocument("a").AddField(
+		document.NewTextField(
+			"desc",
+			[]uint64{},
+			[]byte("the quick brown fox jumps over the lazy dog"),
+		),
+	)
 
 	fragment := highlighter.BestFragmentInField(&docMatch, doc, "desc")
 	if fragment != expectedFragment {

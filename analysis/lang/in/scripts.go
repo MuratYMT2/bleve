@@ -17,8 +17,8 @@ package in
 import (
 	"unicode"
 
+	"github.com/MuratYMT2/bleve/v2/analysis"
 	"github.com/bits-and-blooms/bitset"
-	"github.com/blevesearch/bleve/v2/analysis"
 )
 
 type ScriptData struct {
@@ -80,7 +80,10 @@ var decompositions = [][]rune{
 	/* devanagari letter AI, gujarati letter AU */
 	{0x05, 0x3E, 0x48, 0x14, flag(unicode.Devanagari) | flag(unicode.Gujarati)},
 	/* devanagari, bengali, gurmukhi, gujarati, oriya AA */
-	{0x05, 0x3E, -1, 0x06, flag(unicode.Devanagari) | flag(unicode.Bengali) | flag(unicode.Gurmukhi) | flag(unicode.Gujarati) | flag(unicode.Oriya)},
+	{
+		0x05, 0x3E, -1, 0x06,
+		flag(unicode.Devanagari) | flag(unicode.Bengali) | flag(unicode.Gurmukhi) | flag(unicode.Gujarati) | flag(unicode.Oriya),
+	},
 	/* devanagari letter candra A */
 	{0x05, 0x45, -1, 0x72, flag(unicode.Devanagari)},
 	/* gujarati vowel candra E */
@@ -256,7 +259,14 @@ func normalize(input []rune) []rune {
 	return input[0:inputLen]
 }
 
-func compose(ch0 rune, script0 *unicode.RangeTable, scriptData *ScriptData, input []rune, pos int, inputLen int) []rune {
+func compose(
+	ch0 rune,
+	script0 *unicode.RangeTable,
+	scriptData *ScriptData,
+	input []rune,
+	pos int,
+	inputLen int,
+) []rune {
 	if pos+1 >= inputLen {
 		return input // need at least 2 characters
 	}

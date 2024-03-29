@@ -23,9 +23,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/util"
 )
 
 var HighTerm = strings.Repeat(string(utf8.MaxRune), 3)
@@ -612,7 +612,8 @@ var maxDistance = string(numeric.MustNewPrefixCodedInt64(math.MaxInt64, 0))
 // NewSortGeoDistance creates SearchSort instance for sorting documents by
 // their distance from the specified point.
 func NewSortGeoDistance(field, unit string, lon, lat float64, desc bool) (
-	*SortGeoDistance, error) {
+	*SortGeoDistance, error,
+) {
 	rv := &SortGeoDistance{
 		Field: field,
 		Desc:  desc,

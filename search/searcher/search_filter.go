@@ -18,8 +18,8 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -65,7 +65,10 @@ func (f *FilteringSearcher) Next(ctx *search.SearchContext) (*search.DocumentMat
 	return nil, err
 }
 
-func (f *FilteringSearcher) Advance(ctx *search.SearchContext, ID index.IndexInternalID) (*search.DocumentMatch, error) {
+func (f *FilteringSearcher) Advance(ctx *search.SearchContext, ID index.IndexInternalID) (
+	*search.DocumentMatch,
+	error,
+) {
 	adv, err := f.child.Advance(ctx, ID)
 	if err != nil {
 		return nil, err

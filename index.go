@@ -17,11 +17,11 @@ package bleve
 import (
 	"context"
 
-	"github.com/blevesearch/bleve/v2/index/upsidedown"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown"
 
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -53,8 +53,10 @@ func (b *Batch) Index(id string, data interface{}) error {
 	}
 	b.internal.Update(doc)
 
-	b.lastDocSize = uint64(doc.Size() +
-		len(id) + size.SizeOfString) // overhead from internal
+	b.lastDocSize = uint64(
+		doc.Size() +
+			len(id) + size.SizeOfString,
+	) // overhead from internal
 	b.totalSize += b.lastDocSize
 
 	return nil
@@ -277,7 +279,13 @@ func NewMemOnly(mapping mapping.IndexMapping) (Index, error) {
 // constructor. Note that currently the values of kvconfig must
 // be able to be marshaled and unmarshaled using the encoding/json library (used
 // when reading/writing the index metadata file).
-func NewUsing(path string, mapping mapping.IndexMapping, indexType string, kvstore string, kvconfig map[string]interface{}) (Index, error) {
+func NewUsing(
+	path string,
+	mapping mapping.IndexMapping,
+	indexType string,
+	kvstore string,
+	kvconfig map[string]interface{},
+) (Index, error) {
 	return newIndexUsing(path, mapping, indexType, kvstore, kvconfig)
 }
 

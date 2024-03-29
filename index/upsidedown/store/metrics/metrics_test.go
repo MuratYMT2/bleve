@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/gtreap"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/gtreap"
 )
 
 func TestMetricsStore(t *testing.T) {
@@ -29,17 +29,21 @@ func TestMetricsStore(t *testing.T) {
 		t.Errorf("expected err when bad config")
 	}
 
-	s, err = New(nil, map[string]interface{}{
-		"kvStoreName_actual": "some-invalid-kvstore-name",
-	})
+	s, err = New(
+		nil, map[string]interface{}{
+			"kvStoreName_actual": "some-invalid-kvstore-name",
+		},
+	)
 	if err == nil {
 		t.Errorf("expected err when unknown kvStoreName_actual")
 	}
 
-	s, err = New(nil, map[string]interface{}{
-		"kvStoreName_actual": gtreap.Name,
-		"path":               "",
-	})
+	s, err = New(
+		nil, map[string]interface{}{
+			"kvStoreName_actual": gtreap.Name,
+			"path":               "",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,10 +79,12 @@ func TestMetricsStore(t *testing.T) {
 }
 
 func TestErrors(t *testing.T) {
-	s, err := New(nil, map[string]interface{}{
-		"kvStoreName_actual": gtreap.Name,
-		"path":               "",
-	})
+	s, err := New(
+		nil, map[string]interface{}{
+			"kvStoreName_actual": gtreap.Name,
+			"path":               "",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,8 +107,10 @@ func TestErrors(t *testing.T) {
 	var m map[string]interface{}
 	err = json.Unmarshal(b.Bytes(), &m)
 	if err != nil {
-		t.Errorf("expected unmarshallable writeJSON, err: %v, b: %s",
-			err, b.Bytes())
+		t.Errorf(
+			"expected unmarshallable writeJSON, err: %v, b: %s",
+			err, b.Bytes(),
+		)
 	}
 
 	errorsi, ok := m["Errors"]

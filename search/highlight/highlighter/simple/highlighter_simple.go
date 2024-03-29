@@ -19,9 +19,9 @@ import (
 	"fmt"
 	index "github.com/blevesearch/bleve_index_api"
 
-	"github.com/blevesearch/bleve/v2/registry"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/highlight"
+	"github.com/MuratYMT2/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/highlight"
 )
 
 const Name = "simple"
@@ -33,7 +33,11 @@ type Highlighter struct {
 	sep        string
 }
 
-func NewHighlighter(fragmenter highlight.Fragmenter, formatter highlight.FragmentFormatter, separator string) *Highlighter {
+func NewHighlighter(
+	fragmenter highlight.Fragmenter,
+	formatter highlight.FragmentFormatter,
+	separator string,
+) *Highlighter {
 	return &Highlighter{
 		fragmenter: fragmenter,
 		formatter:  formatter,
@@ -73,7 +77,12 @@ func (s *Highlighter) BestFragmentInField(dm *search.DocumentMatch, doc index.Do
 	return ""
 }
 
-func (s *Highlighter) BestFragmentsInField(dm *search.DocumentMatch, doc index.Document, field string, num int) []string {
+func (s *Highlighter) BestFragmentsInField(
+	dm *search.DocumentMatch,
+	doc index.Document,
+	field string,
+	num int,
+) []string {
 	tlm := dm.Locations[field]
 	orderedTermLocations := highlight.OrderTermLocations(tlm)
 	scorer := NewFragmentScorer(tlm)
@@ -81,27 +90,29 @@ func (s *Highlighter) BestFragmentsInField(dm *search.DocumentMatch, doc index.D
 	// score the fragments and put them into a priority queue ordered by score
 	fq := make(FragmentQueue, 0)
 	heap.Init(&fq)
-	doc.VisitFields(func(f index.Field) {
-		if f.Name() == field {
-			_, ok := f.(index.TextField)
-			if ok {
-				termLocationsSameArrayPosition := make(highlight.TermLocations, 0)
-				for _, otl := range orderedTermLocations {
-					if otl.ArrayPositions.Equals(f.ArrayPositions()) {
-						termLocationsSameArrayPosition = append(termLocationsSameArrayPosition, otl)
+	doc.VisitFields(
+		func(f index.Field) {
+			if f.Name() == field {
+				_, ok := f.(index.TextField)
+				if ok {
+					termLocationsSameArrayPosition := make(highlight.TermLocations, 0)
+					for _, otl := range orderedTermLocations {
+						if otl.ArrayPositions.Equals(f.ArrayPositions()) {
+							termLocationsSameArrayPosition = append(termLocationsSameArrayPosition, otl)
+						}
+					}
+
+					fieldData := f.Value()
+					fragments := s.fragmenter.Fragment(fieldData, termLocationsSameArrayPosition)
+					for _, fragment := range fragments {
+						fragment.ArrayPositions = f.ArrayPositions()
+						scorer.Score(fragment)
+						heap.Push(&fq, fragment)
 					}
 				}
-
-				fieldData := f.Value()
-				fragments := s.fragmenter.Fragment(fieldData, termLocationsSameArrayPosition)
-				for _, fragment := range fragments {
-					fragment.ArrayPositions = f.ArrayPositions()
-					scorer.Score(fragment)
-					heap.Push(&fq, fragment)
-				}
 			}
-		}
-	})
+		},
+	)
 
 	// now find the N best non-overlapping fragments
 	var bestFragments []*highlight.Fragment

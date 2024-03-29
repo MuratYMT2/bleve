@@ -22,19 +22,21 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/MuratYMT2/bleve/v2/index/scorch/mergeplan"
+	"github.com/MuratYMT2/bleve/v2/util"
 	"github.com/RoaringBitmap/roaring"
-	"github.com/blevesearch/bleve/v2/index/scorch/mergeplan"
-	"github.com/blevesearch/bleve/v2/util"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
 )
 
 func (s *Scorch) mergerLoop() {
 	defer func() {
 		if r := recover(); r != nil {
-			s.fireAsyncError(&AsyncPanicError{
-				Source: "merger",
-				Path:   s.path,
-			})
+			s.fireAsyncError(
+				&AsyncPanicError{
+					Source: "merger",
+					Path:   s.path,
+				},
+			)
 		}
 
 		s.asyncTasks.Done()
@@ -47,9 +49,11 @@ func (s *Scorch) mergerLoop() {
 		s.fireAsyncError(fmt.Errorf("mergePlannerOption json parsing err: %v", err))
 		return
 	}
-	ctrlMsgDflt := &mergerCtrl{ctx: context.Background(),
+	ctrlMsgDflt := &mergerCtrl{
+		ctx:     context.Background(),
 		options: mergePlannerOptions,
-		doneCh:  nil}
+		doneCh:  nil,
+	}
 
 OUTER:
 	for {
@@ -75,8 +79,10 @@ OUTER:
 				startTime := time.Now()
 
 				// lets get started
-				err := s.planMergeAtSnapshot(ctrlMsg.ctx, ctrlMsg.options,
-					ourSnapshot)
+				err := s.planMergeAtSnapshot(
+					ctrlMsg.ctx, ctrlMsg.options,
+					ourSnapshot,
+				)
 				if err != nil {
 					atomic.StoreUint64(&s.iStats.mergeEpoch, 0)
 					if err == segment.ErrClosed {
@@ -150,8 +156,10 @@ type mergerCtrl struct {
 
 // ForceMerge helps users trigger a merge operation on
 // an online scorch index.
-func (s *Scorch) ForceMerge(ctx context.Context,
-	mo *mergeplan.MergePlanOptions) error {
+func (s *Scorch) ForceMerge(
+	ctx context.Context,
+	mo *mergeplan.MergePlanOptions,
+) error {
 	// check whether force merge is already under processing
 	s.rootLock.Lock()
 	if s.stats.TotFileMergeForceOpsStarted >
@@ -172,9 +180,10 @@ func (s *Scorch) ForceMerge(ctx context.Context,
 		// assume the default single segment merge policy
 		mo = &mergeplan.SingleSegmentMergePlanOptions
 	}
-	msg := &mergerCtrl{options: mo,
-		doneCh: make(chan struct{}),
-		ctx:    ctx,
+	msg := &mergerCtrl{
+		options: mo,
+		doneCh:  make(chan struct{}),
+		ctx:     ctx,
 	}
 
 	// request the merger perform a force merge
@@ -194,8 +203,10 @@ func (s *Scorch) ForceMerge(ctx context.Context,
 	return nil
 }
 
-func (s *Scorch) parseMergePlannerOptions() (*mergeplan.MergePlanOptions,
-	error) {
+func (s *Scorch) parseMergePlannerOptions() (
+	*mergeplan.MergePlanOptions,
+	error,
+) {
 	mergePlannerOptions := mergeplan.DefaultMergePlanOptions
 	if v, ok := s.config["scorchMergePlanOptions"]; ok {
 		b, err := util.MarshalJSON(v)
@@ -223,8 +234,10 @@ type closeChWrapper struct {
 	cancelCh chan struct{}
 }
 
-func newCloseChWrapper(ch1 chan struct{},
-	ctx context.Context) *closeChWrapper {
+func newCloseChWrapper(
+	ch1 chan struct{},
+	ctx context.Context,
+) *closeChWrapper {
 	return &closeChWrapper{
 		ch1:      ch1,
 		ctx:      ctx,
@@ -247,8 +260,10 @@ func (w *closeChWrapper) listen() {
 	}
 }
 
-func (s *Scorch) planMergeAtSnapshot(ctx context.Context,
-	options *mergeplan.MergePlanOptions, ourSnapshot *IndexSnapshot) error {
+func (s *Scorch) planMergeAtSnapshot(
+	ctx context.Context,
+	options *mergeplan.MergePlanOptions, ourSnapshot *IndexSnapshot,
+) error {
 	// build list of persisted segments in this snapshot
 	var onlyPersistedSnapshots []mergeplan.Segment
 	for _, segmentSnapshot := range ourSnapshot.segment {
@@ -310,8 +325,10 @@ func (s *Scorch) planMergeAtSnapshot(ctx context.Context,
 					// removal ineligibility. This helps to unflip files
 					// even with fast merger, slow persister work flows.
 					path := persistedSeg.Path()
-					filenames = append(filenames,
-						strings.TrimPrefix(path, s.path+string(os.PathSeparator)))
+					filenames = append(
+						filenames,
+						strings.TrimPrefix(path, s.path+string(os.PathSeparator)),
+					)
 				}
 			}
 		}
@@ -328,8 +345,10 @@ func (s *Scorch) planMergeAtSnapshot(ctx context.Context,
 
 			atomic.AddUint64(&s.stats.TotFileMergeZapBeg, 1)
 			prevBytesReadTotal := cumulateBytesRead(segmentsToMerge)
-			newDocNums, _, err := s.segPlugin.Merge(segmentsToMerge, docsToDrop, path,
-				cw.cancelCh, s)
+			newDocNums, _, err := s.segPlugin.Merge(
+				segmentsToMerge, docsToDrop, path,
+				cw.cancelCh, s,
+			)
 			atomic.AddUint64(&s.stats.TotFileMergeZapEnd, 1)
 
 			fileMergeZapTime := uint64(time.Since(fileMergeZapStartTime))
@@ -444,9 +463,11 @@ func cumulateBytesRead(sbs []segment.Segment) uint64 {
 // perform a merging of the given SegmentBase instances into a new,
 // persisted segment, and synchronously introduce that new segment
 // into the root
-func (s *Scorch) mergeSegmentBases(snapshot *IndexSnapshot,
+func (s *Scorch) mergeSegmentBases(
+	snapshot *IndexSnapshot,
 	sbs []segment.Segment, sbsDrops []*roaring.Bitmap,
-	sbsIndexes []int) (*IndexSnapshot, uint64, error) {
+	sbsIndexes []int,
+) (*IndexSnapshot, uint64, error) {
 	atomic.AddUint64(&s.stats.TotMemMergeBeg, 1)
 
 	memMergeZapStartTime := time.Now()

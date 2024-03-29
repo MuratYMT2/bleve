@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -77,13 +77,15 @@ func (n *NumericField) AnalyzedTokenFrequencies() index.TokenFrequencies {
 
 func (n *NumericField) Analyze() {
 	tokens := make(analysis.TokenStream, 0)
-	tokens = append(tokens, &analysis.Token{
-		Start:    0,
-		End:      len(n.value),
-		Term:     n.value,
-		Position: 1,
-		Type:     analysis.Numeric,
-	})
+	tokens = append(
+		tokens, &analysis.Token{
+			Start:    0,
+			End:      len(n.value),
+			Term:     n.value,
+			Position: 1,
+			Type:     analysis.Numeric,
+		},
+	)
 
 	original, err := n.value.Int64()
 	if err == nil {
@@ -144,7 +146,12 @@ func NewNumericField(name string, arrayPositions []uint64, number float64) *Nume
 	return NewNumericFieldWithIndexingOptions(name, arrayPositions, number, DefaultNumericIndexingOptions)
 }
 
-func NewNumericFieldWithIndexingOptions(name string, arrayPositions []uint64, number float64, options index.FieldIndexingOptions) *NumericField {
+func NewNumericFieldWithIndexingOptions(
+	name string,
+	arrayPositions []uint64,
+	number float64,
+	options index.FieldIndexingOptions,
+) *NumericField {
 	numberInt64 := numeric.Float64ToInt64(number)
 	prefixCoded := numeric.MustNewPrefixCodedInt64(numberInt64, 0)
 	return &NumericField{

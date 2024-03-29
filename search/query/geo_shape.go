@@ -18,11 +18,11 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/searcher"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/searcher"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -42,15 +42,21 @@ type GeoShapeQuery struct {
 // creating geoshape queries for shape types like: point,
 // linestring, polygon, multipoint, multilinestring,
 // multipolygon and envelope.
-func NewGeoShapeQuery(coordinates [][][][]float64, typ,
-	relation string) (*GeoShapeQuery, error) {
+func NewGeoShapeQuery(
+	coordinates [][][][]float64, typ,
+	relation string,
+) (*GeoShapeQuery, error) {
 	s, _, err := geo.NewGeoJsonShape(coordinates, typ)
 	if err != nil {
 		return nil, err
 	}
 
-	return &GeoShapeQuery{Geometry: Geometry{Shape: s,
-		Relation: relation}}, nil
+	return &GeoShapeQuery{
+		Geometry: Geometry{
+			Shape:    s,
+			Relation: relation,
+		},
+	}, nil
 }
 
 // NewGeoShapeCircleQuery creates a geoshape query for the
@@ -59,29 +65,41 @@ func NewGeoShapeQuery(coordinates [][][][]float64, typ,
 // "3nm" "3nauticalmiles" "13mm" "13millimeters" "15cm" "15centimeters"
 // "17mi" "17miles" "19m" "19meters" If the unit cannot be determined,
 // the entire string is parsed and the unit of meters is assumed.
-func NewGeoShapeCircleQuery(coordinates []float64, radius,
-	relation string) (*GeoShapeQuery, error) {
+func NewGeoShapeCircleQuery(
+	coordinates []float64, radius,
+	relation string,
+) (*GeoShapeQuery, error) {
 
 	s, _, err := geo.NewGeoCircleShape(coordinates, radius)
 	if err != nil {
 		return nil, err
 	}
 
-	return &GeoShapeQuery{Geometry: Geometry{Shape: s,
-		Relation: relation}}, nil
+	return &GeoShapeQuery{
+		Geometry: Geometry{
+			Shape:    s,
+			Relation: relation,
+		},
+	}, nil
 }
 
 // NewGeometryCollectionQuery creates a geoshape query for the
 // given geometrycollection coordinates and types.
-func NewGeometryCollectionQuery(coordinates [][][][][]float64, types []string,
-	relation string) (*GeoShapeQuery, error) {
+func NewGeometryCollectionQuery(
+	coordinates [][][][][]float64, types []string,
+	relation string,
+) (*GeoShapeQuery, error) {
 	s, _, err := geo.NewGeometryCollection(coordinates, types)
 	if err != nil {
 		return nil, err
 	}
 
-	return &GeoShapeQuery{Geometry: Geometry{Shape: s,
-		Relation: relation}}, nil
+	return &GeoShapeQuery{
+		Geometry: Geometry{
+			Shape:    s,
+			Relation: relation,
+		},
+	}, nil
 }
 
 func (q *GeoShapeQuery) SetBoost(b float64) {
@@ -101,8 +119,10 @@ func (q *GeoShapeQuery) Field() string {
 	return q.FieldVal
 }
 
-func (q *GeoShapeQuery) Searcher(ctx context.Context, i index.IndexReader,
-	m mapping.IndexMapping, options search.SearcherOptions) (search.Searcher, error) {
+func (q *GeoShapeQuery) Searcher(
+	ctx context.Context, i index.IndexReader,
+	m mapping.IndexMapping, options search.SearcherOptions,
+) (search.Searcher, error) {
 	field := q.FieldVal
 	if q.FieldVal == "" {
 		field = m.DefaultSearchField()
@@ -110,8 +130,10 @@ func (q *GeoShapeQuery) Searcher(ctx context.Context, i index.IndexReader,
 
 	ctx = context.WithValue(ctx, search.QueryTypeKey, search.Geo)
 
-	return searcher.NewGeoShapeSearcher(ctx, i, q.Geometry.Shape, q.Geometry.Relation, field,
-		q.BoostVal.Value(), options)
+	return searcher.NewGeoShapeSearcher(
+		ctx, i, q.Geometry.Shape, q.Geometry.Relation, field,
+		q.BoostVal.Value(), options,
+	)
 }
 
 func (q *GeoShapeQuery) Validate() error {

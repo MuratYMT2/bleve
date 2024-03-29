@@ -17,8 +17,8 @@ package keyword
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 const Name = "keyword_marker"
@@ -44,7 +44,10 @@ func (f *KeyWordMarkerFilter) Filter(input analysis.TokenStream) analysis.TokenS
 	return input
 }
 
-func KeyWordMarkerFilterConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.TokenFilter, error) {
+func KeyWordMarkerFilterConstructor(config map[string]interface{}, cache *registry.Cache) (
+	analysis.TokenFilter,
+	error,
+) {
 	keywordsTokenMapName, ok := config["keywords_token_map"].(string)
 	if !ok {
 		return nil, fmt.Errorf("must specify keywords_token_map")

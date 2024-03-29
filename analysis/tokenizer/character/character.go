@@ -17,7 +17,7 @@ package character
 import (
 	"unicode/utf8"
 
-	"github.com/blevesearch/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis"
 )
 
 type IsTokenRune func(r rune) bool
@@ -47,13 +47,15 @@ func (c *CharacterTokenizer) Tokenize(input []byte) analysis.TokenStream {
 		} else {
 			if end-start > 0 {
 				// build token
-				rv = append(rv, &analysis.Token{
-					Term:     input[start:end],
-					Start:    start,
-					End:      end,
-					Position: count + 1,
-					Type:     analysis.AlphaNumeric,
-				})
+				rv = append(
+					rv, &analysis.Token{
+						Term:     input[start:end],
+						Start:    start,
+						End:      end,
+						Position: count + 1,
+						Type:     analysis.AlphaNumeric,
+					},
+				)
 				count++
 			}
 			start = offset + size
@@ -64,13 +66,15 @@ func (c *CharacterTokenizer) Tokenize(input []byte) analysis.TokenStream {
 	// if we ended in the middle of a token, finish it
 	if end-start > 0 {
 		// build token
-		rv = append(rv, &analysis.Token{
-			Term:     input[start:end],
-			Start:    start,
-			End:      end,
-			Position: count + 1,
-			Type:     analysis.AlphaNumeric,
-		})
+		rv = append(
+			rv, &analysis.Token{
+				Term:     input[start:end],
+				Start:    start,
+				End:      end,
+				Position: count + 1,
+				Type:     analysis.AlphaNumeric,
+			},
+		)
 	}
 	return rv
 }

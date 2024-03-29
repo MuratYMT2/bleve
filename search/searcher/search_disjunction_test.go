@@ -17,7 +17,7 @@ package searcher
 import (
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -44,7 +44,13 @@ func TestDisjunctionSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	martyOrDustinSearcher, err := NewDisjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{martyTermSearcher, dustinTermSearcher}, 0, explainTrue)
+	martyOrDustinSearcher, err := NewDisjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{martyTermSearcher, dustinTermSearcher},
+		0,
+		explainTrue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -57,7 +63,13 @@ func TestDisjunctionSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	martyOrDustinSearcher2, err := NewDisjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{martyTermSearcher2, dustinTermSearcher2}, 0, explainTrue)
+	martyOrDustinSearcher2, err := NewDisjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{martyTermSearcher2, dustinTermSearcher2},
+		0,
+		explainTrue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +78,13 @@ func TestDisjunctionSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	nestedRaviOrMartyOrDustinSearcher, err := NewDisjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{raviTermSearcher, martyOrDustinSearcher2}, 0, explainTrue)
+	nestedRaviOrMartyOrDustinSearcher, err := NewDisjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{raviTermSearcher, martyOrDustinSearcher2},
+		0,
+		explainTrue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,10 +142,22 @@ func TestDisjunctionSearch(t *testing.T) {
 		for err == nil && next != nil {
 			if i < len(test.results) {
 				if !next.IndexInternalID.Equals(test.results[i].IndexInternalID) {
-					t.Errorf("expected result %d to have id %s got %s for test %d", i, test.results[i].IndexInternalID, next.IndexInternalID, testIndex)
+					t.Errorf(
+						"expected result %d to have id %s got %s for test %d",
+						i,
+						test.results[i].IndexInternalID,
+						next.IndexInternalID,
+						testIndex,
+					)
 				}
 				if !scoresCloseEnough(next.Score, test.results[i].Score) {
-					t.Errorf("expected result %d to have score %v got  %v for test %d", i, test.results[i].Score, next.Score, testIndex)
+					t.Errorf(
+						"expected result %d to have score %v got  %v for test %d",
+						i,
+						test.results[i].Score,
+						next.Score,
+						testIndex,
+					)
 					t.Logf("scoring explanation: %s", next.Expl)
 				}
 			}
@@ -167,7 +197,13 @@ func TestDisjunctionAdvance(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	martyOrDustinSearcher, err := NewDisjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{martyTermSearcher, dustinTermSearcher}, 0, explainTrue)
+	martyOrDustinSearcher, err := NewDisjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{martyTermSearcher, dustinTermSearcher},
+		0,
+		explainTrue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -218,7 +254,13 @@ func TestDisjunctionSearchTooMany(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = NewDisjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{martyTermSearcher, dustinTermSearcher, steveTermSearcher}, 0, explainTrue)
+	_, err = NewDisjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{martyTermSearcher, dustinTermSearcher, steveTermSearcher},
+		0,
+		explainTrue,
+	)
 	if err == nil {
 		t.Fatal(err)
 	}

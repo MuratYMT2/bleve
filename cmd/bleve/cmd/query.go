@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/search/query"
+	"github.com/MuratYMT2/bleve/v2"
+	"github.com/MuratYMT2/bleve/v2/search/query"
 	"github.com/spf13/cobra"
 )
 
@@ -96,6 +96,12 @@ func init() {
 	queryCmd.Flags().BoolVar(&highlight, "highlight", true, "Highlight matching text in results.")
 	queryCmd.Flags().BoolVar(&fields, "fields", false, "Load stored fields.")
 	queryCmd.Flags().StringVarP(&qtype, "type", "t", "query_string", "Type of query to run.")
-	queryCmd.Flags().StringVarP(&qfield, "field", "f", "", "Restrict query to field, not applicable to query_string queries.")
+	queryCmd.Flags().StringVarP(
+		&qfield,
+		"field",
+		"f",
+		"",
+		"Restrict query to field, not applicable to query_string queries.",
+	)
 	queryCmd.Flags().StringVarP(&sortby, "sort-by", "b", "", "Sort by field.")
 }

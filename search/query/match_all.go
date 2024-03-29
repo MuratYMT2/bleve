@@ -18,9 +18,9 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/searcher"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/searcher"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -43,7 +43,12 @@ func (q *MatchAllQuery) Boost() float64 {
 	return q.BoostVal.Value()
 }
 
-func (q *MatchAllQuery) Searcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping, options search.SearcherOptions) (search.Searcher, error) {
+func (q *MatchAllQuery) Searcher(
+	ctx context.Context,
+	i index.IndexReader,
+	m mapping.IndexMapping,
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	return searcher.NewMatchAllSearcher(ctx, i, q.BoostVal.Value(), options)
 }
 

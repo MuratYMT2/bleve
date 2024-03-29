@@ -17,8 +17,8 @@ package scorer
 import (
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/size"
 )
 
 var reflectStaticSizeConjunctionQueryScorer int
@@ -42,7 +42,10 @@ func NewConjunctionQueryScorer(options search.SearcherOptions) *ConjunctionQuery
 	}
 }
 
-func (s *ConjunctionQueryScorer) Score(ctx *search.SearchContext, constituents []*search.DocumentMatch) *search.DocumentMatch {
+func (s *ConjunctionQueryScorer) Score(
+	ctx *search.SearchContext,
+	constituents []*search.DocumentMatch,
+) *search.DocumentMatch {
 	var sum float64
 	var childrenExplanations []*search.Explanation
 	if s.options.Explain {
@@ -66,7 +69,8 @@ func (s *ConjunctionQueryScorer) Score(ctx *search.SearchContext, constituents [
 	rv.Score = newScore
 	rv.Expl = newExpl
 	rv.FieldTermLocations = search.MergeFieldTermLocations(
-		rv.FieldTermLocations, constituents[1:])
+		rv.FieldTermLocations, constituents[1:],
+	)
 
 	return rv
 }

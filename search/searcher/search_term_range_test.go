@@ -20,8 +20,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/index/scorch"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/index/scorch"
+	"github.com/MuratYMT2/bleve/v2/search"
 )
 
 func TestTermRangeSearch(t *testing.T) {
@@ -173,8 +173,10 @@ func TestTermRangeSearch(t *testing.T) {
 
 	for _, test := range tests {
 
-		searcher, err := NewTermRangeSearcher(nil, twoDocIndexReader, test.min, test.max,
-			&test.inclusiveMin, &test.inclusiveMax, test.field, 1.0, search.SearcherOptions{Explain: true})
+		searcher, err := NewTermRangeSearcher(
+			nil, twoDocIndexReader, test.min, test.max,
+			&test.inclusiveMin, &test.inclusiveMax, test.field, 1.0, search.SearcherOptions{Explain: true},
+		)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -182,7 +184,8 @@ func TestTermRangeSearch(t *testing.T) {
 		var got []string
 		ctx := &search.SearchContext{
 			DocumentMatchPool: search.NewDocumentMatchPool(
-				searcher.DocumentMatchPoolSize(), 0),
+				searcher.DocumentMatchPoolSize(), 0,
+			),
 		}
 		next, err := searcher.Next(ctx)
 		i := 0
@@ -231,8 +234,10 @@ func TestTermRangeSearchTooManyTerms(t *testing.T) {
 
 	var want = []string{"1", "3", "4", "5"}
 	var truth = true
-	searcher, err := NewTermRangeSearcher(nil, scorchReader, []byte("bobert"), []byte("ravi"),
-		&truth, &truth, "name", 1.0, search.SearcherOptions{Score: "none", IncludeTermVectors: false})
+	searcher, err := NewTermRangeSearcher(
+		nil, scorchReader, []byte("bobert"), []byte("ravi"),
+		&truth, &truth, "name", 1.0, search.SearcherOptions{Score: "none", IncludeTermVectors: false},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -240,7 +245,8 @@ func TestTermRangeSearchTooManyTerms(t *testing.T) {
 	var got []string
 	ctx := &search.SearchContext{
 		DocumentMatchPool: search.NewDocumentMatchPool(
-			searcher.DocumentMatchPoolSize(), 0),
+			searcher.DocumentMatchPoolSize(), 0,
+		),
 	}
 	next, err := searcher.Next(ctx)
 	i := 0
@@ -271,8 +277,10 @@ func TestTermRangeSearchTooManyTerms(t *testing.T) {
 	}
 	// check that all started searchers were closed
 	if statsMap["term_searchers_started"] != statsMap["term_searchers_finished"] {
-		t.Errorf("expected all term searchers closed, %d started %d closed",
-			statsMap["term_searchers_started"], statsMap["term_searchers_finished"])
+		t.Errorf(
+			"expected all term searchers closed, %d started %d closed",
+			statsMap["term_searchers_started"], statsMap["term_searchers_finished"],
+		)
 	}
 
 	sort.Strings(got)

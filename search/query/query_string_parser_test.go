@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/mapping"
 )
 
 func TestQuerySyntaxParserValid(t *testing.T) {
@@ -47,7 +47,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchQuery("test"),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "127.0.0.1",
@@ -57,7 +58,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchQuery("127.0.0.1"),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `"test phrase 1"`,
@@ -67,7 +69,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchPhraseQuery("test phrase 1"),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "field:test",
@@ -81,7 +84,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		// - is allowed inside a term, just not the start
 		{
@@ -96,7 +100,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		// + is allowed inside a term, just not the start
 		{
@@ -111,7 +116,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		// > is allowed inside a term, just not the start
 		{
@@ -126,7 +132,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		// < is allowed inside a term, just not the start
 		{
@@ -141,7 +148,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		// = is allowed inside a term, just not the start
 		{
@@ -156,7 +164,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "+field1:test1",
@@ -170,7 +179,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 					}(),
 				},
 				nil,
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "-field2:test2",
@@ -184,7 +194,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						q.SetField("field2")
 						return q
 					}(),
-				}),
+				},
+			),
 		},
 		{
 			input:   `field3:"test phrase 2"`,
@@ -198,7 +209,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `+field4:"test phrase 1"`,
@@ -212,7 +224,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 					}(),
 				},
 				nil,
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `-field5:"test phrase 2"`,
@@ -226,7 +239,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						q.SetField("field5")
 						return q
 					}(),
-				}),
+				},
+			),
 		},
 		{
 			input:   `+field6:test3 -field7:test4 field8:test5`,
@@ -252,7 +266,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						q.SetField("field7")
 						return q
 					}(),
-				}),
+				},
+			),
 		},
 		{
 			input:   "test^3",
@@ -266,7 +281,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "test^3 other^6",
@@ -285,7 +301,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "33",
@@ -297,13 +314,20 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						qo := NewDisjunctionQuery(
 							[]Query{
 								NewMatchQuery("33"),
-								NewNumericRangeInclusiveQuery(&thirtyThreePointOh, &thirtyThreePointOh, &theTruth, &theTruth),
-							})
+								NewNumericRangeInclusiveQuery(
+									&thirtyThreePointOh,
+									&thirtyThreePointOh,
+									&theTruth,
+									&theTruth,
+								),
+							},
+						)
 						qo.queryStringMode = true
 						return qo
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "field:33",
@@ -320,16 +344,23 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 									return q
 								}(),
 								func() Query {
-									q := NewNumericRangeInclusiveQuery(&thirtyThreePointOh, &thirtyThreePointOh, &theTruth, &theTruth)
+									q := NewNumericRangeInclusiveQuery(
+										&thirtyThreePointOh,
+										&thirtyThreePointOh,
+										&theTruth,
+										&theTruth,
+									)
 									q.SetField("field")
 									return q
 								}(),
-							})
+							},
+						)
 						qo.queryStringMode = true
 						return qo
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "cat-dog",
@@ -339,7 +370,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchQuery("cat-dog"),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "watex~",
@@ -353,7 +385,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "watex~2",
@@ -367,7 +400,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "watex~ 2",
@@ -385,12 +419,14 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 							[]Query{
 								NewMatchQuery("2"),
 								NewNumericRangeInclusiveQuery(&twoPointOh, &twoPointOh, &theTruth, &theTruth),
-							})
+							},
+						)
 						qo.queryStringMode = true
 						return qo
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "field:watex~",
@@ -405,7 +441,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   "field:watex~2",
@@ -420,7 +457,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:555c3bb06f7a127cda000005`,
@@ -434,7 +472,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:>5`,
@@ -448,7 +487,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:>=5`,
@@ -462,7 +502,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:<5`,
@@ -476,7 +517,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:<=5`,
@@ -490,7 +532,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		// new range tests with negative number
 		{
@@ -508,16 +551,23 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 									return q
 								}(),
 								func() Query {
-									q := NewNumericRangeInclusiveQuery(&minusFivePointOh, &minusFivePointOh, &theTruth, &theTruth)
+									q := NewNumericRangeInclusiveQuery(
+										&minusFivePointOh,
+										&minusFivePointOh,
+										&theTruth,
+										&theTruth,
+									)
 									q.SetField("field")
 									return q
 								}(),
-							})
+							},
+						)
 						qo.queryStringMode = true
 						return qo
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:>-5`,
@@ -531,7 +581,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:>=-5`,
@@ -545,7 +596,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:<-5`,
@@ -559,7 +611,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:<=-5`,
@@ -573,7 +626,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:>"2006-01-02T15:04:05Z"`,
@@ -587,7 +641,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:>="2006-01-02T15:04:05Z"`,
@@ -601,7 +656,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:<"2006-01-02T15:04:05Z"`,
@@ -615,7 +671,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `field:<="2006-01-02T15:04:05Z"`,
@@ -629,7 +686,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `/mar.*ty/`,
@@ -639,7 +697,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewRegexpQuery("mar.*ty"),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `name:/mar.*ty/`,
@@ -653,7 +712,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `mart*`,
@@ -663,7 +723,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewWildcardQuery("mart*"),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `name:mart*`,
@@ -677,7 +738,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 
 		// tests for escaping
@@ -691,7 +753,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchQuery("name:marty"),
 				},
-				nil),
+				nil,
+			),
 		},
 		// first colon delimiter, second escaped
 		{
@@ -706,7 +769,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		// escape space, single arguemnt to match query
 		{
@@ -717,7 +781,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchQuery("marty couchbase"),
 				},
-				nil),
+				nil,
+			),
 		},
 		// escape leading plus, not a must clause
 		{
@@ -728,7 +793,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchQuery("+marty"),
 				},
-				nil),
+				nil,
+			),
 		},
 		// escape leading minus, not a must not clause
 		{
@@ -739,7 +805,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchQuery("-marty"),
 				},
-				nil),
+				nil,
+			),
 		},
 		// escape quote inside of phrase
 		{
@@ -750,7 +817,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchPhraseQuery(`what does "quote" mean`),
 				},
-				nil),
+				nil,
+			),
 		},
 		// escaping an unsupported character retains backslash
 		{
@@ -761,7 +829,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchQuery(`can i escap\e`),
 				},
-				nil),
+				nil,
+			),
 		},
 		// leading spaces
 		{
@@ -772,7 +841,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchQuery(`what`),
 				},
-				nil),
+				nil,
+			),
 		},
 		// no boost value defaults to 1
 		{
@@ -787,7 +857,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		// weird lexer cases, something that starts like a number
 		// but contains escape and ends up as string
@@ -799,7 +870,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchQuery(`3.0:`),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `3.0\a`,
@@ -809,7 +881,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				[]Query{
 					NewMatchQuery(`3.0\a`),
 				},
-				nil),
+				nil,
+			),
 		},
 
 		// field names as phrases
@@ -825,7 +898,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		{
 			input:   `"fie ld":"test"`,
@@ -839,7 +913,8 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 		// exact match number with boost
 		{
@@ -849,26 +924,29 @@ func TestQuerySyntaxParserValid(t *testing.T) {
 				nil,
 				[]Query{
 					func() Query {
-						q := NewDisjunctionQuery([]Query{
-							func() Query {
-								mq := NewMatchQuery("65")
-								mq.SetField("age")
-								return mq
-							}(),
-							func() Query {
-								val := float64(65)
-								inclusive := true
-								nq := NewNumericRangeInclusiveQuery(&val, &val, &inclusive, &inclusive)
-								nq.SetField("age")
-								return nq
-							}(),
-						})
+						q := NewDisjunctionQuery(
+							[]Query{
+								func() Query {
+									mq := NewMatchQuery("65")
+									mq.SetField("age")
+									return mq
+								}(),
+								func() Query {
+									val := float64(65)
+									inclusive := true
+									nq := NewNumericRangeInclusiveQuery(&val, &val, &inclusive, &inclusive)
+									nq.SetField("age")
+									return nq
+								}(),
+							},
+						)
 						q.SetBoost(10)
 						q.queryStringMode = true
 						return q
 					}(),
 				},
-				nil),
+				nil,
+			),
 		},
 	}
 

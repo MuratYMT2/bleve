@@ -20,7 +20,7 @@ import (
 	"sort"
 	"sync/atomic"
 
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 	"github.com/blevesearch/upsidedown_store_api"
 )
@@ -62,7 +62,12 @@ func (r *UpsideDownCouchTermFieldReader) Size() int {
 	return sizeInBytes
 }
 
-func newUpsideDownCouchTermFieldReader(indexReader *IndexReader, term []byte, field uint16, includeFreq, includeNorm, includeTermVectors bool) (*UpsideDownCouchTermFieldReader, error) {
+func newUpsideDownCouchTermFieldReader(
+	indexReader *IndexReader,
+	term []byte,
+	field uint16,
+	includeFreq, includeNorm, includeTermVectors bool,
+) (*UpsideDownCouchTermFieldReader, error) {
 	bufNeeded := termFrequencyRowKeySize(term, nil)
 	if bufNeeded < dictionaryRowKeySize(term) {
 		bufNeeded = dictionaryRowKeySize(term)
@@ -146,7 +151,10 @@ func (r *UpsideDownCouchTermFieldReader) Next(preAlloced *index.TermFieldDoc) (*
 	return nil, nil
 }
 
-func (r *UpsideDownCouchTermFieldReader) Advance(docID index.IndexInternalID, preAlloced *index.TermFieldDoc) (rv *index.TermFieldDoc, err error) {
+func (r *UpsideDownCouchTermFieldReader) Advance(
+	docID index.IndexInternalID,
+	preAlloced *index.TermFieldDoc,
+) (rv *index.TermFieldDoc, err error) {
 	if r.iterator != nil {
 		if r.tfrNext == nil {
 			r.tfrNext = &TermFrequencyRow{}

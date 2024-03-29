@@ -17,7 +17,7 @@ package upsidedown
 import (
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/gtreap"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/gtreap"
 )
 
 func BenchmarkGTreapIndexing1Workers(b *testing.B) {

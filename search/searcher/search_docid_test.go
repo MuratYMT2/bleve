@@ -17,10 +17,10 @@ package searcher
 import (
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/index/upsidedown"
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/gtreap"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/gtreap"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -31,7 +31,8 @@ func testDocIDSearcher(t *testing.T, indexed, searched, wanted []string) {
 		map[string]interface{}{
 			"path": "",
 		},
-		analysisQueue)
+		analysisQueue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -139,7 +140,9 @@ func TestDocIDSearcherEmptySearch(t *testing.T) {
 
 func TestDocIDSearcherValid(t *testing.T) {
 	// Test missing, out of order and duplicate inputs
-	testDocIDSearcher(t, []string{"aa", "bb", "cc"},
+	testDocIDSearcher(
+		t, []string{"aa", "bb", "cc"},
 		[]string{"ee", "bb", "aa", "bb"},
-		[]string{"aa", "bb"})
+		[]string{"aa", "bb"},
+	)
 }

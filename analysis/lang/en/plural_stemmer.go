@@ -37,8 +37,8 @@ package en
 import (
 	"strings"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 const PluralStemmerName = "stemmer_en_plural"
@@ -58,7 +58,10 @@ func (s *EnglishPluralStemmerFilter) Filter(input analysis.TokenStream) analysis
 	return input
 }
 
-func EnglishPluralStemmerFilterConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.TokenFilter, error) {
+func EnglishPluralStemmerFilterConstructor(config map[string]interface{}, cache *registry.Cache) (
+	analysis.TokenFilter,
+	error,
+) {
 	return NewEnglishPluralStemmerFilter(), nil
 }
 

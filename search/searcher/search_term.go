@@ -18,9 +18,9 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/scorer"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/scorer"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -38,14 +38,28 @@ type TermSearcher struct {
 	tfd         index.TermFieldDoc
 }
 
-func NewTermSearcher(ctx context.Context, indexReader index.IndexReader, term string, field string, boost float64, options search.SearcherOptions) (*TermSearcher, error) {
+func NewTermSearcher(
+	ctx context.Context,
+	indexReader index.IndexReader,
+	term string,
+	field string,
+	boost float64,
+	options search.SearcherOptions,
+) (*TermSearcher, error) {
 	if isTermQuery(ctx) {
 		ctx = context.WithValue(ctx, search.QueryTypeKey, search.Term)
 	}
 	return NewTermSearcherBytes(ctx, indexReader, []byte(term), field, boost, options)
 }
 
-func NewTermSearcherBytes(ctx context.Context, indexReader index.IndexReader, term []byte, field string, boost float64, options search.SearcherOptions) (*TermSearcher, error) {
+func NewTermSearcherBytes(
+	ctx context.Context,
+	indexReader index.IndexReader,
+	term []byte,
+	field string,
+	boost float64,
+	options search.SearcherOptions,
+) (*TermSearcher, error) {
 	needFreqNorm := options.Score != "none"
 	reader, err := indexReader.TermFieldReader(ctx, term, field, needFreqNorm, needFreqNorm, options.IncludeTermVectors)
 	if err != nil {
@@ -54,8 +68,10 @@ func NewTermSearcherBytes(ctx context.Context, indexReader index.IndexReader, te
 	return newTermSearcherFromReader(indexReader, reader, term, field, boost, options)
 }
 
-func newTermSearcherFromReader(indexReader index.IndexReader, reader index.TermFieldReader,
-	term []byte, field string, boost float64, options search.SearcherOptions) (*TermSearcher, error) {
+func newTermSearcherFromReader(
+	indexReader index.IndexReader, reader index.TermFieldReader,
+	term []byte, field string, boost float64, options search.SearcherOptions,
+) (*TermSearcher, error) {
 	count, err := indexReader.DocCount()
 	if err != nil {
 		_ = reader.Close()
@@ -135,7 +151,8 @@ func (s *TermSearcher) DocumentMatchPoolSize() int {
 }
 
 func (s *TermSearcher) Optimize(kind string, octx index.OptimizableContext) (
-	index.OptimizableContext, error) {
+	index.OptimizableContext, error,
+) {
 	o, ok := s.reader.(index.Optimizable)
 	if ok {
 		return o.Optimize(kind, octx)

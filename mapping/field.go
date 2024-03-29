@@ -20,11 +20,11 @@ import (
 	"net"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis/analyzer/keyword"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -226,7 +226,13 @@ func (fm *FieldMapping) Options() index.FieldIndexingOptions {
 	return rv
 }
 
-func (fm *FieldMapping) processString(propertyValueString string, pathString string, path []string, indexes []uint64, context *walkContext) {
+func (fm *FieldMapping) processString(
+	propertyValueString string,
+	pathString string,
+	path []string,
+	indexes []uint64,
+	context *walkContext,
+) {
 	fieldName := getFieldName(pathString, path, fm)
 	options := fm.Options()
 	if fm.Type == "text" {
@@ -257,7 +263,13 @@ func (fm *FieldMapping) processString(propertyValueString string, pathString str
 	}
 }
 
-func (fm *FieldMapping) processFloat64(propertyValFloat float64, pathString string, path []string, indexes []uint64, context *walkContext) {
+func (fm *FieldMapping) processFloat64(
+	propertyValFloat float64,
+	pathString string,
+	path []string,
+	indexes []uint64,
+	context *walkContext,
+) {
 	fieldName := getFieldName(pathString, path, fm)
 	if fm.Type == "number" {
 		options := fm.Options()
@@ -270,11 +282,24 @@ func (fm *FieldMapping) processFloat64(propertyValFloat float64, pathString stri
 	}
 }
 
-func (fm *FieldMapping) processTime(propertyValueTime time.Time, layout string, pathString string, path []string, indexes []uint64, context *walkContext) {
+func (fm *FieldMapping) processTime(
+	propertyValueTime time.Time,
+	layout string,
+	pathString string,
+	path []string,
+	indexes []uint64,
+	context *walkContext,
+) {
 	fieldName := getFieldName(pathString, path, fm)
 	if fm.Type == "datetime" {
 		options := fm.Options()
-		field, err := document.NewDateTimeFieldWithIndexingOptions(fieldName, indexes, propertyValueTime, layout, options)
+		field, err := document.NewDateTimeFieldWithIndexingOptions(
+			fieldName,
+			indexes,
+			propertyValueTime,
+			layout,
+			options,
+		)
 		if err == nil {
 			context.doc.AddField(field)
 		} else {
@@ -287,7 +312,13 @@ func (fm *FieldMapping) processTime(propertyValueTime time.Time, layout string, 
 	}
 }
 
-func (fm *FieldMapping) processBoolean(propertyValueBool bool, pathString string, path []string, indexes []uint64, context *walkContext) {
+func (fm *FieldMapping) processBoolean(
+	propertyValueBool bool,
+	pathString string,
+	path []string,
+	indexes []uint64,
+	context *walkContext,
+) {
 	fieldName := getFieldName(pathString, path, fm)
 	if fm.Type == "boolean" {
 		options := fm.Options()
@@ -300,7 +331,13 @@ func (fm *FieldMapping) processBoolean(propertyValueBool bool, pathString string
 	}
 }
 
-func (fm *FieldMapping) processGeoPoint(propertyMightBeGeoPoint interface{}, pathString string, path []string, indexes []uint64, context *walkContext) {
+func (fm *FieldMapping) processGeoPoint(
+	propertyMightBeGeoPoint interface{},
+	pathString string,
+	path []string,
+	indexes []uint64,
+	context *walkContext,
+) {
 	lon, lat, found := geo.ExtractGeoPoint(propertyMightBeGeoPoint)
 	if found {
 		fieldName := getFieldName(pathString, path, fm)
@@ -325,8 +362,10 @@ func (fm *FieldMapping) processIP(ip net.IP, pathString string, path []string, i
 	}
 }
 
-func (fm *FieldMapping) processGeoShape(propertyMightBeGeoShape interface{},
-	pathString string, path []string, indexes []uint64, context *walkContext) {
+func (fm *FieldMapping) processGeoShape(
+	propertyMightBeGeoShape interface{},
+	pathString string, path []string, indexes []uint64, context *walkContext,
+) {
 	coordValue, shape, err := geo.ParseGeoShapeField(propertyMightBeGeoShape)
 	if err != nil {
 		return
@@ -337,8 +376,10 @@ func (fm *FieldMapping) processGeoShape(propertyMightBeGeoShape interface{},
 		if found {
 			fieldName := getFieldName(pathString, path, fm)
 			options := fm.Options()
-			field := document.NewGeoCircleFieldWithIndexingOptions(fieldName,
-				indexes, center, radius, options)
+			field := document.NewGeoCircleFieldWithIndexingOptions(
+				fieldName,
+				indexes, center, radius, options,
+			)
 			context.doc.AddField(field)
 
 			if !fm.IncludeInAll {
@@ -350,8 +391,10 @@ func (fm *FieldMapping) processGeoShape(propertyMightBeGeoShape interface{},
 		if found {
 			fieldName := getFieldName(pathString, path, fm)
 			options := fm.Options()
-			field := document.NewGeometryCollectionFieldWithIndexingOptions(fieldName,
-				indexes, coordinates, shapes, options)
+			field := document.NewGeometryCollectionFieldWithIndexingOptions(
+				fieldName,
+				indexes, coordinates, shapes, options,
+			)
 			context.doc.AddField(field)
 
 			if !fm.IncludeInAll {
@@ -363,8 +406,10 @@ func (fm *FieldMapping) processGeoShape(propertyMightBeGeoShape interface{},
 		if found {
 			fieldName := getFieldName(pathString, path, fm)
 			options := fm.Options()
-			field := document.NewGeoShapeFieldWithIndexingOptions(fieldName,
-				indexes, coordinates, shape, options)
+			field := document.NewGeoShapeFieldWithIndexingOptions(
+				fieldName,
+				indexes, coordinates, shape, options,
+			)
 			context.doc.AddField(field)
 
 			if !fm.IncludeInAll {

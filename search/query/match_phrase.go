@@ -18,9 +18,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -67,7 +67,12 @@ func (q *MatchPhraseQuery) Field() string {
 	return q.FieldVal
 }
 
-func (q *MatchPhraseQuery) Searcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping, options search.SearcherOptions) (search.Searcher, error) {
+func (q *MatchPhraseQuery) Searcher(
+	ctx context.Context,
+	i index.IndexReader,
+	m mapping.IndexMapping,
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	field := q.FieldVal
 	if q.FieldVal == "" {
 		field = m.DefaultSearchField()

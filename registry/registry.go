@@ -17,8 +17,8 @@ package registry
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/search/highlight"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/search/highlight"
 )
 
 var stores = make(KVStoreRegistry, 0)
@@ -151,7 +151,10 @@ func (c *Cache) FragmentFormatterNamed(name string) (highlight.FragmentFormatter
 	return c.FragmentFormatters.FragmentFormatterNamed(name, c)
 }
 
-func (c *Cache) DefineFragmentFormatter(name string, config map[string]interface{}) (highlight.FragmentFormatter, error) {
+func (c *Cache) DefineFragmentFormatter(name string, config map[string]interface{}) (
+	highlight.FragmentFormatter,
+	error,
+) {
 	typ, err := typeFromConfig(config)
 	if err != nil {
 		return nil, err

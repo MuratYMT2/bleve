@@ -14,13 +14,15 @@
 package es
 
 import (
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/analysis/token/stop"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis/token/stop"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
-func StopTokenFilterConstructor(config map[string]interface{},
-	cache *registry.Cache) (analysis.TokenFilter, error) {
+func StopTokenFilterConstructor(
+	config map[string]interface{},
+	cache *registry.Cache,
+) (analysis.TokenFilter, error) {
 	tokenMap, err := cache.TokenMapNamed(StopName)
 	if err != nil {
 		return nil, err

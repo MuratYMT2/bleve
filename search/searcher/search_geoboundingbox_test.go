@@ -18,12 +18,12 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/index/upsidedown"
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/gtreap"
-	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/gtreap"
+	"github.com/MuratYMT2/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -60,20 +60,50 @@ func TestGeoBoundingBox(t *testing.T) {
 	}()
 
 	for _, test := range tests {
-		got, err := testGeoBoundingBoxSearch(indexReader, test.minLon, test.minLat, test.maxLon, test.maxLat, test.field)
+		got, err := testGeoBoundingBoxSearch(
+			indexReader,
+			test.minLon,
+			test.minLat,
+			test.maxLon,
+			test.maxLat,
+			test.field,
+		)
 		if err != nil {
 			t.Fatal(err)
 		}
 		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("expected %v, got %v for %f %f %f %f %s", test.want, got, test.minLon, test.minLat, test.maxLon, test.maxLat, test.field)
+			t.Errorf(
+				"expected %v, got %v for %f %f %f %f %s",
+				test.want,
+				got,
+				test.minLon,
+				test.minLat,
+				test.maxLon,
+				test.maxLat,
+				test.field,
+			)
 		}
 
 	}
 }
 
-func testGeoBoundingBoxSearch(i index.IndexReader, minLon, minLat, maxLon, maxLat float64, field string) ([]string, error) {
+func testGeoBoundingBoxSearch(i index.IndexReader, minLon, minLat, maxLon, maxLat float64, field string) (
+	[]string,
+	error,
+) {
 	var rv []string
-	gbs, err := NewGeoBoundingBoxSearcher(nil, i, minLon, minLat, maxLon, maxLat, field, 1.0, search.SearcherOptions{}, true)
+	gbs, err := NewGeoBoundingBoxSearcher(
+		nil,
+		i,
+		minLon,
+		minLat,
+		maxLon,
+		maxLat,
+		field,
+		1.0,
+		search.SearcherOptions{},
+		true,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +129,8 @@ func setupGeo(t *testing.T) index.Index {
 		map[string]interface{}{
 			"path": "",
 		},
-		analysisQueue)
+		analysisQueue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -184,8 +215,10 @@ func TestComputeGeoRange(t *testing.T) {
 	}
 
 	for testi, test := range tests {
-		onBoundaryRes, offBoundaryRes, err := ComputeGeoRange(nil, 0, GeoBitsShift1Minus1,
-			-1.0*test.degs, -1.0*test.degs, test.degs, test.degs, true, nil, "")
+		onBoundaryRes, offBoundaryRes, err := ComputeGeoRange(
+			nil, 0, GeoBitsShift1Minus1,
+			-1.0*test.degs, -1.0*test.degs, test.degs, test.degs, true, nil, "",
+		)
 		if (err != nil) != (test.err != "") {
 			t.Errorf("test: %+v, err: %v", test, err)
 		}
@@ -196,15 +229,21 @@ func TestComputeGeoRange(t *testing.T) {
 			t.Errorf("test: %+v, offBoundaryRes: %v", test, len(offBoundaryRes))
 		}
 
-		onBROrig, offBROrig := origComputeGeoRange(0, GeoBitsShift1Minus1,
-			-1.0*test.degs, -1.0*test.degs, test.degs, test.degs, true)
+		onBROrig, offBROrig := origComputeGeoRange(
+			0, GeoBitsShift1Minus1,
+			-1.0*test.degs, -1.0*test.degs, test.degs, test.degs, true,
+		)
 		if !reflect.DeepEqual(onBoundaryRes, onBROrig) {
-			t.Errorf("testi: %d, test: %+v, onBoundaryRes != onBROrig,\n onBoundaryRes:%v,\n onBROrig: %v",
-				testi, test, onBoundaryRes, onBROrig)
+			t.Errorf(
+				"testi: %d, test: %+v, onBoundaryRes != onBROrig,\n onBoundaryRes:%v,\n onBROrig: %v",
+				testi, test, onBoundaryRes, onBROrig,
+			)
 		}
 		if !reflect.DeepEqual(offBoundaryRes, offBROrig) {
-			t.Errorf("testi: %d, test: %+v, offBoundaryRes, offBROrig,\n offBoundaryRes: %v,\n offBROrig: %v",
-				testi, test, offBoundaryRes, offBROrig)
+			t.Errorf(
+				"testi: %d, test: %+v, offBoundaryRes, offBROrig,\n offBoundaryRes: %v,\n offBROrig: %v",
+				testi, test, offBoundaryRes, offBROrig,
+			)
 		}
 	}
 }
@@ -237,8 +276,10 @@ func BenchmarkComputeGeoRange100(b *testing.B) {
 
 // --------------------------------------------------------------------
 
-func benchmarkComputeGeoRange(b *testing.B,
-	minLon, minLat, maxLon, maxLat float64, onBoundary, offBoundary int) {
+func benchmarkComputeGeoRange(
+	b *testing.B,
+	minLon, minLat, maxLon, maxLat float64, onBoundary, offBoundary int,
+) {
 	checkBoundaries := true
 
 	b.ResetTimer()
@@ -258,10 +299,13 @@ func benchmarkComputeGeoRange(b *testing.B,
 // --------------------------------------------------------------------
 
 // original, non-optimized implementation of ComputeGeoRange
-func origComputeGeoRange(term uint64, shift uint,
+func origComputeGeoRange(
+	term uint64, shift uint,
 	sminLon, sminLat, smaxLon, smaxLat float64,
-	checkBoundaries bool) (
-	onBoundary [][]byte, notOnBoundary [][]byte) {
+	checkBoundaries bool,
+) (
+	onBoundary [][]byte, notOnBoundary [][]byte,
+) {
 	split := term | uint64(0x1)<<shift
 	var upperMax uint64
 	if shift < 63 {
@@ -270,20 +314,27 @@ func origComputeGeoRange(term uint64, shift uint,
 		upperMax = 0xffffffffffffffff
 	}
 	lowerMax := split - 1
-	onBoundary, notOnBoundary = origRelateAndRecurse(term, lowerMax, shift,
-		sminLon, sminLat, smaxLon, smaxLat, checkBoundaries)
-	plusOnBoundary, plusNotOnBoundary := origRelateAndRecurse(split, upperMax, shift,
-		sminLon, sminLat, smaxLon, smaxLat, checkBoundaries)
+	onBoundary, notOnBoundary = origRelateAndRecurse(
+		term, lowerMax, shift,
+		sminLon, sminLat, smaxLon, smaxLat, checkBoundaries,
+	)
+	plusOnBoundary, plusNotOnBoundary := origRelateAndRecurse(
+		split, upperMax, shift,
+		sminLon, sminLat, smaxLon, smaxLat, checkBoundaries,
+	)
 	onBoundary = append(onBoundary, plusOnBoundary...)
 	notOnBoundary = append(notOnBoundary, plusNotOnBoundary...)
 	return
 }
 
 // original, non-optimized implementation of relateAndRecurse
-func origRelateAndRecurse(start, end uint64, res uint,
+func origRelateAndRecurse(
+	start, end uint64, res uint,
 	sminLon, sminLat, smaxLon, smaxLat float64,
-	checkBoundaries bool) (
-	onBoundary [][]byte, notOnBoundary [][]byte) {
+	checkBoundaries bool,
+) (
+	onBoundary [][]byte, notOnBoundary [][]byte,
+) {
 	minLon := geo.MortonUnhashLon(start)
 	minLat := geo.MortonUnhashLat(start)
 	maxLon := geo.MortonUnhashLon(end)
@@ -292,11 +343,15 @@ func origRelateAndRecurse(start, end uint64, res uint,
 	level := ((geo.GeoBits << 1) - res) >> 1
 
 	within := res%document.GeoPrecisionStep == 0 &&
-		geo.RectWithin(minLon, minLat, maxLon, maxLat,
-			sminLon, sminLat, smaxLon, smaxLat)
+		geo.RectWithin(
+			minLon, minLat, maxLon, maxLat,
+			sminLon, sminLat, smaxLon, smaxLat,
+		)
 	if within || (level == geoDetailLevel &&
-		geo.RectIntersects(minLon, minLat, maxLon, maxLat,
-			sminLon, sminLat, smaxLon, smaxLat)) {
+		geo.RectIntersects(
+			minLon, minLat, maxLon, maxLat,
+			sminLon, sminLat, smaxLon, smaxLat,
+		)) {
 		if !within && checkBoundaries {
 			return [][]byte{
 				numeric.MustNewPrefixCodedInt64(int64(start), res),
@@ -307,10 +362,14 @@ func origRelateAndRecurse(start, end uint64, res uint,
 				numeric.MustNewPrefixCodedInt64(int64(start), res),
 			}
 	} else if level < geoDetailLevel &&
-		geo.RectIntersects(minLon, minLat, maxLon, maxLat,
-			sminLon, sminLat, smaxLon, smaxLat) {
-		return origComputeGeoRange(start, res-1, sminLon, sminLat, smaxLon, smaxLat,
-			checkBoundaries)
+		geo.RectIntersects(
+			minLon, minLat, maxLon, maxLat,
+			sminLon, sminLat, smaxLon, smaxLat,
+		) {
+		return origComputeGeoRange(
+			start, res-1, sminLon, sminLat, smaxLon, smaxLat,
+			checkBoundaries,
+		)
 	}
 	return nil, nil
 }

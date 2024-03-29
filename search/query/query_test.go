@@ -20,8 +20,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/mapping"
 )
 
 var minNum = 5.1
@@ -130,21 +130,28 @@ func TestParseQuery(t *testing.T) {
 			input: []byte(`{"must":{"conjuncts": [{"match":"beer","field":"desc"}]},"should":{"disjuncts": [{"match":"water","field":"desc"}],"min":1.0},"must_not":{"disjuncts": [{"match":"devon","field":"desc"}]}}`),
 			output: func() Query {
 				q := NewBooleanQuery(
-					[]Query{func() Query {
-						q := NewMatchQuery("beer")
-						q.SetField("desc")
-						return q
-					}()},
-					[]Query{func() Query {
-						q := NewMatchQuery("water")
-						q.SetField("desc")
-						return q
-					}()},
-					[]Query{func() Query {
-						q := NewMatchQuery("devon")
-						q.SetField("desc")
-						return q
-					}()})
+					[]Query{
+						func() Query {
+							q := NewMatchQuery("beer")
+							q.SetField("desc")
+							return q
+						}(),
+					},
+					[]Query{
+						func() Query {
+							q := NewMatchQuery("water")
+							q.SetField("desc")
+							return q
+						}(),
+					},
+					[]Query{
+						func() Query {
+							q := NewMatchQuery("devon")
+							q.SetField("desc")
+							return q
+						}(),
+					},
+				)
 				q.SetMinShould(1)
 				return q
 			}(),
@@ -313,74 +320,96 @@ func TestQueryValidate(t *testing.T) {
 		},
 		{
 			query: NewBooleanQuery(
-				[]Query{func() Query {
-					q := NewMatchQuery("beer")
-					q.SetField("desc")
-					return q
-				}()},
-				[]Query{func() Query {
-					q := NewMatchQuery("water")
-					q.SetField("desc")
-					return q
-				}()},
-				[]Query{func() Query {
-					q := NewMatchQuery("devon")
-					q.SetField("desc")
-					return q
-				}()}),
+				[]Query{
+					func() Query {
+						q := NewMatchQuery("beer")
+						q.SetField("desc")
+						return q
+					}(),
+				},
+				[]Query{
+					func() Query {
+						q := NewMatchQuery("water")
+						q.SetField("desc")
+						return q
+					}(),
+				},
+				[]Query{
+					func() Query {
+						q := NewMatchQuery("devon")
+						q.SetField("desc")
+						return q
+					}(),
+				},
+			),
 		},
 		{
 			query: NewBooleanQuery(
 				nil,
 				nil,
-				[]Query{func() Query {
-					q := NewMatchQuery("devon")
-					q.SetField("desc")
-					return q
-				}()}),
+				[]Query{
+					func() Query {
+						q := NewMatchQuery("devon")
+						q.SetField("desc")
+						return q
+					}(),
+				},
+			),
 		},
 		{
 			query: NewBooleanQuery(
 				[]Query{},
 				[]Query{},
-				[]Query{func() Query {
-					q := NewMatchQuery("devon")
-					q.SetField("desc")
-					return q
-				}()}),
+				[]Query{
+					func() Query {
+						q := NewMatchQuery("devon")
+						q.SetField("desc")
+						return q
+					}(),
+				},
+			),
 		},
 		{
 			query: NewBooleanQuery(
 				nil,
 				nil,
-				nil),
+				nil,
+			),
 			err: true,
 		},
 		{
 			query: NewBooleanQuery(
 				[]Query{},
 				[]Query{},
-				[]Query{}),
+				[]Query{},
+			),
 			err: true,
 		},
 		{
 			query: func() Query {
 				q := NewBooleanQuery(
-					[]Query{func() Query {
-						q := NewMatchQuery("beer")
-						q.SetField("desc")
-						return q
-					}()},
-					[]Query{func() Query {
-						q := NewMatchQuery("water")
-						q.SetField("desc")
-						return q
-					}()},
-					[]Query{func() Query {
-						q := NewMatchQuery("devon")
-						q.SetField("desc")
-						return q
-					}()})
+					[]Query{
+						func() Query {
+							q := NewMatchQuery("beer")
+							q.SetField("desc")
+							return q
+						}(),
+					},
+					[]Query{
+						func() Query {
+							q := NewMatchQuery("water")
+							q.SetField("desc")
+							return q
+						}(),
+					},
+					[]Query{
+						func() Query {
+							q := NewMatchQuery("devon")
+							q.SetField("desc")
+							return q
+						}(),
+					},
+				)
 				q.SetMinShould(2)
 				return q
 			}(),
@@ -415,7 +444,8 @@ func TestDumpQuery(t *testing.T) {
 		t.Fatal(err)
 	}
 	s = strings.TrimSpace(s)
-	wanted := strings.TrimSpace(`{
+	wanted := strings.TrimSpace(
+		`{
   "must": {
     "conjuncts": [
       {
@@ -445,7 +475,8 @@ func TestDumpQuery(t *testing.T) {
     ],
     "min": 0
   }
-}`)
+}`,
+	)
 	if wanted != s {
 		t.Fatalf("query:\n%s\ndiffers from expected:\n%s", s, wanted)
 	}
@@ -492,10 +523,18 @@ func TestGeoShapeQuery(t *testing.T) {
 					  "relation": "intersects"
 			  }}`),
 			output: func() Query {
-				q, _ := NewGeoShapeQuery([][][][]float64{{{{74.1357421875, 30.600093873550072},
-					{67.0166015625, 21.57571893245848}, {68.8623046875, 9.145486056167277},
-					{83.1884765625, 4.083452772038619}, {88.9892578125, 22.67484735118852},
-					{74.1357421875, 30.600093873550072}}}}, geo.PolygonType, "intersects")
+				q, _ := NewGeoShapeQuery(
+					[][][][]float64{
+						{
+							{
+								{74.1357421875, 30.600093873550072},
+								{67.0166015625, 21.57571893245848}, {68.8623046875, 9.145486056167277},
+								{83.1884765625, 4.083452772038619}, {88.9892578125, 22.67484735118852},
+								{74.1357421875, 30.600093873550072},
+							},
+						},
+					}, geo.PolygonType, "intersects",
+				)
 				q.SetField("region")
 				return q
 			}(),
@@ -548,13 +587,24 @@ func TestGeoShapeQuery(t *testing.T) {
 					"relation": "contains"
 			  }}`),
 			output: func() Query {
-				q, _ := NewGeoShapeQuery([][][][]float64{
-					{{{77.58268117904663, 12.980513152175025},
-						{77.58147954940794, 12.977983107483992}, {77.58708000183104, 12.97886130773254},
-						{77.58268117904663, 12.980513152175025}}},
-					{{{77.5864577293396, 12.97762764459667}, {77.58879661560059, 12.975076660730531},
-						{77.59115695953369, 12.979216768855913}, {77.5864577293396, 12.97762764459667}}}},
-					geo.MultiPolygonType, "contains")
+				q, _ := NewGeoShapeQuery(
+					[][][][]float64{
+						{
+							{
+								{77.58268117904663, 12.980513152175025},
+								{77.58147954940794, 12.977983107483992}, {77.58708000183104, 12.97886130773254},
+								{77.58268117904663, 12.980513152175025},
+							},
+						},
+						{
+							{
+								{77.5864577293396, 12.97762764459667}, {77.58879661560059, 12.975076660730531},
+								{77.59115695953369, 12.979216768855913}, {77.5864577293396, 12.97762764459667},
+							},
+						},
+					},
+					geo.MultiPolygonType, "contains",
+				)
 				q.SetField("region")
 				return q
 			}(),
@@ -570,9 +620,12 @@ func TestGeoShapeQuery(t *testing.T) {
 					"relation": "contains"
 			  }}`),
 			output: func() Query {
-				q, _ := NewGeoShapeQuery([][][][]float64{
-					{{{77.58268117904663, 12.980513152175025}}}},
-					geo.PointType, "contains")
+				q, _ := NewGeoShapeQuery(
+					[][][][]float64{
+						{{{77.58268117904663, 12.980513152175025}}},
+					},
+					geo.PointType, "contains",
+				)
 				q.SetField("region")
 				return q
 			}(),
@@ -589,10 +642,17 @@ func TestGeoShapeQuery(t *testing.T) {
 					"relation": "intersects"
 			  }}`),
 			output: func() Query {
-				q, _ := NewGeoShapeQuery([][][][]float64{
-					{{{77.58268117904663, 12.980513152175025},
-						{77.5864577293396, 12.97762764459667}}}},
-					geo.MultiPointType, "intersects")
+				q, _ := NewGeoShapeQuery(
+					[][][][]float64{
+						{
+							{
+								{77.58268117904663, 12.980513152175025},
+								{77.5864577293396, 12.97762764459667},
+							},
+						},
+					},
+					geo.MultiPointType, "intersects",
+				)
 				q.SetField("region")
 				return q
 			}(),
@@ -609,10 +669,17 @@ func TestGeoShapeQuery(t *testing.T) {
 					"relation": "intersects"
 			  }}`),
 			output: func() Query {
-				q, _ := NewGeoShapeQuery([][][][]float64{
-					{{{77.58268117904663, 12.980513152175025},
-						{77.5864577293396, 12.97762764459667}}}},
-					geo.LineStringType, "intersects")
+				q, _ := NewGeoShapeQuery(
+					[][][][]float64{
+						{
+							{
+								{77.58268117904663, 12.980513152175025},
+								{77.5864577293396, 12.97762764459667},
+							},
+						},
+					},
+					geo.LineStringType, "intersects",
+				)
 				q.SetField("region")
 				return q
 			}(),
@@ -632,12 +699,21 @@ func TestGeoShapeQuery(t *testing.T) {
 					"relation": "intersects"
 			  }}`),
 			output: func() Query {
-				q, _ := NewGeoShapeQuery([][][][]float64{{
-					{{77.58268117904663, 12.980513152175025},
-						{77.5864577293396, 12.97762764459667}},
-					{{77.5864577293396, 12.97762764459667},
-						{77.58879661560059, 12.975076660730531}}}},
-					geo.MultiLineStringType, "intersects")
+				q, _ := NewGeoShapeQuery(
+					[][][][]float64{
+						{
+							{
+								{77.58268117904663, 12.980513152175025},
+								{77.5864577293396, 12.97762764459667},
+							},
+							{
+								{77.5864577293396, 12.97762764459667},
+								{77.58879661560059, 12.975076660730531},
+							},
+						},
+					},
+					geo.MultiLineStringType, "intersects",
+				)
 
 				q.SetField("region")
 				return q
@@ -655,10 +731,17 @@ func TestGeoShapeQuery(t *testing.T) {
 					"relation": "within"
 			  }}`),
 			output: func() Query {
-				q, _ := NewGeoShapeQuery([][][][]float64{{
-					{{77.58268117904663, 12.980513152175025},
-						{77.5864577293396, 12.97762764459667}}}},
-					geo.EnvelopeType, "within")
+				q, _ := NewGeoShapeQuery(
+					[][][][]float64{
+						{
+							{
+								{77.58268117904663, 12.980513152175025},
+								{77.5864577293396, 12.97762764459667},
+							},
+						},
+					},
+					geo.EnvelopeType, "within",
+				)
 
 				q.SetField("region")
 				return q
@@ -676,9 +759,12 @@ func TestGeoShapeQuery(t *testing.T) {
 					"relation": "within"
 			  }}`),
 			output: func() Query {
-				q, _ := NewGeoShapeCircleQuery([]float64{
-					77.58268117904663, 12.980513152175025},
-					"100m", "within")
+				q, _ := NewGeoShapeCircleQuery(
+					[]float64{
+						77.58268117904663, 12.980513152175025,
+					},
+					"100m", "within",
+				)
 
 				q.SetField("region")
 				return q
@@ -739,13 +825,21 @@ func TestGeoShapeQuery(t *testing.T) {
 					"relation": "contains"
 				  }}`),
 			output: func() Query {
-				q, _ := NewGeometryCollectionQuery([][][][][]float64{
-					{{{{77.59158611297607, 12.972002899506203}}}},
-					{{{{77.58851766586304, 12.973152950670608}, {77.58937597274779, 12.972212000113458}}}},
-					{{{{77.59055614471436, 12.974721193688106}, {77.58954763412476, 12.97350841995465},
-						{77.59141445159912, 12.973382960265356}, {77.59055614471436, 12.974721193688106}}}},
-				},
-					[]string{"point", "linestring", "polygon"}, "contains")
+				q, _ := NewGeometryCollectionQuery(
+					[][][][][]float64{
+						{{{{77.59158611297607, 12.972002899506203}}}},
+						{{{{77.58851766586304, 12.973152950670608}, {77.58937597274779, 12.972212000113458}}}},
+						{
+							{
+								{
+									{77.59055614471436, 12.974721193688106}, {77.58954763412476, 12.97350841995465},
+									{77.59141445159912, 12.973382960265356}, {77.59055614471436, 12.974721193688106},
+								},
+							},
+						},
+					},
+					[]string{"point", "linestring", "polygon"}, "contains",
+				)
 				q.SetField("region")
 				return q
 			}(),

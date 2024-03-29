@@ -18,8 +18,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -58,13 +58,24 @@ func TestGeoPointDistanceSearcher(t *testing.T) {
 			t.Fatal(err)
 		}
 		if !reflect.DeepEqual(got, test.want) {
-			t.Errorf("expected %v, got %v for %f %f %f %s", test.want, got, test.centerLon, test.centerLat, test.dist, test.field)
+			t.Errorf(
+				"expected %v, got %v for %f %f %f %s",
+				test.want,
+				got,
+				test.centerLon,
+				test.centerLat,
+				test.dist,
+				test.field,
+			)
 		}
 
 	}
 }
 
-func testGeoPointDistanceSearch(i index.IndexReader, centerLon, centerLat, dist float64, field string) ([]string, error) {
+func testGeoPointDistanceSearch(i index.IndexReader, centerLon, centerLat, dist float64, field string) (
+	[]string,
+	error,
+) {
 	var rv []string
 	gds, err := NewGeoPointDistanceSearcher(nil, i, centerLon, centerLat, dist, field, 1.0, search.SearcherOptions{})
 	if err != nil {
@@ -109,24 +120,34 @@ func TestGeoPointDistanceCompare(t *testing.T) {
 
 	for testi, test := range tests {
 		// compares the results from ComputeGeoRange with original, non-optimized version
-		compare := func(desc string,
-			minLon, minLat, maxLon, maxLat float64, checkBoundaries bool) {
+		compare := func(
+			desc string,
+			minLon, minLat, maxLon, maxLat float64, checkBoundaries bool,
+		) {
 			// do math to produce list of terms needed for this search
-			onBoundaryRes, offBoundaryRes, err := ComputeGeoRange(nil, 0, GeoBitsShift1Minus1,
-				minLon, minLat, maxLon, maxLat, checkBoundaries, nil, "")
+			onBoundaryRes, offBoundaryRes, err := ComputeGeoRange(
+				nil, 0, GeoBitsShift1Minus1,
+				minLon, minLat, maxLon, maxLat, checkBoundaries, nil, "",
+			)
 			if err != nil {
 				t.Fatal(err)
 			}
 
-			onBROrig, offBROrig := origComputeGeoRange(0, GeoBitsShift1Minus1,
-				minLon, minLat, maxLon, maxLat, checkBoundaries)
+			onBROrig, offBROrig := origComputeGeoRange(
+				0, GeoBitsShift1Minus1,
+				minLon, minLat, maxLon, maxLat, checkBoundaries,
+			)
 			if !reflect.DeepEqual(onBoundaryRes, onBROrig) {
-				t.Fatalf("testi: %d, test: %+v, desc: %s, onBoundaryRes != onBROrig,\n onBoundaryRes:%v,\n onBROrig: %v",
-					testi, test, desc, onBoundaryRes, onBROrig)
+				t.Fatalf(
+					"testi: %d, test: %+v, desc: %s, onBoundaryRes != onBROrig,\n onBoundaryRes:%v,\n onBROrig: %v",
+					testi, test, desc, onBoundaryRes, onBROrig,
+				)
 			}
 			if !reflect.DeepEqual(offBoundaryRes, offBROrig) {
-				t.Fatalf("testi: %d, test: %+v, desc: %s, offBoundaryRes, offBROrig,\n offBoundaryRes: %v,\n offBROrig: %v",
-					testi, test, desc, offBoundaryRes, offBROrig)
+				t.Fatalf(
+					"testi: %d, test: %+v, desc: %s, offBoundaryRes, offBROrig,\n offBoundaryRes: %v,\n offBROrig: %v",
+					testi, test, desc, offBoundaryRes, offBROrig,
+				)
 			}
 		}
 

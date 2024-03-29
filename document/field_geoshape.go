@@ -18,9 +18,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 	"github.com/blevesearch/geo/geojson"
 )
@@ -80,13 +80,15 @@ func (n *GeoShapeField) AnalyzedTokenFrequencies() index.TokenFrequencies {
 func (n *GeoShapeField) Analyze() {
 	// compute the bytes representation for the coordinates
 	tokens := make(analysis.TokenStream, 0)
-	tokens = append(tokens, &analysis.Token{
-		Start:    0,
-		End:      len(n.encodedValue),
-		Term:     n.encodedValue,
-		Position: 1,
-		Type:     analysis.AlphaNumeric,
-	})
+	tokens = append(
+		tokens, &analysis.Token{
+			Start:    0,
+			End:      len(n.encodedValue),
+			Term:     n.encodedValue,
+			Position: 1,
+			Type:     analysis.AlphaNumeric,
+		},
+	)
 
 	rti := geo.GetSpatialAnalyzerPlugin("s2")
 	terms := rti.GetIndexTokens(n.shape)
@@ -111,22 +113,30 @@ func (n *GeoShapeField) Value() []byte {
 }
 
 func (n *GeoShapeField) GoString() string {
-	return fmt.Sprintf("&document.GeoShapeField{Name:%s, Options: %s, Value: %s}",
-		n.name, n.options, n.value)
+	return fmt.Sprintf(
+		"&document.GeoShapeField{Name:%s, Options: %s, Value: %s}",
+		n.name, n.options, n.value,
+	)
 }
 
 func (n *GeoShapeField) NumPlainTextBytes() uint64 {
 	return n.numPlainTextBytes
 }
 
-func NewGeoShapeField(name string, arrayPositions []uint64,
-	coordinates [][][][]float64, typ string) *GeoShapeField {
-	return NewGeoShapeFieldWithIndexingOptions(name, arrayPositions,
-		coordinates, typ, DefaultGeoShapeIndexingOptions)
+func NewGeoShapeField(
+	name string, arrayPositions []uint64,
+	coordinates [][][][]float64, typ string,
+) *GeoShapeField {
+	return NewGeoShapeFieldWithIndexingOptions(
+		name, arrayPositions,
+		coordinates, typ, DefaultGeoShapeIndexingOptions,
+	)
 }
 
-func NewGeoShapeFieldFromBytes(name string, arrayPositions []uint64,
-	value []byte) *GeoShapeField {
+func NewGeoShapeFieldFromBytes(
+	name string, arrayPositions []uint64,
+	value []byte,
+) *GeoShapeField {
 	return &GeoShapeField{
 		name:              name,
 		arrayPositions:    arrayPositions,
@@ -136,9 +146,11 @@ func NewGeoShapeFieldFromBytes(name string, arrayPositions []uint64,
 	}
 }
 
-func NewGeoShapeFieldWithIndexingOptions(name string, arrayPositions []uint64,
+func NewGeoShapeFieldWithIndexingOptions(
+	name string, arrayPositions []uint64,
 	coordinates [][][][]float64, typ string,
-	options index.FieldIndexingOptions) *GeoShapeField {
+	options index.FieldIndexingOptions,
+) *GeoShapeField {
 	shape, encodedValue, err := geo.NewGeoJsonShape(coordinates, typ)
 	if err != nil {
 		return nil
@@ -167,9 +179,11 @@ func NewGeoShapeFieldWithIndexingOptions(name string, arrayPositions []uint64,
 	}
 }
 
-func NewGeometryCollectionFieldWithIndexingOptions(name string,
+func NewGeometryCollectionFieldWithIndexingOptions(
+	name string,
 	arrayPositions []uint64, coordinates [][][][][]float64, types []string,
-	options index.FieldIndexingOptions) *GeoShapeField {
+	options index.FieldIndexingOptions,
+) *GeoShapeField {
 	shape, encodedValue, err := geo.NewGeometryCollection(coordinates, types)
 	if err != nil {
 		return nil
@@ -198,9 +212,11 @@ func NewGeometryCollectionFieldWithIndexingOptions(name string,
 	}
 }
 
-func NewGeoCircleFieldWithIndexingOptions(name string, arrayPositions []uint64,
+func NewGeoCircleFieldWithIndexingOptions(
+	name string, arrayPositions []uint64,
 	centerPoint []float64, radius string,
-	options index.FieldIndexingOptions) *GeoShapeField {
+	options index.FieldIndexingOptions,
+) *GeoShapeField {
 	shape, encodedValue, err := geo.NewGeoCircleShape(centerPoint, radius)
 	if err != nil {
 		return nil

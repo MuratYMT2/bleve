@@ -17,11 +17,11 @@ package ansi
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/registry"
-	"github.com/blevesearch/bleve/v2/search/highlight"
-	ansiFormatter "github.com/blevesearch/bleve/v2/search/highlight/format/ansi"
-	simpleFragmenter "github.com/blevesearch/bleve/v2/search/highlight/fragmenter/simple"
-	simpleHighlighter "github.com/blevesearch/bleve/v2/search/highlight/highlighter/simple"
+	"github.com/MuratYMT2/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/search/highlight"
+	ansiFormatter "github.com/MuratYMT2/bleve/v2/search/highlight/format/ansi"
+	simpleFragmenter "github.com/MuratYMT2/bleve/v2/search/highlight/fragmenter/simple"
+	simpleHighlighter "github.com/MuratYMT2/bleve/v2/search/highlight/highlighter/simple"
 )
 
 const Name = "ansi"
@@ -41,7 +41,8 @@ func Constructor(config map[string]interface{}, cache *registry.Cache) (highligh
 	return simpleHighlighter.NewHighlighter(
 			fragmenter,
 			formatter,
-			simpleHighlighter.DefaultSeparator),
+			simpleHighlighter.DefaultSeparator,
+		),
 		nil
 }
 

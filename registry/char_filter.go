@@ -17,7 +17,7 @@ package registry
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis"
 )
 
 func RegisterCharFilter(name string, constructor CharFilterConstructor) {
@@ -61,7 +61,12 @@ func (c *CharFilterCache) CharFilterNamed(name string, cache *Cache) (analysis.C
 	return item.(analysis.CharFilter), nil
 }
 
-func (c *CharFilterCache) DefineCharFilter(name string, typ string, config map[string]interface{}, cache *Cache) (analysis.CharFilter, error) {
+func (c *CharFilterCache) DefineCharFilter(
+	name string,
+	typ string,
+	config map[string]interface{},
+	cache *Cache,
+) (analysis.CharFilter, error) {
 	item, err := c.DefineItem(name, typ, config, cache, CharFilterBuild)
 	if err != nil {
 		if err == ErrAlreadyDefined {

@@ -21,9 +21,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/searcher"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/searcher"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -59,8 +59,10 @@ func (q *KNNQuery) Boost() float64 {
 	return q.BoostVal.Value()
 }
 
-func (q *KNNQuery) Searcher(ctx context.Context, i index.IndexReader,
-	m mapping.IndexMapping, options search.SearcherOptions) (search.Searcher, error) {
+func (q *KNNQuery) Searcher(
+	ctx context.Context, i index.IndexReader,
+	m mapping.IndexMapping, options search.SearcherOptions,
+) (search.Searcher, error) {
 	fieldMapping := m.FieldMappingForPath(q.VectorField)
 	similarityMetric := fieldMapping.Similarity
 	if similarityMetric == "" {
@@ -69,6 +71,8 @@ func (q *KNNQuery) Searcher(ctx context.Context, i index.IndexReader,
 	if q.K <= 0 || len(q.Vector) == 0 {
 		return nil, fmt.Errorf("k must be greater than 0 and vector must be non-empty")
 	}
-	return searcher.NewKNNSearcher(ctx, i, m, options, q.VectorField,
-		q.Vector, q.K, q.BoostVal.Value(), similarityMetric)
+	return searcher.NewKNNSearcher(
+		ctx, i, m, options, q.VectorField,
+		q.Vector, q.K, q.BoostVal.Value(), similarityMetric,
+	)
 }

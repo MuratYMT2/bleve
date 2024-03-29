@@ -21,7 +21,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -118,12 +118,14 @@ func GetNewKNNCollectorStore(kArray []int64) *collectStoreKNN {
 	for knnIdx, k := range kArray {
 		// TODO - Check if the datatype of k can be made into an int instead of int64
 		idx := knnIdx
-		internalHeaps[idx] = getOptimalCollectorStore(int(k), 0, func(i, j *search.DocumentMatch) int {
-			if i.ScoreBreakdown[idx] < j.ScoreBreakdown[idx] {
-				return 1
-			}
-			return -1
-		})
+		internalHeaps[idx] = getOptimalCollectorStore(
+			int(k), 0, func(i, j *search.DocumentMatch) int {
+				if i.ScoreBreakdown[idx] < j.ScoreBreakdown[idx] {
+					return 1
+				}
+				return -1
+			},
+		)
 	}
 	return newStoreKNN(internalHeaps, kArray)
 }
@@ -222,17 +224,19 @@ func (hc *KNNCollector) Collect(ctx context.Context, searcher search.Searcher, r
 
 func (hc *KNNCollector) finalizeResults(r index.IndexReader) error {
 	var err error
-	hc.results, err = hc.knnStore.Final(func(doc *search.DocumentMatch) error {
-		if doc.ID == "" {
-			// look up the id since we need it for lookup
-			var err error
-			doc.ID, err = r.ExternalID(doc.IndexInternalID)
-			if err != nil {
-				return err
+	hc.results, err = hc.knnStore.Final(
+		func(doc *search.DocumentMatch) error {
+			if doc.ID == "" {
+				// look up the id since we need it for lookup
+				var err error
+				doc.ID, err = r.ExternalID(doc.IndexInternalID)
+				if err != nil {
+					return err
+				}
 			}
-		}
-		return nil
-	})
+			return nil
+		},
+	)
 	return err
 }
 

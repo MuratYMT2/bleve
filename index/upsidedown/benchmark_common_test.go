@@ -19,9 +19,9 @@ import (
 	"strconv"
 	"testing"
 
-	_ "github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/registry"
+	_ "github.com/MuratYMT2/bleve/v2/analysis/analyzer/standard"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/registry"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -44,7 +44,13 @@ func DestroyTest() error {
 	return os.RemoveAll("test")
 }
 
-func CommonBenchmarkIndex(b *testing.B, storeName string, storeConfig map[string]interface{}, destroy KVStoreDestroy, analysisWorkers int) {
+func CommonBenchmarkIndex(
+	b *testing.B,
+	storeName string,
+	storeConfig map[string]interface{},
+	destroy KVStoreDestroy,
+	analysisWorkers int,
+) {
 
 	cache := registry.NewCache()
 	analyzer, err := cache.AnalyzerNamed("standard")
@@ -88,7 +94,13 @@ func CommonBenchmarkIndex(b *testing.B, storeName string, storeConfig map[string
 	}
 }
 
-func CommonBenchmarkIndexBatch(b *testing.B, storeName string, storeConfig map[string]interface{}, destroy KVStoreDestroy, analysisWorkers, batchSize int) {
+func CommonBenchmarkIndexBatch(
+	b *testing.B,
+	storeName string,
+	storeConfig map[string]interface{},
+	destroy KVStoreDestroy,
+	analysisWorkers, batchSize int,
+) {
 
 	cache := registry.NewCache()
 	analyzer, err := cache.AnalyzerNamed("standard")
@@ -124,7 +136,14 @@ func CommonBenchmarkIndexBatch(b *testing.B, storeName string, storeConfig map[s
 				batch = index.NewBatch()
 			}
 			indexDocument := document.NewDocument("").
-				AddField(document.NewTextFieldWithAnalyzer("body", []uint64{}, []byte(benchmarkDocBodies[j%10]), analyzer))
+				AddField(
+					document.NewTextFieldWithAnalyzer(
+						"body",
+						[]uint64{},
+						[]byte(benchmarkDocBodies[j%10]),
+						analyzer,
+					),
+				)
 			indexDocument.SetID(strconv.Itoa(i) + "-" + strconv.Itoa(j))
 			batch.Update(indexDocument)
 		}

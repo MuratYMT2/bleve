@@ -27,12 +27,12 @@ import (
 	"testing"
 	"text/template"
 
-	"github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/index/scorch"
-	"github.com/blevesearch/bleve/v2/index/upsidedown"
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2"
+	"github.com/MuratYMT2/bleve/v2/index/scorch"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/boltdb"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
 )
 
 // Tests scorch indexer versus upsidedown/bolt indexer against various
@@ -304,8 +304,10 @@ func testVersusSearches(vt *VersusTest, searchTemplates []string, idxA, idxB ble
 			resA, errA := idxA.Search(&searchA)
 			resB, errB := idxB.Search(&searchB)
 			if errA != errB {
-				t.Errorf("search: (%d) %s,\n err mismatch, errA: %v, errB: %v",
-					i, bufBytes, errA, errB)
+				t.Errorf(
+					"search: (%d) %s,\n err mismatch, errA: %v, errB: %v",
+					i, bufBytes, errA, errB,
+				)
 			}
 
 			// Scores might have float64 vs float32 wobbles, so truncate precision.
@@ -351,10 +353,14 @@ func testVersusSearches(vt *VersusTest, searchTemplates []string, idxA, idxB ble
 			}
 
 			if !reflect.DeepEqual(hitsA, hitsB) {
-				t.Errorf("=========\nsearch: (%d) %s,\n res hits mismatch,\n len(hitsA): %d,\n len(hitsB): %d",
-					i, bufBytes, len(hitsA), len(hitsB))
-				t.Errorf("\n  hitsA: %#v,\n  hitsB: %#v",
-					hitsA, hitsB)
+				t.Errorf(
+					"=========\nsearch: (%d) %s,\n res hits mismatch,\n len(hitsA): %d,\n len(hitsB): %d",
+					i, bufBytes, len(hitsA), len(hitsB),
+				)
+				t.Errorf(
+					"\n  hitsA: %#v,\n  hitsB: %#v",
+					hitsA, hitsB,
+				)
 			}
 
 			resA.Hits = nil
@@ -365,8 +371,10 @@ func testVersusSearches(vt *VersusTest, searchTemplates []string, idxA, idxB ble
 			if !reflect.DeepEqual(resA, resB) {
 				resAj, _ := json.Marshal(resA)
 				resBj, _ := json.Marshal(resB)
-				t.Errorf("search: (%d) %s,\n  res mismatch,\n  resA: %s,\n  resB: %s",
-					i, bufBytes, resAj, resBj)
+				t.Errorf(
+					"search: (%d) %s,\n  res mismatch,\n  resA: %s,\n  resB: %s",
+					i, bufBytes, resAj, resBj,
+				)
 			}
 
 			if vt.Verbose > 0 {
@@ -398,9 +406,11 @@ func hitsById(res *bleve.SearchResult) map[string]*search.DocumentMatch {
 
 // -------------------------------------------------------
 
-func (vt *VersusTest) run(indexTypeA, kvStoreA, indexTypeB, kvStoreB string,
+func (vt *VersusTest) run(
+	indexTypeA, kvStoreA, indexTypeB, kvStoreB string,
 	cb func(versusTest *VersusTest, searchTemplates []string, idxA, idxB bleve.Index),
-	searchTemplates []string) {
+	searchTemplates []string,
+) {
 	if cb == nil {
 		cb = testVersusSearches
 	}

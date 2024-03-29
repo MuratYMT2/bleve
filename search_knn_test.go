@@ -28,11 +28,11 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/analysis/lang/en"
-	"github.com/blevesearch/bleve/v2/index/scorch"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/query"
+	"github.com/MuratYMT2/bleve/v2/analysis/lang/en"
+	"github.com/MuratYMT2/bleve/v2/index/scorch"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/query"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -136,7 +136,10 @@ func TestSimilaritySearchPartitionedIndex(t *testing.T) {
 
 			query := searchRequests[testCase.queryIndex]
 			query.AddKNNOperator(operator)
-			query.Sort = search.SortOrder{&search.SortScore{Desc: true}, &search.SortDocID{Desc: true}, &search.SortField{Desc: true, Field: "content"}}
+			query.Sort = search.SortOrder{
+				&search.SortScore{Desc: true}, &search.SortDocID{Desc: true},
+				&search.SortField{Desc: true, Field: "content"},
+			}
 			query.Explain = true
 
 			nameToIndex := createPartitionedIndex(documents, index, 1, testCase.mapping, t, false)
@@ -151,7 +154,14 @@ func TestSimilaritySearchPartitionedIndex(t *testing.T) {
 			}
 			cleanUp(t, nameToIndex)
 			index.indexes = make([]Index, 0)
-			nameToIndex = createPartitionedIndex(documents, index, testCase.numIndexPartitions, testCase.mapping, t, false)
+			nameToIndex = createPartitionedIndex(
+				documents,
+				index,
+				testCase.numIndexPartitions,
+				testCase.mapping,
+				t,
+				false,
+			)
 			experimentalResult, err := index.Search(query)
 			if err != nil {
 				cleanUp(t, nameToIndex)
@@ -165,7 +175,14 @@ func TestSimilaritySearchPartitionedIndex(t *testing.T) {
 			cleanUp(t, nameToIndex)
 
 			index.indexes = make([]Index, 0)
-			nameToIndex = createPartitionedIndex(documents, index, testCase.numIndexPartitions, testCase.mapping, t, true)
+			nameToIndex = createPartitionedIndex(
+				documents,
+				index,
+				testCase.numIndexPartitions,
+				testCase.mapping,
+				t,
+				true,
+			)
 			multiLevelIndexResult, err := index.Search(query)
 			if err != nil {
 				cleanUp(t, nameToIndex)
@@ -456,7 +473,12 @@ func cleanUp(t *testing.T, nameToIndex map[string]Index) {
 	}
 }
 
-func createChildIndex(docs []map[string]interface{}, mapping mapping.IndexMapping, t *testing.T, nameToIndex map[string]Index) Index {
+func createChildIndex(
+	docs []map[string]interface{},
+	mapping mapping.IndexMapping,
+	t *testing.T,
+	nameToIndex map[string]Index,
+) Index {
 	tmpIndexPath := createTmpIndexPath(t)
 	index, err := New(tmpIndexPath, mapping)
 	if err != nil {
@@ -479,8 +501,10 @@ func createChildIndex(docs []map[string]interface{}, mapping mapping.IndexMappin
 	return index
 }
 
-func createPartitionedIndex(documents []map[string]interface{}, index *indexAliasImpl, numPartitions int,
-	mapping mapping.IndexMapping, t *testing.T, multiLevel bool) map[string]Index {
+func createPartitionedIndex(
+	documents []map[string]interface{}, index *indexAliasImpl, numPartitions int,
+	mapping mapping.IndexMapping, t *testing.T, multiLevel bool,
+) map[string]Index {
 
 	partitionSize := len(documents) / numPartitions
 	extraDocs := len(documents) % numPartitions
@@ -613,9 +637,11 @@ func compareExplanation(a, b *search.Explanation) bool {
 
 // Function to sort the children slices
 func sortChildren(children []*search.Explanation) {
-	sort.Slice(children, func(i, j int) bool {
-		return children[i].Value < children[j].Value
-	})
+	sort.Slice(
+		children, func(i, j int) bool {
+			return children[i].Value < children[j].Value
+		},
+	)
 }
 
 // All hits from a hybrid search/knn search should not have
@@ -655,15 +681,31 @@ func finalHitsHaveValidIndex(hits []*search.DocumentMatch, indexes map[string]In
 	return true
 }
 
-func verifyResult(t *testing.T, controlResult *SearchResult, experimentalResult *SearchResult, testCaseNum int, verifyOnlyDocIDs bool) {
+func verifyResult(
+	t *testing.T,
+	controlResult *SearchResult,
+	experimentalResult *SearchResult,
+	testCaseNum int,
+	verifyOnlyDocIDs bool,
+) {
 	if controlResult.Hits.Len() == 0 || experimentalResult.Hits.Len() == 0 {
 		t.Fatalf("test case #%d failed: 0 hits returned", testCaseNum)
 	}
 	if len(controlResult.Hits) != len(experimentalResult.Hits) {
-		t.Fatalf("test case #%d failed: expected %d results, got %d", testCaseNum, len(controlResult.Hits), len(experimentalResult.Hits))
+		t.Fatalf(
+			"test case #%d failed: expected %d results, got %d",
+			testCaseNum,
+			len(controlResult.Hits),
+			len(experimentalResult.Hits),
+		)
 	}
 	if controlResult.Total != experimentalResult.Total {
-		t.Fatalf("test case #%d failed: expected total hits to be %d, got %d", testCaseNum, controlResult.Total, experimentalResult.Total)
+		t.Fatalf(
+			"test case #%d failed: expected total hits to be %d, got %d",
+			testCaseNum,
+			controlResult.Total,
+			experimentalResult.Total,
+		)
 	}
 	// KNN Metadata -> Score Breakdown and IndexNames MUST be omitted from the final hits
 	if !finalHitsOmitKNNMetadata(controlResult.Hits) || !finalHitsOmitKNNMetadata(experimentalResult.Hits) {
@@ -687,7 +729,12 @@ func verifyResult(t *testing.T, controlResult *SearchResult, experimentalResult 
 			experimentalMap[hit.ID] = struct{}{}
 		}
 		if len(controlMap) != len(experimentalMap) {
-			t.Fatalf("test case #%d failed: expected %d results, got %d", testCaseNum, len(controlMap), len(experimentalMap))
+			t.Fatalf(
+				"test case #%d failed: expected %d results, got %d",
+				testCaseNum,
+				len(controlMap),
+				len(experimentalMap),
+			)
 		}
 		for id := range controlMap {
 			if _, ok := experimentalMap[id]; !ok {
@@ -698,20 +745,43 @@ func verifyResult(t *testing.T, controlResult *SearchResult, experimentalResult 
 	}
 	for i := 0; i < len(controlResult.Hits); i++ {
 		if controlResult.Hits[i].ID != experimentalResult.Hits[i].ID {
-			t.Fatalf("test case #%d failed: expected hit %d to have id %s, got %s", testCaseNum, i, controlResult.Hits[i].ID, experimentalResult.Hits[i].ID)
+			t.Fatalf(
+				"test case #%d failed: expected hit %d to have id %s, got %s",
+				testCaseNum,
+				i,
+				controlResult.Hits[i].ID,
+				experimentalResult.Hits[i].ID,
+			)
 		}
 		// Truncate to 6 decimal places
 		actualScore := truncateScore(experimentalResult.Hits[i].Score)
 		expectScore := truncateScore(controlResult.Hits[i].Score)
 		if expectScore != actualScore {
-			t.Fatalf("test case #%d failed: expected hit %d to have score %f, got %f", testCaseNum, i, expectScore, actualScore)
+			t.Fatalf(
+				"test case #%d failed: expected hit %d to have score %f, got %f",
+				testCaseNum,
+				i,
+				expectScore,
+				actualScore,
+			)
 		}
 		if !compareExplanation(controlResult.Hits[i].Expl, experimentalResult.Hits[i].Expl) {
-			t.Fatalf("test case #%d failed: expected hit %d to have explanation %v, got %v", testCaseNum, i, controlResult.Hits[i].Expl, experimentalResult.Hits[i].Expl)
+			t.Fatalf(
+				"test case #%d failed: expected hit %d to have explanation %v, got %v",
+				testCaseNum,
+				i,
+				controlResult.Hits[i].Expl,
+				experimentalResult.Hits[i].Expl,
+			)
 		}
 	}
 	if truncateScore(controlResult.MaxScore) != truncateScore(experimentalResult.MaxScore) {
-		t.Fatalf("test case #%d: expected maxScore to be %f, got %f", testCaseNum, controlResult.MaxScore, experimentalResult.MaxScore)
+		t.Fatalf(
+			"test case #%d: expected maxScore to be %f, got %f",
+			testCaseNum,
+			controlResult.MaxScore,
+			experimentalResult.MaxScore,
+		)
 	}
 }
 
@@ -860,7 +930,10 @@ func TestSimilaritySearchMultipleSegments(t *testing.T) {
 				t.Fatal(err)
 			}
 			query := searchRequests[testCase.queryIndex]
-			query.Sort = search.SortOrder{&search.SortScore{Desc: true}, &search.SortDocID{Desc: true}, &search.SortField{Desc: false, Field: "content"}}
+			query.Sort = search.SortOrder{
+				&search.SortScore{Desc: true}, &search.SortDocID{Desc: true},
+				&search.SortField{Desc: false, Field: "content"},
+			}
 			query.AddKNNOperator(operator)
 			query.Explain = true
 
@@ -943,11 +1016,13 @@ func TestKNNOperator(t *testing.T) {
 
 	// Indexing just a few docs to populate index.
 	for i := 0; i < 10; i++ {
-		dataset = append(dataset, map[string]interface{}{
-			"type":    "vectorStuff",
-			"content": strconv.Itoa(i),
-			"vector":  getRandomVector(),
-		})
+		dataset = append(
+			dataset, map[string]interface{}{
+				"type":    "vectorStuff",
+				"content": strconv.Itoa(i),
+				"vector":  getRandomVector(),
+			},
+		)
 	}
 
 	indexMapping := NewIndexMapping()
@@ -1046,7 +1121,8 @@ func TestNestedVectors(t *testing.T) {
 	const k = 1 // one nearest neighbor
 	const vecFieldName = "vecData"
 
-	dataset := map[string]map[string]interface{}{ // docID -> Doc
+	dataset := map[string]map[string]interface{}{
+		// docID -> Doc
 		"doc1": {
 			vecFieldName: []float32{100, 100, 100},
 		},
@@ -1118,8 +1194,10 @@ func TestNestedVectors(t *testing.T) {
 		}
 
 		if res.Hits[0].ID != test.expectedDocID {
-			t.Fatalf("expected docID %s, got %s", test.expectedDocID,
-				res.Hits[0].ID)
+			t.Fatalf(
+				"expected docID %s, got %s", test.expectedDocID,
+				res.Hits[0].ID,
+			)
 		}
 	}
 }
@@ -1177,7 +1255,10 @@ func TestNumVecsStat(t *testing.T) {
 		if indexStatsMap, ok := indexStats.(map[string]interface{}); ok {
 			v1, ok := indexStatsMap["field:vector:num_vectors"].(uint64)
 			if !ok || v1 != uint64(300) {
-				t.Fatalf("mismatch in the number of vectors, expected 300, got %d", indexStatsMap["field:vector:num_vectors"])
+				t.Fatalf(
+					"mismatch in the number of vectors, expected 300, got %d",
+					indexStatsMap["field:vector:num_vectors"],
+				)
 			}
 		}
 	}

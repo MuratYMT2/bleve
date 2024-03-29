@@ -30,8 +30,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/MuratYMT2/bleve/v2/util"
 	"github.com/RoaringBitmap/roaring"
-	"github.com/blevesearch/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
 	bolt "go.etcd.io/bbolt"
@@ -86,10 +86,12 @@ type notificationChan chan struct{}
 func (s *Scorch) persisterLoop() {
 	defer func() {
 		if r := recover(); r != nil {
-			s.fireAsyncError(&AsyncPanicError{
-				Source: "persister",
-				Path:   s.path,
-			})
+			s.fireAsyncError(
+				&AsyncPanicError{
+					Source: "persister",
+					Path:   s.path,
+				},
+			)
 		}
 
 		s.asyncTasks.Done()
@@ -121,8 +123,10 @@ OUTER:
 		if ew != nil && ew.epoch > lastMergedEpoch {
 			lastMergedEpoch = ew.epoch
 		}
-		lastMergedEpoch, persistWatchers = s.pausePersisterForMergerCatchUp(lastPersistedEpoch,
-			lastMergedEpoch, persistWatchers, po)
+		lastMergedEpoch, persistWatchers = s.pausePersisterForMergerCatchUp(
+			lastPersistedEpoch,
+			lastMergedEpoch, persistWatchers, po,
+		)
 
 		var ourSnapshot *IndexSnapshot
 		var ourPersisted []chan error
@@ -239,8 +243,10 @@ OUTER:
 	}
 }
 
-func notifyMergeWatchers(lastPersistedEpoch uint64,
-	persistWatchers []*epochWatcher) []*epochWatcher {
+func notifyMergeWatchers(
+	lastPersistedEpoch uint64,
+	persistWatchers []*epochWatcher,
+) []*epochWatcher {
 	var watchersNext []*epochWatcher
 	for _, w := range persistWatchers {
 		if w.epoch < lastPersistedEpoch {
@@ -252,9 +258,11 @@ func notifyMergeWatchers(lastPersistedEpoch uint64,
 	return watchersNext
 }
 
-func (s *Scorch) pausePersisterForMergerCatchUp(lastPersistedEpoch uint64,
+func (s *Scorch) pausePersisterForMergerCatchUp(
+	lastPersistedEpoch uint64,
 	lastMergedEpoch uint64, persistWatchers []*epochWatcher,
-	po *persisterOptions) (uint64, []*epochWatcher) {
+	po *persisterOptions,
+) (uint64, []*epochWatcher) {
 
 	// First, let the watchers proceed if they lag behind
 	persistWatchers = notifyMergeWatchers(lastPersistedEpoch, persistWatchers)
@@ -338,8 +346,10 @@ func (s *Scorch) parsePersisterOptions() (*persisterOptions, error) {
 	return &po, nil
 }
 
-func (s *Scorch) persistSnapshot(snapshot *IndexSnapshot,
-	po *persisterOptions) error {
+func (s *Scorch) persistSnapshot(
+	snapshot *IndexSnapshot,
+	po *persisterOptions,
+) error {
 	// Perform in-memory segment merging only when the memory pressure is
 	// below the configured threshold, else the persister performs the
 	// direct persistence of segments.
@@ -365,7 +375,8 @@ var DefaultMinSegmentsForInMemoryMerge = 2
 // persistSnapshotMaybeMerge examines the snapshot and might merge and
 // persist the in-memory zap segments if there are enough of them
 func (s *Scorch) persistSnapshotMaybeMerge(snapshot *IndexSnapshot) (
-	bool, error) {
+	bool, error,
+) {
 	// collect the in-memory zap segments (SegmentBase instances)
 	var sbs []segment.Segment
 	var sbsDrops []*roaring.Bitmap
@@ -384,7 +395,8 @@ func (s *Scorch) persistSnapshotMaybeMerge(snapshot *IndexSnapshot) (
 	}
 
 	newSnapshot, newSegmentID, err := s.mergeSegmentBases(
-		snapshot, sbs, sbsDrops, sbsIndexes)
+		snapshot, sbs, sbsDrops, sbsIndexes,
+	)
 	if err != nil {
 		return false, err
 	}
@@ -421,12 +433,14 @@ func (s *Scorch) persistSnapshotMaybeMerge(snapshot *IndexSnapshot) (
 	// append to the equiv the new segment
 	for _, segment := range newSnapshot.segment {
 		if segment.id == newSegmentID {
-			equiv.segment = append(equiv.segment, &SegmentSnapshot{
-				id:      newSegmentID,
-				segment: segment.segment,
-				deleted: nil, // nil since merging handled deletions
-				stats:   nil,
-			})
+			equiv.segment = append(
+				equiv.segment, &SegmentSnapshot{
+					id:      newSegmentID,
+					segment: segment.segment,
+					deleted: nil, // nil since merging handled deletions
+					stats:   nil,
+				},
+			)
 			break
 		}
 	}
@@ -467,8 +481,10 @@ func copyToDirectory(srcPath string, d index.Directory) (int64, error) {
 	return io.Copy(dest, source)
 }
 
-func persistToDirectory(seg segment.UnpersistedSegment, d index.Directory,
-	path string) error {
+func persistToDirectory(
+	seg segment.UnpersistedSegment, d index.Directory,
+	path string,
+) error {
 	if d == nil {
 		return seg.Persist(path)
 	}
@@ -489,9 +505,12 @@ func persistToDirectory(seg segment.UnpersistedSegment, d index.Directory,
 	return err
 }
 
-func prepareBoltSnapshot(snapshot *IndexSnapshot, tx *bolt.Tx, path string,
-	segPlugin SegmentPlugin, d index.Directory) (
-	[]string, map[uint64]string, error) {
+func prepareBoltSnapshot(
+	snapshot *IndexSnapshot, tx *bolt.Tx, path string,
+	segPlugin SegmentPlugin, d index.Directory,
+) (
+	[]string, map[uint64]string, error,
+) {
 	snapshotsBucket, err := tx.CreateBucketIfNotExists(boltSnapshotsBucket)
 	if err != nil {
 		return nil, nil, err
@@ -722,74 +741,78 @@ var boltStatsKey = []byte("stats")
 var TotBytesWrittenKey = []byte("TotBytesWritten")
 
 func (s *Scorch) loadFromBolt() error {
-	return s.rootBolt.View(func(tx *bolt.Tx) error {
-		snapshots := tx.Bucket(boltSnapshotsBucket)
-		if snapshots == nil {
+	return s.rootBolt.View(
+		func(tx *bolt.Tx) error {
+			snapshots := tx.Bucket(boltSnapshotsBucket)
+			if snapshots == nil {
+				return nil
+			}
+			foundRoot := false
+			c := snapshots.Cursor()
+			for k, _ := c.Last(); k != nil; k, _ = c.Prev() {
+				_, snapshotEpoch, err := decodeUvarintAscending(k)
+				if err != nil {
+					log.Printf("unable to parse segment epoch %x, continuing", k)
+					continue
+				}
+				if foundRoot {
+					s.AddEligibleForRemoval(snapshotEpoch)
+					continue
+				}
+				snapshot := snapshots.Bucket(k)
+				if snapshot == nil {
+					log.Printf("snapshot key, but bucket missing %x, continuing", k)
+					s.AddEligibleForRemoval(snapshotEpoch)
+					continue
+				}
+				indexSnapshot, err := s.loadSnapshot(snapshot)
+				if err != nil {
+					log.Printf("unable to load snapshot, %v, continuing", err)
+					s.AddEligibleForRemoval(snapshotEpoch)
+					continue
+				}
+				indexSnapshot.epoch = snapshotEpoch
+				// set the nextSegmentID
+				s.nextSegmentID, err = s.maxSegmentIDOnDisk()
+				if err != nil {
+					return err
+				}
+				s.nextSegmentID++
+				s.rootLock.Lock()
+				s.nextSnapshotEpoch = snapshotEpoch + 1
+				rootPrev := s.root
+				s.root = indexSnapshot
+				s.rootLock.Unlock()
+
+				if rootPrev != nil {
+					_ = rootPrev.DecRef()
+				}
+
+				foundRoot = true
+			}
 			return nil
-		}
-		foundRoot := false
-		c := snapshots.Cursor()
-		for k, _ := c.Last(); k != nil; k, _ = c.Prev() {
-			_, snapshotEpoch, err := decodeUvarintAscending(k)
-			if err != nil {
-				log.Printf("unable to parse segment epoch %x, continuing", k)
-				continue
-			}
-			if foundRoot {
-				s.AddEligibleForRemoval(snapshotEpoch)
-				continue
-			}
-			snapshot := snapshots.Bucket(k)
-			if snapshot == nil {
-				log.Printf("snapshot key, but bucket missing %x, continuing", k)
-				s.AddEligibleForRemoval(snapshotEpoch)
-				continue
-			}
-			indexSnapshot, err := s.loadSnapshot(snapshot)
-			if err != nil {
-				log.Printf("unable to load snapshot, %v, continuing", err)
-				s.AddEligibleForRemoval(snapshotEpoch)
-				continue
-			}
-			indexSnapshot.epoch = snapshotEpoch
-			// set the nextSegmentID
-			s.nextSegmentID, err = s.maxSegmentIDOnDisk()
-			if err != nil {
-				return err
-			}
-			s.nextSegmentID++
-			s.rootLock.Lock()
-			s.nextSnapshotEpoch = snapshotEpoch + 1
-			rootPrev := s.root
-			s.root = indexSnapshot
-			s.rootLock.Unlock()
-
-			if rootPrev != nil {
-				_ = rootPrev.DecRef()
-			}
-
-			foundRoot = true
-		}
-		return nil
-	})
+		},
+	)
 }
 
 // LoadSnapshot loads the segment with the specified epoch
 // NOTE: this is currently ONLY intended to be used by the command-line tool
 func (s *Scorch) LoadSnapshot(epoch uint64) (rv *IndexSnapshot, err error) {
-	err = s.rootBolt.View(func(tx *bolt.Tx) error {
-		snapshots := tx.Bucket(boltSnapshotsBucket)
-		if snapshots == nil {
-			return nil
-		}
-		snapshotKey := encodeUvarintAscending(nil, epoch)
-		snapshot := snapshots.Bucket(snapshotKey)
-		if snapshot == nil {
-			return fmt.Errorf("snapshot with epoch: %v - doesn't exist", epoch)
-		}
-		rv, err = s.loadSnapshot(snapshot)
-		return err
-	})
+	err = s.rootBolt.View(
+		func(tx *bolt.Tx) error {
+			snapshots := tx.Bucket(boltSnapshotsBucket)
+			if snapshots == nil {
+				return nil
+			}
+			snapshotKey := encodeUvarintAscending(nil, epoch)
+			snapshot := snapshots.Bucket(snapshotKey)
+			if snapshot == nil {
+				return fmt.Errorf("snapshot with epoch: %v - doesn't exist", epoch)
+			}
+			rv, err = s.loadSnapshot(snapshot)
+			return err
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -814,23 +837,27 @@ func (s *Scorch) loadSnapshot(snapshot *bolt.Bucket) (*IndexSnapshot, error) {
 	}
 	segmentType := string(metaBucket.Get(boltMetaDataSegmentTypeKey))
 	segmentVersion := binary.BigEndian.Uint32(
-		metaBucket.Get(boltMetaDataSegmentVersionKey))
+		metaBucket.Get(boltMetaDataSegmentVersionKey),
+	)
 	err := s.loadSegmentPlugin(segmentType, segmentVersion)
 	if err != nil {
 		_ = rv.DecRef()
 		return nil, fmt.Errorf(
-			"unable to load correct segment wrapper: %v", err)
+			"unable to load correct segment wrapper: %v", err,
+		)
 	}
 	var running uint64
 	c := snapshot.Cursor()
 	for k, _ := c.First(); k != nil; k, _ = c.Next() {
 		if k[0] == boltInternalKey[0] {
 			internalBucket := snapshot.Bucket(k)
-			err := internalBucket.ForEach(func(key []byte, val []byte) error {
-				copiedVal := append([]byte(nil), val...)
-				rv.internal[string(key)] = copiedVal
-				return nil
-			})
+			err := internalBucket.ForEach(
+				func(key []byte, val []byte) error {
+					copiedVal := append([]byte(nil), val...)
+					rv.internal[string(key)] = copiedVal
+					return nil
+				},
+			)
 			if err != nil {
 				_ = rv.DecRef()
 				return nil, err
@@ -939,8 +966,10 @@ var RollbackSamplingInterval = 0 * time.Minute
 // a infrequent/sparse mutation scenario
 var RollbackRetentionFactor = float64(0.5)
 
-func getTimeSeriesSnapshots(maxDataPoints int, interval time.Duration,
-	snapshots []*snapshotMetaData) (int, map[uint64]time.Time) {
+func getTimeSeriesSnapshots(
+	maxDataPoints int, interval time.Duration,
+	snapshots []*snapshotMetaData,
+) (int, map[uint64]time.Time) {
 	if interval == 0 {
 		return len(snapshots), map[uint64]time.Time{}
 	}
@@ -985,12 +1014,16 @@ func getTimeSeriesSnapshots(maxDataPoints int, interval time.Duration,
 // getProtectedEpochs aims to fetch the epochs keep based on a timestamp basis.
 // It tries to get NumSnapshotsToKeep snapshots, each of which are separated
 // by a time duration of RollbackSamplingInterval.
-func getProtectedSnapshots(rollbackSamplingInterval time.Duration,
+func getProtectedSnapshots(
+	rollbackSamplingInterval time.Duration,
 	numSnapshotsToKeep int,
-	persistedSnapshots []*snapshotMetaData) map[uint64]time.Time {
+	persistedSnapshots []*snapshotMetaData,
+) map[uint64]time.Time {
 
-	lastPoint, protectedEpochs := getTimeSeriesSnapshots(numSnapshotsToKeep,
-		rollbackSamplingInterval, persistedSnapshots)
+	lastPoint, protectedEpochs := getTimeSeriesSnapshots(
+		numSnapshotsToKeep,
+		rollbackSamplingInterval, persistedSnapshots,
+	)
 	if len(protectedEpochs) < numSnapshotsToKeep {
 		numSnapshotsNeeded := numSnapshotsToKeep - len(protectedEpochs)
 		// we protected the contiguous snapshots from the last point in time series
@@ -1010,15 +1043,19 @@ func newCheckPoints(snapshots map[uint64]time.Time) []*snapshotMetaData {
 		keys = append(keys, k)
 	}
 
-	sort.SliceStable(keys, func(i, j int) bool {
-		return snapshots[keys[i]].Sub(snapshots[keys[j]]) > 0
-	})
+	sort.SliceStable(
+		keys, func(i, j int) bool {
+			return snapshots[keys[i]].Sub(snapshots[keys[j]]) > 0
+		},
+	)
 
 	for _, key := range keys {
-		rv = append(rv, &snapshotMetaData{
-			epoch:     key,
-			timeStamp: snapshots[key],
-		})
+		rv = append(
+			rv, &snapshotMetaData{
+				epoch:     key,
+				timeStamp: snapshots[key],
+			},
+		)
 	}
 
 	return rv
@@ -1037,8 +1074,10 @@ func (s *Scorch) removeOldBoltSnapshots() (numRemoved int, err error) {
 		return 0, nil
 	}
 
-	protectedSnapshots := getProtectedSnapshots(s.rollbackSamplingInterval,
-		s.numSnapshotsToKeep, persistedSnapshots)
+	protectedSnapshots := getProtectedSnapshots(
+		s.rollbackSamplingInterval,
+		s.numSnapshotsToKeep, persistedSnapshots,
+	)
 
 	var epochsToRemove []uint64
 	var newEligible []uint64
@@ -1154,11 +1193,17 @@ func (s *Scorch) removeOldZapFiles() error {
 // latest contiguous snapshot which is a poor pattern in the rollback checkpoints.
 // Hence we try to retain atleast retentionFactor portion worth of old snapshots
 // in such a scenario using the following function
-func getBoundaryCheckPoint(retentionFactor float64,
-	checkPoints []*snapshotMetaData, timeStamp time.Time) time.Time {
+func getBoundaryCheckPoint(
+	retentionFactor float64,
+	checkPoints []*snapshotMetaData, timeStamp time.Time,
+) time.Time {
 	if checkPoints != nil {
-		boundary := checkPoints[int(math.Floor(float64(len(checkPoints))*
-			retentionFactor))]
+		boundary := checkPoints[int(
+			math.Floor(
+				float64(len(checkPoints))*
+					retentionFactor,
+			),
+		)]
 		if timeStamp.Sub(boundary.timeStamp) < 0 {
 			// too less checkPoints would be left.
 			return boundary.timeStamp
@@ -1177,119 +1222,131 @@ func (s *Scorch) rootBoltSnapshotMetaData() ([]*snapshotMetaData, error) {
 	currTime := time.Now()
 	expirationDuration := time.Duration(s.numSnapshotsToKeep) * s.rollbackSamplingInterval
 
-	err := s.rootBolt.View(func(tx *bolt.Tx) error {
-		snapshots := tx.Bucket(boltSnapshotsBucket)
-		if snapshots == nil {
-			return nil
-		}
-		sc := snapshots.Cursor()
-		var found bool
-		for sk, _ := sc.Last(); sk != nil; sk, _ = sc.Prev() {
-			_, snapshotEpoch, err := decodeUvarintAscending(sk)
-			if err != nil {
-				continue
+	err := s.rootBolt.View(
+		func(tx *bolt.Tx) error {
+			snapshots := tx.Bucket(boltSnapshotsBucket)
+			if snapshots == nil {
+				return nil
 			}
-
-			if expirationDuration == 0 {
-				rv = append(rv, &snapshotMetaData{
-					epoch: snapshotEpoch,
-				})
-				continue
-			}
-
-			snapshot := snapshots.Bucket(sk)
-			metaBucket := snapshot.Bucket(boltMetaDataKey)
-			if metaBucket == nil {
-				continue
-			}
-			timeStampBytes := metaBucket.Get(boltMetaDataTimeStamp)
-			var timeStamp time.Time
-			err = timeStamp.UnmarshalText(timeStampBytes)
-			if err != nil {
-				continue
-			}
-			// Don't keep snapshots older than
-			// expiration duration (numSnapshotsToKeep *
-			// rollbackSamplingInterval, by default)
-			if currTime.Sub(timeStamp) <= expirationDuration {
-				rv = append(rv, &snapshotMetaData{
-					epoch:     snapshotEpoch,
-					timeStamp: timeStamp,
-				})
-			} else {
-				if !found {
-					found = true
-					boundary := getBoundaryCheckPoint(s.rollbackRetentionFactor,
-						s.checkPoints, timeStamp)
-					expirationDuration = currTime.Sub(boundary)
+			sc := snapshots.Cursor()
+			var found bool
+			for sk, _ := sc.Last(); sk != nil; sk, _ = sc.Prev() {
+				_, snapshotEpoch, err := decodeUvarintAscending(sk)
+				if err != nil {
 					continue
 				}
-				k := encodeUvarintAscending(nil, snapshotEpoch)
-				err = snapshots.DeleteBucket(k)
-				if err == bolt.ErrBucketNotFound {
-					err = nil
-				}
-			}
 
-		}
-		return nil
-	})
+				if expirationDuration == 0 {
+					rv = append(
+						rv, &snapshotMetaData{
+							epoch: snapshotEpoch,
+						},
+					)
+					continue
+				}
+
+				snapshot := snapshots.Bucket(sk)
+				metaBucket := snapshot.Bucket(boltMetaDataKey)
+				if metaBucket == nil {
+					continue
+				}
+				timeStampBytes := metaBucket.Get(boltMetaDataTimeStamp)
+				var timeStamp time.Time
+				err = timeStamp.UnmarshalText(timeStampBytes)
+				if err != nil {
+					continue
+				}
+				// Don't keep snapshots older than
+				// expiration duration (numSnapshotsToKeep *
+				// rollbackSamplingInterval, by default)
+				if currTime.Sub(timeStamp) <= expirationDuration {
+					rv = append(
+						rv, &snapshotMetaData{
+							epoch:     snapshotEpoch,
+							timeStamp: timeStamp,
+						},
+					)
+				} else {
+					if !found {
+						found = true
+						boundary := getBoundaryCheckPoint(
+							s.rollbackRetentionFactor,
+							s.checkPoints, timeStamp,
+						)
+						expirationDuration = currTime.Sub(boundary)
+						continue
+					}
+					k := encodeUvarintAscending(nil, snapshotEpoch)
+					err = snapshots.DeleteBucket(k)
+					if err == bolt.ErrBucketNotFound {
+						err = nil
+					}
+				}
+
+			}
+			return nil
+		},
+	)
 	return rv, err
 }
 
 func (s *Scorch) RootBoltSnapshotEpochs() ([]uint64, error) {
 	var rv []uint64
-	err := s.rootBolt.View(func(tx *bolt.Tx) error {
-		snapshots := tx.Bucket(boltSnapshotsBucket)
-		if snapshots == nil {
-			return nil
-		}
-		sc := snapshots.Cursor()
-		for sk, _ := sc.Last(); sk != nil; sk, _ = sc.Prev() {
-			_, snapshotEpoch, err := decodeUvarintAscending(sk)
-			if err != nil {
-				continue
+	err := s.rootBolt.View(
+		func(tx *bolt.Tx) error {
+			snapshots := tx.Bucket(boltSnapshotsBucket)
+			if snapshots == nil {
+				return nil
 			}
-			rv = append(rv, snapshotEpoch)
-		}
-		return nil
-	})
+			sc := snapshots.Cursor()
+			for sk, _ := sc.Last(); sk != nil; sk, _ = sc.Prev() {
+				_, snapshotEpoch, err := decodeUvarintAscending(sk)
+				if err != nil {
+					continue
+				}
+				rv = append(rv, snapshotEpoch)
+			}
+			return nil
+		},
+	)
 	return rv, err
 }
 
 // Returns the *.zap file names that are listed in the rootBolt.
 func (s *Scorch) loadZapFileNames() (map[string]struct{}, error) {
 	rv := map[string]struct{}{}
-	err := s.rootBolt.View(func(tx *bolt.Tx) error {
-		snapshots := tx.Bucket(boltSnapshotsBucket)
-		if snapshots == nil {
+	err := s.rootBolt.View(
+		func(tx *bolt.Tx) error {
+			snapshots := tx.Bucket(boltSnapshotsBucket)
+			if snapshots == nil {
+				return nil
+			}
+			sc := snapshots.Cursor()
+			for sk, _ := sc.First(); sk != nil; sk, _ = sc.Next() {
+				snapshot := snapshots.Bucket(sk)
+				if snapshot == nil {
+					continue
+				}
+				segc := snapshot.Cursor()
+				for segk, _ := segc.First(); segk != nil; segk, _ = segc.Next() {
+					if segk[0] == boltInternalKey[0] {
+						continue
+					}
+					segmentBucket := snapshot.Bucket(segk)
+					if segmentBucket == nil {
+						continue
+					}
+					pathBytes := segmentBucket.Get(boltPathKey)
+					if pathBytes == nil {
+						continue
+					}
+					pathString := string(pathBytes)
+					rv[string(pathString)] = struct{}{}
+				}
+			}
 			return nil
-		}
-		sc := snapshots.Cursor()
-		for sk, _ := sc.First(); sk != nil; sk, _ = sc.Next() {
-			snapshot := snapshots.Bucket(sk)
-			if snapshot == nil {
-				continue
-			}
-			segc := snapshot.Cursor()
-			for segk, _ := segc.First(); segk != nil; segk, _ = segc.Next() {
-				if segk[0] == boltInternalKey[0] {
-					continue
-				}
-				segmentBucket := snapshot.Bucket(segk)
-				if segmentBucket == nil {
-					continue
-				}
-				pathBytes := segmentBucket.Get(boltPathKey)
-				if pathBytes == nil {
-					continue
-				}
-				pathString := string(pathBytes)
-				rv[string(pathString)] = struct{}{}
-			}
-		}
-		return nil
-	})
+		},
+	)
 
 	return rv, err
 }

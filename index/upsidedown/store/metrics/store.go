@@ -25,8 +25,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/registry"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/util"
 	"github.com/blevesearch/go-metrics"
 	store "github.com/blevesearch/upsidedown_store_api"
 )
@@ -55,8 +55,10 @@ func New(mo store.MergeOperator, config map[string]interface{}) (store.KVStore, 
 
 	name, ok := config["kvStoreName_actual"].(string)
 	if !ok || name == "" {
-		return nil, fmt.Errorf("metrics: missing kvStoreName_actual,"+
-			" config: %#v", config)
+		return nil, fmt.Errorf(
+			"metrics: missing kvStoreName_actual,"+
+				" config: %#v", config,
+		)
 	}
 
 	if name == Name {
@@ -65,8 +67,10 @@ func New(mo store.MergeOperator, config map[string]interface{}) (store.KVStore, 
 
 	ctr := registry.KVStoreConstructorByName(name)
 	if ctr == nil {
-		return nil, fmt.Errorf("metrics: no kv store constructor,"+
-			" kvStoreName_actual: %s", name)
+		return nil, fmt.Errorf(
+			"metrics: no kv store constructor,"+
+				" kvStoreName_actual: %s", name,
+		)
 	}
 
 	kvs, err := ctr(mo, config)

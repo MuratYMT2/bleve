@@ -19,8 +19,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/blevesearch/bleve/v2/index/upsidedown"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -101,8 +101,10 @@ func (i *indexMeta) CopyTo(d index.Directory) (err error) {
 
 	w, err := d.GetWriter(metaFilename)
 	if w == nil || err != nil {
-		return fmt.Errorf("invalid writer for file: %s, err: %v",
-			metaFilename, err)
+		return fmt.Errorf(
+			"invalid writer for file: %s, err: %v",
+			metaFilename, err,
+		)
 	}
 	defer w.Close()
 

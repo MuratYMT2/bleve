@@ -17,11 +17,11 @@ package html
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/registry"
-	"github.com/blevesearch/bleve/v2/search/highlight"
-	htmlFormatter "github.com/blevesearch/bleve/v2/search/highlight/format/html"
-	simpleFragmenter "github.com/blevesearch/bleve/v2/search/highlight/fragmenter/simple"
-	simpleHighlighter "github.com/blevesearch/bleve/v2/search/highlight/highlighter/simple"
+	"github.com/MuratYMT2/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/search/highlight"
+	htmlFormatter "github.com/MuratYMT2/bleve/v2/search/highlight/format/html"
+	simpleFragmenter "github.com/MuratYMT2/bleve/v2/search/highlight/fragmenter/simple"
+	simpleHighlighter "github.com/MuratYMT2/bleve/v2/search/highlight/highlighter/simple"
 )
 
 const Name = "html"
@@ -41,7 +41,8 @@ func Constructor(config map[string]interface{}, cache *registry.Cache) (highligh
 	return simpleHighlighter.NewHighlighter(
 			fragmenter,
 			formatter,
-			simpleHighlighter.DefaultSeparator),
+			simpleHighlighter.DefaultSeparator,
+		),
 		nil
 }
 

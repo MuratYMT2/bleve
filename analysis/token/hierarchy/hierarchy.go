@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 const Name = "hierarchy"
@@ -50,18 +50,21 @@ func (s *HierarchyFilter) Filter(input analysis.TokenStream) analysis.TokenStrea
 }
 
 func (s *HierarchyFilter) buildToken(tokenStream analysis.TokenStream, soFar [][]byte, part []byte) (
-	[][]byte, analysis.TokenStream) {
+	[][]byte, analysis.TokenStream,
+) {
 
 	soFar = append(soFar, part)
 	term := bytes.Join(soFar, s.delimiter)
 
-	tokenStream = append(tokenStream, &analysis.Token{
-		Type:     analysis.Shingle,
-		Term:     term,
-		Start:    0,
-		End:      len(term),
-		Position: 1,
-	})
+	tokenStream = append(
+		tokenStream, &analysis.Token{
+			Type:     analysis.Shingle,
+			Term:     term,
+			Start:    0,
+			End:      len(term),
+			Position: 1,
+		},
+	)
 
 	return soFar, tokenStream
 }

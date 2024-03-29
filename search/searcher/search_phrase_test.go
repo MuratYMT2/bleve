@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -37,7 +37,15 @@ func TestPhraseSearch(t *testing.T) {
 	}()
 
 	soptions := search.SearcherOptions{Explain: true, IncludeTermVectors: true}
-	phraseSearcher, err := NewPhraseSearcher(nil, twoDocIndexReader, []string{"angst", "beer"}, 0, "desc", 1.0, soptions)
+	phraseSearcher, err := NewPhraseSearcher(
+		nil,
+		twoDocIndexReader,
+		[]string{"angst", "beer"},
+		0,
+		"desc",
+		1.0,
+		soptions,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -56,7 +64,15 @@ func TestPhraseSearch(t *testing.T) {
 					Score:           1.0807601687084403,
 				},
 			},
-			locations:  map[string]map[string][]search.Location{"desc": map[string][]search.Location{"beer": []search.Location{search.Location{Pos: 2, Start: 6, End: 10}}, "angst": []search.Location{search.Location{Pos: 1, Start: 0, End: 5}}}},
+			locations: map[string]map[string][]search.Location{
+				"desc": map[string][]search.Location{
+					"beer": []search.Location{
+						search.Location{
+							Pos: 2, Start: 6, End: 10,
+						},
+					}, "angst": []search.Location{search.Location{Pos: 1, Start: 0, End: 5}},
+				},
+			},
 			fieldterms: [][2]string{[2]string{"desc", "beer"}, [2]string{"desc", "angst"}},
 		},
 	}
@@ -78,21 +94,49 @@ func TestPhraseSearch(t *testing.T) {
 			next.Complete(nil)
 			if i < len(test.results) {
 				if !next.IndexInternalID.Equals(test.results[i].IndexInternalID) {
-					t.Errorf("expected result %d to have id %s got %s for test %d\n", i, test.results[i].IndexInternalID, next.IndexInternalID, testIndex)
+					t.Errorf(
+						"expected result %d to have id %s got %s for test %d\n",
+						i,
+						test.results[i].IndexInternalID,
+						next.IndexInternalID,
+						testIndex,
+					)
 				}
 				if next.Score != test.results[i].Score {
-					t.Errorf("expected result %d to have score %v got %v for test %d\n", i, test.results[i].Score, next.Score, testIndex)
+					t.Errorf(
+						"expected result %d to have score %v got %v for test %d\n",
+						i,
+						test.results[i].Score,
+						next.Score,
+						testIndex,
+					)
 					t.Logf("scoring explanation: %s\n", next.Expl)
 				}
 				for _, ft := range test.fieldterms {
 					locs := next.Locations[ft[0]][ft[1]]
 					explocs := test.locations[ft[0]][ft[1]]
 					if len(explocs) != len(locs) {
-						t.Fatalf("expected result %d to have %d Locations (%#v) but got %d (%#v) for test %d with field %q and term %q\n", i, len(explocs), explocs, len(locs), locs, testIndex, ft[0], ft[1])
+						t.Fatalf(
+							"expected result %d to have %d Locations (%#v) but got %d (%#v) for test %d with field %q and term %q\n",
+							i,
+							len(explocs),
+							explocs,
+							len(locs),
+							locs,
+							testIndex,
+							ft[0],
+							ft[1],
+						)
 					}
 					for ind, exploc := range explocs {
 						if !reflect.DeepEqual(*locs[ind], exploc) {
-							t.Errorf("expected result %d to have Location %v got %v for test %d\n", i, exploc, locs[ind], testIndex)
+							t.Errorf(
+								"expected result %d to have Location %v got %v for test %d\n",
+								i,
+								exploc,
+								locs[ind],
+								testIndex,
+							)
 						}
 					}
 				}
@@ -207,7 +251,15 @@ func TestFuzzyMultiPhraseSearch(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		searcher, err := NewMultiPhraseSearcher(context.TODO(), reader, test.mphrase, test.fuzziness, "desc", 1.0, soptions)
+		searcher, err := NewMultiPhraseSearcher(
+			context.TODO(),
+			reader,
+			test.mphrase,
+			test.fuzziness,
+			"desc",
+			1.0,
+			soptions,
+		)
 		if err != nil {
 			t.Error(err)
 		}
@@ -556,7 +608,8 @@ func TestFindPhrasePathsSloppy(t *testing.T) {
 					phrasePart{"dog", &search.Location{Pos: 5}},
 				},
 			},
-			tlm: search.TermLocationMap{ // ark bat cat dog dog
+			tlm: search.TermLocationMap{
+				// ark bat cat dog dog
 				"ark": search.Locations{
 					&search.Location{Pos: 1},
 				},
@@ -585,7 +638,8 @@ func TestFindPhrasePathsSloppy(t *testing.T) {
 					phrasePart{"dog", &search.Location{Pos: 3}},
 				},
 			},
-			tlm: search.TermLocationMap{ // cat dog dog
+			tlm: search.TermLocationMap{
+				// cat dog dog
 				"cat": search.Locations{
 					&search.Location{Pos: 1},
 				},
@@ -619,7 +673,8 @@ func TestFindPhrasePathsSloppy(t *testing.T) {
 					phrasePart{"dog", &search.Location{Pos: 4}},
 				},
 			},
-			tlm: search.TermLocationMap{ // cat dog cat dog
+			tlm: search.TermLocationMap{
+				// cat dog cat dog
 				"cat": search.Locations{
 					&search.Location{Pos: 1},
 					&search.Location{Pos: 3},

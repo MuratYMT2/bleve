@@ -17,7 +17,7 @@ package registry
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis"
 )
 
 func RegisterDateTimeParser(name string, constructor DateTimeParserConstructor) {
@@ -61,7 +61,12 @@ func (c *DateTimeParserCache) DateTimeParserNamed(name string, cache *Cache) (an
 	return item.(analysis.DateTimeParser), nil
 }
 
-func (c *DateTimeParserCache) DefineDateTimeParser(name string, typ string, config map[string]interface{}, cache *Cache) (analysis.DateTimeParser, error) {
+func (c *DateTimeParserCache) DefineDateTimeParser(
+	name string,
+	typ string,
+	config map[string]interface{},
+	cache *Cache,
+) (analysis.DateTimeParser, error) {
 	item, err := c.DefineItem(name, typ, config, cache, DateTimeParserBuild)
 	if err != nil {
 		if err == ErrAlreadyDefined {

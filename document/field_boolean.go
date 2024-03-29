@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -63,13 +63,15 @@ func (b *BooleanField) Options() index.FieldIndexingOptions {
 
 func (b *BooleanField) Analyze() {
 	tokens := make(analysis.TokenStream, 0)
-	tokens = append(tokens, &analysis.Token{
-		Start:    0,
-		End:      len(b.value),
-		Term:     b.value,
-		Position: 1,
-		Type:     analysis.Boolean,
-	})
+	tokens = append(
+		tokens, &analysis.Token{
+			Start:    0,
+			End:      len(b.value),
+			Term:     b.value,
+			Position: 1,
+			Type:     analysis.Boolean,
+		},
+	)
 
 	b.length = len(tokens)
 	b.frequencies = analysis.TokenFrequency(tokens, b.arrayPositions, b.options)
@@ -120,7 +122,12 @@ func NewBooleanField(name string, arrayPositions []uint64, b bool) *BooleanField
 	return NewBooleanFieldWithIndexingOptions(name, arrayPositions, b, DefaultNumericIndexingOptions)
 }
 
-func NewBooleanFieldWithIndexingOptions(name string, arrayPositions []uint64, b bool, options index.FieldIndexingOptions) *BooleanField {
+func NewBooleanFieldWithIndexingOptions(
+	name string,
+	arrayPositions []uint64,
+	b bool,
+	options index.FieldIndexingOptions,
+) *BooleanField {
 	numPlainTextBytes := 5
 	v := []byte("F")
 	if b {

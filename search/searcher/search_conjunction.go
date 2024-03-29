@@ -20,9 +20,9 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/scorer"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/scorer"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -45,9 +45,12 @@ type ConjunctionSearcher struct {
 	bytesRead   uint64
 }
 
-func NewConjunctionSearcher(ctx context.Context, indexReader index.IndexReader,
-	qsearchers []search.Searcher, options search.SearcherOptions) (
-	search.Searcher, error) {
+func NewConjunctionSearcher(
+	ctx context.Context, indexReader index.IndexReader,
+	qsearchers []search.Searcher, options search.SearcherOptions,
+) (
+	search.Searcher, error,
+) {
 	// build the sorted downstream searchers
 	searchers := make(OrderedSearcherList, len(qsearchers))
 	for i, searcher := range qsearchers {
@@ -59,8 +62,10 @@ func NewConjunctionSearcher(ctx context.Context, indexReader index.IndexReader,
 	// do not need extra information like freq-norm's or term vectors
 	if len(searchers) > 1 &&
 		options.Score == "none" && !options.IncludeTermVectors {
-		rv, err := optimizeCompositeSearcher(ctx, "conjunction:unadorned",
-			indexReader, searchers, options)
+		rv, err := optimizeCompositeSearcher(
+			ctx, "conjunction:unadorned",
+			indexReader, searchers, options,
+		)
 		if err != nil || rv != nil {
 			return rv, err
 		}
@@ -78,8 +83,10 @@ func NewConjunctionSearcher(ctx context.Context, indexReader index.IndexReader,
 
 	// attempt push-down conjunction optimization when there's >1 searchers
 	if len(searchers) > 1 {
-		rv, err := optimizeCompositeSearcher(ctx, "conjunction",
-			indexReader, searchers, options)
+		rv, err := optimizeCompositeSearcher(
+			ctx, "conjunction",
+			indexReader, searchers, options,
+		)
 		if err != nil || rv != nil {
 			return rv, err
 		}
@@ -227,7 +234,10 @@ OUTER:
 	return rv, nil
 }
 
-func (s *ConjunctionSearcher) Advance(ctx *search.SearchContext, ID index.IndexInternalID) (*search.DocumentMatch, error) {
+func (s *ConjunctionSearcher) Advance(ctx *search.SearchContext, ID index.IndexInternalID) (
+	*search.DocumentMatch,
+	error,
+) {
 	if !s.initialized {
 		err := s.initSearchers(ctx)
 		if err != nil {

@@ -17,7 +17,7 @@ package registry
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/search/highlight"
+	"github.com/MuratYMT2/bleve/v2/search/highlight"
 )
 
 func RegisterFragmenter(name string, constructor FragmenterConstructor) {
@@ -61,7 +61,12 @@ func (c *FragmenterCache) FragmenterNamed(name string, cache *Cache) (highlight.
 	return item.(highlight.Fragmenter), nil
 }
 
-func (c *FragmenterCache) DefineFragmenter(name string, typ string, config map[string]interface{}, cache *Cache) (highlight.Fragmenter, error) {
+func (c *FragmenterCache) DefineFragmenter(
+	name string,
+	typ string,
+	config map[string]interface{},
+	cache *Cache,
+) (highlight.Fragmenter, error) {
 	item, err := c.DefineItem(name, typ, config, cache, FragmenterBuild)
 	if err != nil {
 		if err == ErrAlreadyDefined {

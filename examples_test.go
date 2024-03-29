@@ -20,9 +20,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/highlight/highlighter/ansi"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/highlight/highlighter/ansi"
 )
 
 var indexMapping mapping.IndexMapping
@@ -444,13 +444,15 @@ func ExampleSearchRequest_SortByCustom() {
 	// find all docs, order by Age, with docs missing Age field first
 	query := NewMatchAllQuery()
 	searchRequest := NewSearchRequest(query)
-	searchRequest.SortByCustom(search.SortOrder{
-		&search.SortField{
-			Field:   "Age",
-			Missing: search.SortFieldMissingFirst,
+	searchRequest.SortByCustom(
+		search.SortOrder{
+			&search.SortField{
+				Field:   "Age",
+				Missing: search.SortFieldMissingFirst,
+			},
+			&search.SortDocID{},
 		},
-		&search.SortDocID{},
-	})
+	)
 	searchResults, err := exampleIndex.Search(searchRequest)
 	if err != nil {
 		panic(err)

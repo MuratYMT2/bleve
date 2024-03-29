@@ -18,11 +18,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/searcher"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/searcher"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -57,8 +57,10 @@ func (q *GeoDistanceQuery) Field() string {
 	return q.FieldVal
 }
 
-func (q *GeoDistanceQuery) Searcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping,
-	options search.SearcherOptions) (search.Searcher, error) {
+func (q *GeoDistanceQuery) Searcher(
+	ctx context.Context, i index.IndexReader, m mapping.IndexMapping,
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	field := q.FieldVal
 	if q.FieldVal == "" {
 		field = m.DefaultSearchField()
@@ -71,8 +73,10 @@ func (q *GeoDistanceQuery) Searcher(ctx context.Context, i index.IndexReader, m 
 		return nil, err
 	}
 
-	return searcher.NewGeoPointDistanceSearcher(ctx, i, q.Location[0], q.Location[1],
-		dist, field, q.BoostVal.Value(), options)
+	return searcher.NewGeoPointDistanceSearcher(
+		ctx, i, q.Location[0], q.Location[1],
+		dist, field, q.BoostVal.Value(), options,
+	)
 }
 
 func (q *GeoDistanceQuery) Validate() error {

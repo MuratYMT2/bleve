@@ -21,10 +21,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -411,7 +411,8 @@ func TestIndexAliasMulti(t *testing.T) {
 				},
 			},
 			MaxScore: 1.0,
-		}}
+		},
+	}
 	ei2Count := uint64(8)
 	ei2 := &stubIndex{
 		err:            nil,
@@ -431,7 +432,8 @@ func TestIndexAliasMulti(t *testing.T) {
 				},
 			},
 			MaxScore: 2.0,
-		}}
+		},
+	}
 
 	alias := NewIndexAlias(ei1, ei2)
 
@@ -532,40 +534,44 @@ func TestIndexAliasMulti(t *testing.T) {
 func TestMultiSearchNoError(t *testing.T) {
 	score1, _ := numeric.NewPrefixCodedInt64(numeric.Float64ToInt64(1.0), 0)
 	score2, _ := numeric.NewPrefixCodedInt64(numeric.Float64ToInt64(2.0), 0)
-	ei1 := &stubIndex{err: nil, searchResult: &SearchResult{
-		Status: &SearchStatus{
-			Total:      1,
-			Successful: 1,
-			Errors:     make(map[string]error),
-		},
-		Total: 1,
-		Hits: search.DocumentMatchCollection{
-			{
-				Index: "1",
-				ID:    "a",
-				Score: 1.0,
-				Sort:  []string{string(score1)},
+	ei1 := &stubIndex{
+		err: nil, searchResult: &SearchResult{
+			Status: &SearchStatus{
+				Total:      1,
+				Successful: 1,
+				Errors:     make(map[string]error),
 			},
-		},
-		MaxScore: 1.0,
-	}}
-	ei2 := &stubIndex{err: nil, searchResult: &SearchResult{
-		Status: &SearchStatus{
-			Total:      1,
-			Successful: 1,
-			Errors:     make(map[string]error),
-		},
-		Total: 1,
-		Hits: search.DocumentMatchCollection{
-			{
-				Index: "2",
-				ID:    "b",
-				Score: 2.0,
-				Sort:  []string{string(score2)},
+			Total: 1,
+			Hits: search.DocumentMatchCollection{
+				{
+					Index: "1",
+					ID:    "a",
+					Score: 1.0,
+					Sort:  []string{string(score1)},
+				},
 			},
+			MaxScore: 1.0,
 		},
-		MaxScore: 2.0,
-	}}
+	}
+	ei2 := &stubIndex{
+		err: nil, searchResult: &SearchResult{
+			Status: &SearchStatus{
+				Total:      1,
+				Successful: 1,
+				Errors:     make(map[string]error),
+			},
+			Total: 1,
+			Hits: search.DocumentMatchCollection{
+				{
+					Index: "2",
+					ID:    "b",
+					Score: 2.0,
+					Sort:  []string{string(score2)},
+				},
+			},
+			MaxScore: 2.0,
+		},
+	}
 
 	sr := NewSearchRequest(NewTermQuery("test"))
 	expected := &SearchResult{
@@ -605,22 +611,24 @@ func TestMultiSearchNoError(t *testing.T) {
 
 // TestMultiSearchSomeError
 func TestMultiSearchSomeError(t *testing.T) {
-	ei1 := &stubIndex{name: "ei1", err: nil, searchResult: &SearchResult{
-		Status: &SearchStatus{
-			Total:      1,
-			Successful: 1,
-			Errors:     make(map[string]error),
-		},
-		Total: 1,
-		Hits: search.DocumentMatchCollection{
-			{
-				ID:    "a",
-				Score: 1.0,
+	ei1 := &stubIndex{
+		name: "ei1", err: nil, searchResult: &SearchResult{
+			Status: &SearchStatus{
+				Total:      1,
+				Successful: 1,
+				Errors:     make(map[string]error),
 			},
+			Total: 1,
+			Hits: search.DocumentMatchCollection{
+				{
+					ID:    "a",
+					Score: 1.0,
+				},
+			},
+			Took:     1 * time.Second,
+			MaxScore: 1.0,
 		},
-		Took:     1 * time.Second,
-		MaxScore: 1.0,
-	}}
+	}
 	ei2 := &stubIndex{name: "ei2", err: fmt.Errorf("deliberate error")}
 	sr := NewSearchRequest(NewTermQuery("test"))
 	res, err := MultiSearch(context.Background(), sr, nil, ei1, ei2)
@@ -748,7 +756,8 @@ func TestMultiSearchTimeout(t *testing.T) {
 				},
 			},
 			MaxScore: 1.0,
-		}}
+		},
+	}
 	ei2 := &stubIndex{
 		name: "ei2",
 		checkRequest: func(req *SearchRequest) error {
@@ -776,7 +785,8 @@ func TestMultiSearchTimeout(t *testing.T) {
 				},
 			},
 			MaxScore: 2.0,
-		}}
+		},
+	}
 
 	// first run with absurdly long time out, should succeed
 	var cancel context.CancelFunc
@@ -821,10 +831,18 @@ func TestMultiSearchTimeout(t *testing.T) {
 		t.Errorf("expected 2 errors, got %v", res.Status.Errors)
 	} else {
 		if res.Status.Errors["ei1"].Error() != context.DeadlineExceeded.Error() {
-			t.Errorf("expected err for 'ei1' to be '%s' got '%s'", context.DeadlineExceeded.Error(), res.Status.Errors["ei1"])
+			t.Errorf(
+				"expected err for 'ei1' to be '%s' got '%s'",
+				context.DeadlineExceeded.Error(),
+				res.Status.Errors["ei1"],
+			)
 		}
 		if res.Status.Errors["ei2"].Error() != context.DeadlineExceeded.Error() {
-			t.Errorf("expected err for 'ei2' to be '%s' got '%s'", context.DeadlineExceeded.Error(), res.Status.Errors["ei2"])
+			t.Errorf(
+				"expected err for 'ei2' to be '%s' got '%s'",
+				context.DeadlineExceeded.Error(),
+				res.Status.Errors["ei2"],
+			)
 		}
 	}
 
@@ -882,7 +900,8 @@ func TestMultiSearchTimeoutPartial(t *testing.T) {
 				},
 			},
 			MaxScore: 1.0,
-		}}
+		},
+	}
 	ei2 := &stubIndex{
 		name: "ei2",
 		err:  nil,
@@ -902,7 +921,8 @@ func TestMultiSearchTimeoutPartial(t *testing.T) {
 				},
 			},
 			MaxScore: 2.0,
-		}}
+		},
+	}
 
 	ei3 := &stubIndex{
 		name: "ei3",
@@ -929,7 +949,8 @@ func TestMultiSearchTimeoutPartial(t *testing.T) {
 				},
 			},
 			MaxScore: 3.0,
-		}}
+		},
+	}
 
 	// ei3 is set to take >50ms, so run search with timeout less than
 	// this, this should return partial results
@@ -1000,7 +1021,8 @@ func TestIndexAliasMultipleLayer(t *testing.T) {
 				},
 			},
 			MaxScore: 1.0,
-		}}
+		},
+	}
 	ei2 := &stubIndex{
 		name: "ei2",
 		checkRequest: func(req *SearchRequest) error {
@@ -1028,7 +1050,8 @@ func TestIndexAliasMultipleLayer(t *testing.T) {
 				},
 			},
 			MaxScore: 2.0,
-		}}
+		},
+	}
 
 	ei3 := &stubIndex{
 		name: "ei3",
@@ -1057,7 +1080,8 @@ func TestIndexAliasMultipleLayer(t *testing.T) {
 				},
 			},
 			MaxScore: 3.0,
-		}}
+		},
+	}
 
 	ei4 := &stubIndex{
 		name: "ei4",
@@ -1078,7 +1102,8 @@ func TestIndexAliasMultipleLayer(t *testing.T) {
 				},
 			},
 			MaxScore: 4.0,
-		}}
+		},
+	}
 
 	alias1 := NewIndexAlias(ei1, ei2)
 	alias2 := NewIndexAlias(ei3, ei4)
@@ -1132,52 +1157,56 @@ func TestIndexAliasMultipleLayer(t *testing.T) {
 
 // TestMultiSearchNoError
 func TestMultiSearchCustomSort(t *testing.T) {
-	ei1 := &stubIndex{err: nil, searchResult: &SearchResult{
-		Status: &SearchStatus{
-			Total:      1,
-			Successful: 1,
-			Errors:     make(map[string]error),
-		},
-		Total: 2,
-		Hits: search.DocumentMatchCollection{
-			{
-				Index: "1",
-				ID:    "a",
-				Score: 1.0,
-				Sort:  []string{"albert"},
+	ei1 := &stubIndex{
+		err: nil, searchResult: &SearchResult{
+			Status: &SearchStatus{
+				Total:      1,
+				Successful: 1,
+				Errors:     make(map[string]error),
 			},
-			{
-				Index: "1",
-				ID:    "b",
-				Score: 2.0,
-				Sort:  []string{"crown"},
+			Total: 2,
+			Hits: search.DocumentMatchCollection{
+				{
+					Index: "1",
+					ID:    "a",
+					Score: 1.0,
+					Sort:  []string{"albert"},
+				},
+				{
+					Index: "1",
+					ID:    "b",
+					Score: 2.0,
+					Sort:  []string{"crown"},
+				},
 			},
+			MaxScore: 2.0,
 		},
-		MaxScore: 2.0,
-	}}
-	ei2 := &stubIndex{err: nil, searchResult: &SearchResult{
-		Status: &SearchStatus{
-			Total:      1,
-			Successful: 1,
-			Errors:     make(map[string]error),
-		},
-		Total: 2,
-		Hits: search.DocumentMatchCollection{
-			{
-				Index: "2",
-				ID:    "c",
-				Score: 2.5,
-				Sort:  []string{"frank"},
+	}
+	ei2 := &stubIndex{
+		err: nil, searchResult: &SearchResult{
+			Status: &SearchStatus{
+				Total:      1,
+				Successful: 1,
+				Errors:     make(map[string]error),
 			},
-			{
-				Index: "2",
-				ID:    "d",
-				Score: 3.0,
-				Sort:  []string{"zombie"},
+			Total: 2,
+			Hits: search.DocumentMatchCollection{
+				{
+					Index: "2",
+					ID:    "c",
+					Score: 2.5,
+					Sort:  []string{"frank"},
+				},
+				{
+					Index: "2",
+					ID:    "d",
+					Score: 3.0,
+					Sort:  []string{"zombie"},
+				},
 			},
+			MaxScore: 3.0,
 		},
-		MaxScore: 3.0,
-	}}
+	}
 
 	sr := NewSearchRequest(NewTermQuery("test"))
 	sr.Explain = true

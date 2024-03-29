@@ -19,8 +19,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
-	"github.com/blevesearch/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/analysis/analyzer/keyword"
+	"github.com/MuratYMT2/bleve/v2/mapping"
 )
 
 func BenchmarkQueryTerm(b *testing.B) {
@@ -48,8 +48,10 @@ func BenchmarkQueryTerm(b *testing.B) {
 
 	members := []string{"abc", "abcdef", "ghi", "jkl", "jklmno"}
 	for i := 0; i < 100; i++ {
-		if err = idx.Index(strconv.Itoa(i),
-			map[string]interface{}{"text": members[i%len(members)]}); err != nil {
+		if err = idx.Index(
+			strconv.Itoa(i),
+			map[string]interface{}{"text": members[i%len(members)]},
+		); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -92,8 +94,10 @@ func BenchmarkQueryTermRange(b *testing.B) {
 
 	members := []string{"abc", "abcdef", "ghi", "jkl", "jklmno"}
 	for i := 0; i < 100; i++ {
-		if err = idx.Index(strconv.Itoa(i),
-			map[string]interface{}{"text": members[i%len(members)]}); err != nil {
+		if err = idx.Index(
+			strconv.Itoa(i),
+			map[string]interface{}{"text": members[i%len(members)]},
+		); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -142,8 +146,10 @@ func BenchmarkQueryWildcard(b *testing.B) {
 
 	members := []string{"abc", "abcdef", "ghi", "jkl", "jklmno"}
 	for i := 0; i < 100; i++ {
-		if err = idx.Index(strconv.Itoa(i),
-			map[string]interface{}{"text": members[i%len(members)]}); err != nil {
+		if err = idx.Index(
+			strconv.Itoa(i),
+			map[string]interface{}{"text": members[i%len(members)]},
+		); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -186,8 +192,10 @@ func BenchmarkQueryNumericRange(b *testing.B) {
 	}()
 
 	for i := 0; i < 100; i++ {
-		if err = idx.Index(strconv.Itoa(i),
-			map[string]interface{}{"number": i}); err != nil {
+		if err = idx.Index(
+			strconv.Itoa(i),
+			map[string]interface{}{"number": i},
+		); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -238,8 +246,10 @@ func BenchmarkQueryDateRange(b *testing.B) {
 		"2022-11-20T18:45:45Z",
 	}
 	for i := 0; i < 100; i++ {
-		if err = idx.Index(strconv.Itoa(i),
-			map[string]interface{}{"date": members[i%len(members)]}); err != nil {
+		if err = idx.Index(
+			strconv.Itoa(i),
+			map[string]interface{}{"date": members[i%len(members)]},
+		); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -290,8 +300,10 @@ func BenchmarkQueryGeoDistance(b *testing.B) {
 		{77.59542326042589, 12.97215865921956},
 	}
 	for i := 0; i < 100; i++ {
-		if err = idx.Index(strconv.Itoa(i),
-			map[string]interface{}{"geo": members[i%len(members)]}); err != nil {
+		if err = idx.Index(
+			strconv.Itoa(i),
+			map[string]interface{}{"geo": members[i%len(members)]},
+		); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -340,8 +352,10 @@ func BenchmarkQueryGeoBoundingBox(b *testing.B) {
 		{77.59542326042589, 12.97215865921956},
 	}
 	for i := 0; i < 100; i++ {
-		if err = idx.Index(strconv.Itoa(i),
-			map[string]interface{}{"geo": members[i%len(members)]}); err != nil {
+		if err = idx.Index(
+			strconv.Itoa(i),
+			map[string]interface{}{"geo": members[i%len(members)]},
+		); err != nil {
 			b.Fatal(err)
 		}
 	}

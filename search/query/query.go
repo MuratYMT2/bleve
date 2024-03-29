@@ -21,9 +21,9 @@ import (
 	"io"
 	"log"
 
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -38,8 +38,10 @@ func SetLog(l *log.Logger) {
 // A Query represents a description of the type
 // and parameters for a query into the index.
 type Query interface {
-	Searcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping,
-		options search.SearcherOptions) (search.Searcher, error)
+	Searcher(
+		ctx context.Context, i index.IndexReader, m mapping.IndexMapping,
+		options search.SearcherOptions,
+	) (search.Searcher, error)
 }
 
 // A BoostableQuery represents a Query which can be boosted

@@ -18,10 +18,10 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -78,13 +78,15 @@ func (n *GeoPointField) AnalyzedTokenFrequencies() index.TokenFrequencies {
 
 func (n *GeoPointField) Analyze() {
 	tokens := make(analysis.TokenStream, 0, 8)
-	tokens = append(tokens, &analysis.Token{
-		Start:    0,
-		End:      len(n.value),
-		Term:     n.value,
-		Position: 1,
-		Type:     analysis.Numeric,
-	})
+	tokens = append(
+		tokens, &analysis.Token{
+			Start:    0,
+			End:      len(n.value),
+			Term:     n.value,
+			Position: 1,
+			Type:     analysis.Numeric,
+		},
+	)
 
 	if n.spatialplugin != nil {
 		lat, _ := n.Lat()
@@ -171,7 +173,12 @@ func NewGeoPointField(name string, arrayPositions []uint64, lon, lat float64) *G
 	return NewGeoPointFieldWithIndexingOptions(name, arrayPositions, lon, lat, DefaultNumericIndexingOptions)
 }
 
-func NewGeoPointFieldWithIndexingOptions(name string, arrayPositions []uint64, lon, lat float64, options index.FieldIndexingOptions) *GeoPointField {
+func NewGeoPointFieldWithIndexingOptions(
+	name string,
+	arrayPositions []uint64,
+	lon, lat float64,
+	options index.FieldIndexingOptions,
+) *GeoPointField {
 	mhash := geo.MortonHash(lon, lat)
 	prefixCoded := numeric.MustNewPrefixCodedInt64(int64(mhash), 0)
 	return &GeoPointField{
@@ -188,6 +195,7 @@ func NewGeoPointFieldWithIndexingOptions(name string, arrayPositions []uint64, l
 // SetSpatialAnalyzerPlugin implements the
 // index.TokenisableSpatialField interface.
 func (n *GeoPointField) SetSpatialAnalyzerPlugin(
-	plugin index.SpatialAnalyzerPlugin) {
+	plugin index.SpatialAnalyzerPlugin,
+) {
 	n.spatialplugin = plugin
 }

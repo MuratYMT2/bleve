@@ -17,7 +17,7 @@ package registry
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis"
 )
 
 func RegisterAnalyzer(name string, constructor AnalyzerConstructor) {
@@ -61,7 +61,12 @@ func (c *AnalyzerCache) AnalyzerNamed(name string, cache *Cache) (analysis.Analy
 	return item.(analysis.Analyzer), nil
 }
 
-func (c *AnalyzerCache) DefineAnalyzer(name string, typ string, config map[string]interface{}, cache *Cache) (analysis.Analyzer, error) {
+func (c *AnalyzerCache) DefineAnalyzer(
+	name string,
+	typ string,
+	config map[string]interface{},
+	cache *Cache,
+) (analysis.Analyzer, error) {
 	item, err := c.DefineItem(name, typ, config, cache, AnalyzerBuild)
 	if err != nil {
 		if err == ErrAlreadyDefined {

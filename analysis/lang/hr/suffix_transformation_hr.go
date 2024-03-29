@@ -17,8 +17,8 @@ package hr
 import (
 	"strings"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 const SuffixTransformationFilterName = "hr_suffix_transformation_filter"
@@ -177,7 +177,10 @@ func (s *SuffixTransformationFilter) Filter(input analysis.TokenStream) analysis
 	return input
 }
 
-func SuffixTransformationFilterConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.TokenFilter, error) {
+func SuffixTransformationFilterConstructor(config map[string]interface{}, cache *registry.Cache) (
+	analysis.TokenFilter,
+	error,
+) {
 	return NewSuffixTransformationFilter(), nil
 }
 

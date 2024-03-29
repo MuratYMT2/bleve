@@ -21,8 +21,8 @@ import (
 	"reflect"
 	"sync/atomic"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
 )
@@ -142,12 +142,17 @@ func (i *IndexSnapshotTermFieldReader) postingToTermFieldDoc(next segment.Postin
 	}
 }
 
-func (i *IndexSnapshotTermFieldReader) Advance(ID index.IndexInternalID, preAlloced *index.TermFieldDoc) (*index.TermFieldDoc, error) {
+func (i *IndexSnapshotTermFieldReader) Advance(
+	ID index.IndexInternalID,
+	preAlloced *index.TermFieldDoc,
+) (*index.TermFieldDoc, error) {
 	// FIXME do something better
 	// for now, if we need to seek backwards, then restart from the beginning
 	if i.currPosting != nil && bytes.Compare(i.currID, ID) >= 0 {
-		i2, err := i.snapshot.TermFieldReader(nil, i.term, i.field,
-			i.includeFreq, i.includeNorm, i.includeTermVectors)
+		i2, err := i.snapshot.TermFieldReader(
+			nil, i.term, i.field,
+			i.includeFreq, i.includeNorm, i.includeTermVectors,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -161,8 +166,10 @@ func (i *IndexSnapshotTermFieldReader) Advance(ID index.IndexInternalID, preAllo
 	}
 	segIndex, ldocNum := i.snapshot.segmentIndexAndLocalDocNumFromGlobal(num)
 	if segIndex >= len(i.snapshot.segment) {
-		return nil, fmt.Errorf("computed segment index %d out of bounds %d",
-			segIndex, len(i.snapshot.segment))
+		return nil, fmt.Errorf(
+			"computed segment index %d out of bounds %d",
+			segIndex, len(i.snapshot.segment),
+		)
 	}
 	// skip directly to the target segment
 	i.segmentOffset = segIndex
@@ -180,8 +187,10 @@ func (i *IndexSnapshotTermFieldReader) Advance(ID index.IndexInternalID, preAllo
 	if preAlloced == nil {
 		preAlloced = &index.TermFieldDoc{}
 	}
-	preAlloced.ID = docNumberToBytes(preAlloced.ID, next.Number()+
-		i.snapshot.offsets[segIndex])
+	preAlloced.ID = docNumberToBytes(
+		preAlloced.ID, next.Number()+
+			i.snapshot.offsets[segIndex],
+	)
 	i.postingToTermFieldDoc(next, preAlloced)
 	i.currID = preAlloced.ID
 	i.currPosting = next

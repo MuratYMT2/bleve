@@ -23,9 +23,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/analysis/tokenizer/exception"
-	"github.com/blevesearch/bleve/v2/analysis/tokenizer/regexp"
-	"github.com/blevesearch/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/analysis/tokenizer/exception"
+	"github.com/MuratYMT2/bleve/v2/analysis/tokenizer/regexp"
+	"github.com/MuratYMT2/bleve/v2/document"
 )
 
 var mappingSource = []byte(`{
@@ -874,89 +874,103 @@ func TestMappingForGeo(t *testing.T) {
 	expect := [][]float64{} // to contain expected [lon,lat] for geopoints
 
 	// geopoint as a struct
-	geopoints = append(geopoints, struct {
-		Name     string    `json:"name"`
-		Location *Location `json:"location"`
-	}{
-		Name: "struct",
-		Location: &Location{
-			Lon: -180,
-			Lat: -90,
+	geopoints = append(
+		geopoints, struct {
+			Name     string    `json:"name"`
+			Location *Location `json:"location"`
+		}{
+			Name: "struct",
+			Location: &Location{
+				Lon: -180,
+				Lat: -90,
+			},
 		},
-	})
+	)
 	expect = append(expect, []float64{-180, -90})
 
 	// geopoint as a map
-	geopoints = append(geopoints, struct {
-		Name     string                 `json:"name"`
-		Location map[string]interface{} `json:"location"`
-	}{
-		Name: "map",
-		Location: map[string]interface{}{
-			"lon": -180,
-			"lat": -90,
+	geopoints = append(
+		geopoints, struct {
+			Name     string                 `json:"name"`
+			Location map[string]interface{} `json:"location"`
+		}{
+			Name: "map",
+			Location: map[string]interface{}{
+				"lon": -180,
+				"lat": -90,
+			},
 		},
-	})
+	)
 	expect = append(expect, []float64{-180, -90})
 
 	// geopoint as a slice, format: {lon, lat}
-	geopoints = append(geopoints, struct {
-		Name     string        `json:"name"`
-		Location []interface{} `json:"location"`
-	}{
-		Name: "slice",
-		Location: []interface{}{
-			-180, -90,
+	geopoints = append(
+		geopoints, struct {
+			Name     string        `json:"name"`
+			Location []interface{} `json:"location"`
+		}{
+			Name: "slice",
+			Location: []interface{}{
+				-180, -90,
+			},
 		},
-	})
+	)
 	expect = append(expect, []float64{-180, -90})
 
 	// geopoint as a string, format: "lat,lon"
-	geopoints = append(geopoints, struct {
-		Name     string        `json:"name"`
-		Location []interface{} `json:"location"`
-	}{
-		Name: "string",
-		Location: []interface{}{
-			"-90,-180",
+	geopoints = append(
+		geopoints, struct {
+			Name     string        `json:"name"`
+			Location []interface{} `json:"location"`
+		}{
+			Name: "string",
+			Location: []interface{}{
+				"-90,-180",
+			},
 		},
-	})
+	)
 	expect = append(expect, []float64{-180, -90})
 
 	// geopoint as a string, format: "lat , lon" with leading/trailing whitespaces
-	geopoints = append(geopoints, struct {
-		Name     string        `json:"name"`
-		Location []interface{} `json:"location"`
-	}{
-		Name: "string",
-		Location: []interface{}{
-			"-90    ,    -180",
+	geopoints = append(
+		geopoints, struct {
+			Name     string        `json:"name"`
+			Location []interface{} `json:"location"`
+		}{
+			Name: "string",
+			Location: []interface{}{
+				"-90    ,    -180",
+			},
 		},
-	})
+	)
 	expect = append(expect, []float64{-180, -90})
 
 	// geopoint as a string - geohash
-	geopoints = append(geopoints, struct {
-		Name     string        `json:"name"`
-		Location []interface{} `json:"location"`
-	}{
-		Name: "string",
-		Location: []interface{}{
-			"000000000000",
+	geopoints = append(
+		geopoints, struct {
+			Name     string        `json:"name"`
+			Location []interface{} `json:"location"`
+		}{
+			Name: "string",
+			Location: []interface{}{
+				"000000000000",
+			},
 		},
-	})
+	)
 	expect = append(expect, []float64{-180, -90})
 
 	// geopoint as a string - geohash
-	geopoints = append(geopoints, struct {
-		Name     string        `json:"name"`
-		Location []interface{} `json:"location"`
-	}{
-		Name: "string",
-		Location: []interface{}{
-			"drm3btev3e86",
+	geopoints = append(
+		geopoints, struct {
+			Name     string        `json:"name"`
+			Location []interface{} `json:"location"`
+		}{
+			Name: "string",
+			Location: []interface{}{
+				"drm3btev3e86",
+			},
 		},
-	})
+	)
 	expect = append(expect, []float64{-71.34, 41.12})
 
 	for i, geopoint := range geopoints {
@@ -986,8 +1000,10 @@ func TestMappingForGeo(t *testing.T) {
 				roundLon, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", lon), 64)
 				roundLat, _ := strconv.ParseFloat(fmt.Sprintf("%.2f", lat), 64)
 				if roundLon != expect[i][0] || roundLat != expect[i][1] {
-					t.Errorf("expected geo point: {%v, %v}, got {%v, %v}",
-						expect[i][0], expect[i][1], lon, lat)
+					t.Errorf(
+						"expected geo point: {%v, %v}, got {%v, %v}",
+						expect[i][0], expect[i][1], lon, lat,
+					)
 				}
 			}
 		}
@@ -1095,13 +1111,15 @@ func TestClosestDocDynamicMapping(t *testing.T) {
 	mapping.DefaultMapping.AddFieldMappingsAt("foo", NewTextFieldMapping())
 
 	doc := document.NewDocument("x")
-	err := mapping.MapDocument(doc, map[string]interface{}{
-		"foo": "value",
-		"bar": map[string]string{
-			"foo": "value2",
-			"baz": "value3",
+	err := mapping.MapDocument(
+		doc, map[string]interface{}{
+			"foo": "value",
+			"bar": map[string]string{
+				"foo": "value2",
+				"baz": "value3",
+			},
 		},
-	})
+	)
 	if err != nil {
 		t.Fatal(err)
 	}

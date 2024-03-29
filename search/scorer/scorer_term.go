@@ -19,8 +19,8 @@ import (
 	"math"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -61,7 +61,13 @@ func (s *TermQueryScorer) Size() int {
 	return sizeInBytes
 }
 
-func NewTermQueryScorer(queryTerm []byte, queryField string, queryBoost float64, docTotal, docTerm uint64, options search.SearcherOptions) *TermQueryScorer {
+func NewTermQueryScorer(
+	queryTerm []byte,
+	queryField string,
+	queryBoost float64,
+	docTotal, docTerm uint64,
+	options search.SearcherOptions,
+) *TermQueryScorer {
 	rv := TermQueryScorer{
 		queryTerm:    string(queryTerm),
 		queryField:   queryField,
@@ -153,8 +159,14 @@ func (s *TermQueryScorer) Score(ctx *search.SearchContext, termMatch *index.Term
 				childExplanations[0] = s.queryWeightExplanation
 				childExplanations[1] = scoreExplanation
 				scoreExplanation = &search.Explanation{
-					Value:    score,
-					Message:  fmt.Sprintf("weight(%s:%s^%f in %s), product of:", s.queryField, s.queryTerm, s.queryBoost, termMatch.ID),
+					Value: score,
+					Message: fmt.Sprintf(
+						"weight(%s:%s^%f in %s), product of:",
+						s.queryField,
+						s.queryTerm,
+						s.queryBoost,
+						termMatch.ID,
+					),
 					Children: childExplanations,
 				}
 			}
@@ -186,16 +198,18 @@ func (s *TermQueryScorer) Score(ctx *search.SearchContext, termMatch *index.Term
 				ap = append(ap, v.ArrayPositions...)
 			}
 			rv.FieldTermLocations =
-				append(rv.FieldTermLocations, search.FieldTermLocation{
-					Field: v.Field,
-					Term:  s.queryTerm,
-					Location: search.Location{
-						Pos:            v.Pos,
-						Start:          v.Start,
-						End:            v.End,
-						ArrayPositions: ap,
+				append(
+					rv.FieldTermLocations, search.FieldTermLocation{
+						Field: v.Field,
+						Term:  s.queryTerm,
+						Location: search.Location{
+							Pos:            v.Pos,
+							Start:          v.Start,
+							End:            v.End,
+							ArrayPositions: ap,
+						},
 					},
-				})
+				)
 		}
 	}
 	return rv

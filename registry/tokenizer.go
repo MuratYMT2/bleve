@@ -17,7 +17,7 @@ package registry
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis"
 )
 
 func RegisterTokenizer(name string, constructor TokenizerConstructor) {
@@ -61,7 +61,12 @@ func (c *TokenizerCache) TokenizerNamed(name string, cache *Cache) (analysis.Tok
 	return item.(analysis.Tokenizer), nil
 }
 
-func (c *TokenizerCache) DefineTokenizer(name string, typ string, config map[string]interface{}, cache *Cache) (analysis.Tokenizer, error) {
+func (c *TokenizerCache) DefineTokenizer(
+	name string,
+	typ string,
+	config map[string]interface{},
+	cache *Cache,
+) (analysis.Tokenizer, error) {
 	item, err := c.DefineItem(name, typ, config, cache, TokenizerBuild)
 	if err != nil {
 		if err == ErrAlreadyDefined {

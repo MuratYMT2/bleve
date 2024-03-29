@@ -19,15 +19,17 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
-func NewGeoBoundedPolygonSearcher(ctx context.Context, indexReader index.IndexReader,
+func NewGeoBoundedPolygonSearcher(
+	ctx context.Context, indexReader index.IndexReader,
 	coordinates []geo.Point, field string, boost float64,
-	options search.SearcherOptions) (search.Searcher, error) {
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	if len(coordinates) < 3 {
 		return nil, fmt.Errorf("Too few points specified for the polygon boundary")
 	}
@@ -37,8 +39,10 @@ func NewGeoBoundedPolygonSearcher(ctx context.Context, indexReader index.IndexRe
 		tp, err := sr.GetSpatialAnalyzerPlugin("s2")
 		if err == nil {
 			terms := tp.GetQueryTokens(geo.NewBoundedPolygon(coordinates))
-			rectSearcher, err = NewMultiTermSearcher(ctx, indexReader, terms,
-				field, boost, options, false)
+			rectSearcher, err = NewMultiTermSearcher(
+				ctx, indexReader, terms,
+				field, boost, options, false,
+			)
 			if err != nil {
 				return nil, err
 			}
@@ -56,9 +60,11 @@ func NewGeoBoundedPolygonSearcher(ctx context.Context, indexReader index.IndexRe
 		}
 
 		// build a searcher for the bounding box on the polygon
-		rectSearcher, err = boxSearcher(ctx, indexReader,
+		rectSearcher, err = boxSearcher(
+			ctx, indexReader,
 			topLeftLon, topLeftLat, bottomRightLon, bottomRightLat,
-			field, boost, options, true)
+			field, boost, options, true,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -70,8 +76,10 @@ func NewGeoBoundedPolygonSearcher(ctx context.Context, indexReader index.IndexRe
 	}
 
 	// wrap it in a filtering searcher that checks for the polygon inclusivity
-	return NewFilteringSearcher(ctx, rectSearcher,
-		buildPolygonFilter(ctx, dvReader, field, coordinates)), nil
+	return NewFilteringSearcher(
+		ctx, rectSearcher,
+		buildPolygonFilter(ctx, dvReader, field, coordinates),
+	), nil
 }
 
 const float64EqualityThreshold = 1e-6
@@ -83,26 +91,30 @@ func almostEqual(a, b float64) bool {
 // buildPolygonFilter returns true if the point lies inside the
 // polygon. It is based on the ray-casting technique as referred
 // here: https://wrf.ecse.rpi.edu/nikola/pubdetails/pnpoly.html
-func buildPolygonFilter(ctx context.Context, dvReader index.DocValueReader, field string,
-	coordinates []geo.Point) FilterFunc {
+func buildPolygonFilter(
+	ctx context.Context, dvReader index.DocValueReader, field string,
+	coordinates []geo.Point,
+) FilterFunc {
 	return func(d *search.DocumentMatch) bool {
 		// check geo matches against all numeric type terms indexed
 		var lons, lats []float64
 		var found bool
 
-		err := dvReader.VisitDocValues(d.IndexInternalID, func(field string, term []byte) {
-			// only consider the values which are shifted 0
-			prefixCoded := numeric.PrefixCoded(term)
-			shift, err := prefixCoded.Shift()
-			if err == nil && shift == 0 {
-				i64, err := prefixCoded.Int64()
-				if err == nil {
-					lons = append(lons, geo.MortonUnhashLon(uint64(i64)))
-					lats = append(lats, geo.MortonUnhashLat(uint64(i64)))
-					found = true
+		err := dvReader.VisitDocValues(
+			d.IndexInternalID, func(field string, term []byte) {
+				// only consider the values which are shifted 0
+				prefixCoded := numeric.PrefixCoded(term)
+				shift, err := prefixCoded.Shift()
+				if err == nil && shift == 0 {
+					i64, err := prefixCoded.Int64()
+					if err == nil {
+						lons = append(lons, geo.MortonUnhashLon(uint64(i64)))
+						lats = append(lats, geo.MortonUnhashLat(uint64(i64)))
+						found = true
+					}
 				}
-			}
-		})
+			},
+		)
 
 		// Note: this approach works for points which are strictly inside
 		// the polygon. ie it might fail for certain points on the polygon boundaries.

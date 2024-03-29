@@ -18,9 +18,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/searcher"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/searcher"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -58,7 +58,12 @@ func (q *RegexpQuery) Field() string {
 	return q.FieldVal
 }
 
-func (q *RegexpQuery) Searcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping, options search.SearcherOptions) (search.Searcher, error) {
+func (q *RegexpQuery) Searcher(
+	ctx context.Context,
+	i index.IndexReader,
+	m mapping.IndexMapping,
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	field := q.FieldVal
 	if q.FieldVal == "" {
 		field = m.DefaultSearchField()
@@ -73,8 +78,10 @@ func (q *RegexpQuery) Searcher(ctx context.Context, i index.IndexReader, m mappi
 		actualRegexp = actualRegexp[1:] // remove leading ^
 	}
 
-	return searcher.NewRegexpStringSearcher(ctx, i, actualRegexp, field,
-		q.BoostVal.Value(), options)
+	return searcher.NewRegexpStringSearcher(
+		ctx, i, actualRegexp, field,
+		q.BoostVal.Value(), options,
+	)
 }
 
 func (q *RegexpQuery) Validate() error {

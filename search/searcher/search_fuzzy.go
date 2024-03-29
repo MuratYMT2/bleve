@@ -18,15 +18,17 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
 var MaxFuzziness = 2
 
-func NewFuzzySearcher(ctx context.Context, indexReader index.IndexReader, term string,
+func NewFuzzySearcher(
+	ctx context.Context, indexReader index.IndexReader, term string,
 	prefix, fuzziness int, field string, boost float64,
-	options search.SearcherOptions) (search.Searcher, error) {
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 
 	if fuzziness > MaxFuzziness {
 		return nil, fmt.Errorf("fuzziness exceeds max (%d)", MaxFuzziness)
@@ -45,8 +47,10 @@ func NewFuzzySearcher(ctx context.Context, indexReader index.IndexReader, term s
 			break
 		}
 	}
-	fuzzyCandidates, err := findFuzzyCandidateTerms(indexReader, term, fuzziness,
-		field, prefixTerm)
+	fuzzyCandidates, err := findFuzzyCandidateTerms(
+		indexReader, term, fuzziness,
+		field, prefixTerm,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -67,8 +71,10 @@ func NewFuzzySearcher(ctx context.Context, indexReader index.IndexReader, term s
 		}
 	}
 
-	return NewMultiTermSearcher(ctx, indexReader, candidates, field,
-		boost, options, true)
+	return NewMultiTermSearcher(
+		ctx, indexReader, candidates, field,
+		boost, options, true,
+	)
 }
 
 type fuzzyCandidates struct {
@@ -88,8 +94,10 @@ func reportIOStats(ctx context.Context, bytesRead uint64) {
 	}
 }
 
-func findFuzzyCandidateTerms(indexReader index.IndexReader, term string,
-	fuzziness int, field, prefixTerm string) (rv *fuzzyCandidates, err error) {
+func findFuzzyCandidateTerms(
+	indexReader index.IndexReader, term string,
+	fuzziness int, field, prefixTerm string,
+) (rv *fuzzyCandidates, err error) {
 	rv = &fuzzyCandidates{
 		candidates: make([]string, 0),
 	}

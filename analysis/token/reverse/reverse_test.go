@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis"
 )
 
 func TestReverseFilter(t *testing.T) {
@@ -100,8 +100,10 @@ func TestReverseFilter(t *testing.T) {
 	outputTokenStream := filter.Filter(inputTokenStream)
 	for i := 0; i < len(expectedTokenStream); i++ {
 		if !bytes.Equal(outputTokenStream[i].Term, expectedTokenStream[i].Term) {
-			t.Errorf("[%d] expected %s got %s",
-				i+1, expectedTokenStream[i].Term, outputTokenStream[i].Term)
+			t.Errorf(
+				"[%d] expected %s got %s",
+				i+1, expectedTokenStream[i].Term, outputTokenStream[i].Term,
+			)
 		}
 	}
 }

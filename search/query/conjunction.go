@@ -18,10 +18,10 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/searcher"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/searcher"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -54,7 +54,12 @@ func (q *ConjunctionQuery) AddQuery(aq ...Query) {
 	}
 }
 
-func (q *ConjunctionQuery) Searcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping, options search.SearcherOptions) (search.Searcher, error) {
+func (q *ConjunctionQuery) Searcher(
+	ctx context.Context,
+	i index.IndexReader,
+	m mapping.IndexMapping,
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	ss := make([]search.Searcher, 0, len(q.Conjuncts))
 	for _, conjunct := range q.Conjuncts {
 		sr, err := conjunct.Searcher(ctx, i, m, options)

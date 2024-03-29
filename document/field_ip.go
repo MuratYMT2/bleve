@@ -19,8 +19,8 @@ import (
 	"net"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -119,7 +119,12 @@ func NewIPField(name string, arrayPositions []uint64, v net.IP) *IPField {
 	return NewIPFieldWithIndexingOptions(name, arrayPositions, v, DefaultIPIndexingOptions)
 }
 
-func NewIPFieldWithIndexingOptions(name string, arrayPositions []uint64, b net.IP, options index.FieldIndexingOptions) *IPField {
+func NewIPFieldWithIndexingOptions(
+	name string,
+	arrayPositions []uint64,
+	b net.IP,
+	options index.FieldIndexingOptions,
+) *IPField {
 	v := b.To16()
 
 	return &IPField{

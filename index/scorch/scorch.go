@@ -22,8 +22,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/MuratYMT2/bleve/v2/registry"
 	"github.com/RoaringBitmap/roaring"
-	"github.com/blevesearch/bleve/v2/registry"
 	index "github.com/blevesearch/bleve_index_api"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
 	bolt "go.etcd.io/bbolt"
@@ -100,9 +100,11 @@ type internalStats struct {
 	analysisBytesRemoved  uint64
 }
 
-func NewScorch(storeName string,
+func NewScorch(
+	storeName string,
 	config map[string]interface{},
-	analysisQueue *index.AnalysisQueue) (index.Index, error) {
+	analysisQueue *index.AnalysisQueue,
+) (index.Index, error) {
 	rv := &Scorch{
 		version:              Version,
 		config:               config,
@@ -119,8 +121,10 @@ func NewScorch(storeName string,
 		return nil, err
 	}
 	if forcedSegmentType != "" && forcedSegmentVersion != 0 {
-		err := rv.loadSegmentPlugin(forcedSegmentType,
-			uint32(forcedSegmentVersion))
+		err := rv.loadSegmentPlugin(
+			forcedSegmentType,
+			uint32(forcedSegmentVersion),
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -163,7 +167,8 @@ func configForceSegmentTypeVersion(config map[string]interface{}) (string, uint3
 	forcedSegmentType, ok := config["forceSegmentType"].(string)
 	if !ok {
 		return "", 0, fmt.Errorf(
-			"forceSegmentVersion set to %d, must also specify forceSegmentType", forcedSegmentVersion)
+			"forceSegmentVersion set to %d, must also specify forceSegmentType", forcedSegmentVersion,
+		)
 	}
 
 	return forcedSegmentType, uint32(forcedSegmentVersion), nil
@@ -395,10 +400,12 @@ func (s *Scorch) Batch(batch *index.Batch) (err error) {
 				doc := batch.IndexOps[k]
 				if doc != nil {
 					// put the work on the queue
-					s.analysisQueue.Queue(func() {
-						analyze(doc, s.setSpatialAnalyzerPlugin)
-						resultChan <- doc
-					})
+					s.analysisQueue.Queue(
+						func() {
+							analyze(doc, s.setSpatialAnalyzerPlugin)
+							resultChan <- doc
+						},
+					)
 				}
 			}
 		}()
@@ -436,8 +443,10 @@ func (s *Scorch) Batch(batch *index.Batch) (err error) {
 			return err
 		}
 		if segB, ok := newSegment.(segment.DiskStatsReporter); ok {
-			atomic.AddUint64(&s.stats.TotBytesWrittenAtIndexTime,
-				segB.BytesWritten())
+			atomic.AddUint64(
+				&s.stats.TotBytesWrittenAtIndexTime,
+				segB.BytesWritten(),
+			)
 		}
 		atomic.AddUint64(&s.iStats.newSegBufBytesAdded, bufBytes)
 		if fsr, ok := newSegment.(segment.FieldStatsReporter); ok {
@@ -466,8 +475,10 @@ func (s *Scorch) Batch(batch *index.Batch) (err error) {
 	return err
 }
 
-func (s *Scorch) prepareSegment(newSegment segment.Segment, ids []string,
-	internalOps map[string][]byte, persistedCallback index.BatchCallback, stats *fieldStats) error {
+func (s *Scorch) prepareSegment(
+	newSegment segment.Segment, ids []string,
+	internalOps map[string][]byte, persistedCallback index.BatchCallback, stats *fieldStats,
+) error {
 
 	// new introduction
 	introduction := &segmentIntroduction{
@@ -561,8 +572,10 @@ func (s *Scorch) BytesReadQueryTime() uint64 {
 	return s.stats.TotBytesReadAtQueryTime
 }
 
-func (s *Scorch) diskFileStats(rootSegmentPaths map[string]struct{}) (uint64,
-	uint64, uint64) {
+func (s *Scorch) diskFileStats(rootSegmentPaths map[string]struct{}) (
+	uint64,
+	uint64, uint64,
+) {
 	var numFilesOnDisk, numBytesUsedDisk, numBytesOnDiskByRoot uint64
 	if s.path != "" {
 		files, err := os.ReadDir(s.path)
@@ -638,8 +651,10 @@ func (s *Scorch) StatsMap() map[string]interface{} {
 	m["num_bytes_used_disk_by_root"] = numBytesOnDiskByRoot
 	// num_bytes_used_disk_by_root_reclaimable is an approximation about the
 	// reclaimable disk space in an index. (eg: from a full compaction)
-	m["num_bytes_used_disk_by_root_reclaimable"] = uint64(float64(numBytesOnDiskByRoot) *
-		indexSnapshot.reClaimableDocsRatio())
+	m["num_bytes_used_disk_by_root_reclaimable"] = uint64(
+		float64(numBytesOnDiskByRoot) *
+			indexSnapshot.reClaimableDocsRatio(),
+	)
 	m["num_files_on_disk"] = numFilesOnDisk
 	m["num_root_memorysegments"] = m["TotMemorySegmentsAtRoot"]
 	m["num_root_filesegments"] = m["TotFileSegmentsAtRoot"]
@@ -682,22 +697,26 @@ func (s *Scorch) setSpatialAnalyzerPlugin(f index.Field) {
 }
 
 func analyze(d index.Document, fn customAnalyzerPluginInitFunc) {
-	d.VisitFields(func(field index.Field) {
-		if field.Options().IsIndexed() {
-			if fn != nil {
-				fn(field)
-			}
+	d.VisitFields(
+		func(field index.Field) {
+			if field.Options().IsIndexed() {
+				if fn != nil {
+					fn(field)
+				}
 
-			field.Analyze()
+				field.Analyze()
 
-			if d.HasComposite() && field.Name() != "_id" {
-				// see if any of the composite fields need this
-				d.VisitComposite(func(cf index.CompositeField) {
-					cf.Compose(field.Name(), field.AnalyzedLength(), field.AnalyzedTokenFrequencies())
-				})
+				if d.HasComposite() && field.Name() != "_id" {
+					// see if any of the composite fields need this
+					d.VisitComposite(
+						func(cf index.CompositeField) {
+							cf.Compose(field.Name(), field.AnalyzedLength(), field.AnalyzedTokenFrequencies())
+						},
+					)
+				}
 			}
-		}
-	})
+		},
+	)
 }
 
 func (s *Scorch) AddEligibleForRemoval(epoch uint64) {

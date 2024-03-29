@@ -22,8 +22,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/registry"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/util"
 )
 
 // A DocumentMapping describes how a type of document
@@ -50,8 +50,10 @@ type DocumentMapping struct {
 	StructTagKey string `json:"struct_tag_key,omitempty"`
 }
 
-func (dm *DocumentMapping) Validate(cache *registry.Cache,
-	parentName string, fieldAliasCtx map[string]*FieldMapping) error {
+func (dm *DocumentMapping) Validate(
+	cache *registry.Cache,
+	parentName string, fieldAliasCtx map[string]*FieldMapping,
+) error {
 	var err error
 	if dm.DefaultAnalyzer != "" {
 		_, err := cache.AnalyzerNamed(dm.DefaultAnalyzer)
@@ -96,8 +98,10 @@ func validateFieldType(field *FieldMapping) error {
 	case "text", "datetime", "number", "boolean", "geopoint", "geoshape", "IP":
 		return nil
 	default:
-		return fmt.Errorf("field: '%s', unknown field type: '%s'",
-			field.Name, field.Type)
+		return fmt.Errorf(
+			"field: '%s', unknown field type: '%s'",
+			field.Name, field.Type,
+		)
 	}
 }
 
@@ -160,7 +164,8 @@ func (dm *DocumentMapping) fieldDescribedByPath(path string) *FieldMapping {
 // document or for an explicitly mapped field; the closest most specific
 // document mapping could be one that matches part of the provided path.
 func (dm *DocumentMapping) documentMappingForPathElements(pathElements []string) (
-	*DocumentMapping, *DocumentMapping) {
+	*DocumentMapping, *DocumentMapping,
+) {
 	var pathElementsCopy []string
 	if len(pathElements) == 0 {
 		pathElementsCopy = []string{""}
@@ -194,7 +199,8 @@ OUTER:
 // document or for an explicitly mapped field; the closest most specific
 // document mapping could be one that matches part of the provided path.
 func (dm *DocumentMapping) documentMappingForPath(path string) (
-	*DocumentMapping, *DocumentMapping) {
+	*DocumentMapping, *DocumentMapping,
+) {
 	pathElements := decodePath(path)
 	return dm.documentMappingForPathElements(pathElements)
 }
@@ -416,7 +422,12 @@ func (dm *DocumentMapping) walkDocument(data interface{}, path []string, indexes
 
 }
 
-func (dm *DocumentMapping) processProperty(property interface{}, path []string, indexes []uint64, context *walkContext) {
+func (dm *DocumentMapping) processProperty(
+	property interface{},
+	path []string,
+	indexes []uint64,
+	context *walkContext,
+) {
 	// look to see if there is a mapping for this field
 	subDocMapping, closestDocMapping := dm.documentMappingForPathElements(path)
 
@@ -538,8 +549,10 @@ func (dm *DocumentMapping) processProperty(property interface{}, path []string, 
 			for _, fieldMapping := range subDocMapping.Fields {
 				switch fieldMapping.Type {
 				case "vector":
-					processed := fieldMapping.processVector(property, pathString, path,
-						indexes, context)
+					processed := fieldMapping.processVector(
+						property, pathString, path,
+						indexes, context,
+					)
 					if !isPropertyVectorInitialized {
 						isPropertyVector = processed
 						isPropertyVectorInitialized = true

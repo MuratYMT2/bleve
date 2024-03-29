@@ -19,8 +19,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/index/scorch"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/index/scorch"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -47,7 +47,12 @@ func TestConjunctionSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	beerAndMartySearcher, err := NewConjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{beerTermSearcher, martyTermSearcher}, explainTrue)
+	beerAndMartySearcher, err := NewConjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{beerTermSearcher, martyTermSearcher},
+		explainTrue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +66,12 @@ func TestConjunctionSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	angstAndBeerSearcher, err := NewConjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{angstTermSearcher, beerTermSearcher2}, explainTrue)
+	angstAndBeerSearcher, err := NewConjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{angstTermSearcher, beerTermSearcher2},
+		explainTrue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +85,12 @@ func TestConjunctionSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	beerAndJackSearcher, err := NewConjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{beerTermSearcher3, jackTermSearcher}, explainTrue)
+	beerAndJackSearcher, err := NewConjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{beerTermSearcher3, jackTermSearcher},
+		explainTrue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -89,7 +104,12 @@ func TestConjunctionSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	beerAndMisterSearcher, err := NewConjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{beerTermSearcher4, misterTermSearcher}, explainTrue)
+	beerAndMisterSearcher, err := NewConjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{beerTermSearcher4, misterTermSearcher},
+		explainTrue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -103,7 +123,12 @@ func TestConjunctionSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	couchbaseAndMisterSearcher, err := NewConjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{couchbaseTermSearcher, misterTermSearcher2}, explainTrue)
+	couchbaseAndMisterSearcher, err := NewConjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{couchbaseTermSearcher, misterTermSearcher2},
+		explainTrue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,11 +146,21 @@ func TestConjunctionSearch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	couchbaseAndMisterSearcher2, err := NewConjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{couchbaseTermSearcher2, misterTermSearcher3}, explainTrue)
+	couchbaseAndMisterSearcher2, err := NewConjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{couchbaseTermSearcher2, misterTermSearcher3},
+		explainTrue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	beerAndCouchbaseAndMisterSearcher, err := NewConjunctionSearcher(nil, twoDocIndexReader, []search.Searcher{beerTermSearcher5, couchbaseAndMisterSearcher2}, explainTrue)
+	beerAndCouchbaseAndMisterSearcher, err := NewConjunctionSearcher(
+		nil,
+		twoDocIndexReader,
+		[]search.Searcher{beerTermSearcher5, couchbaseAndMisterSearcher2},
+		explainTrue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -205,10 +240,22 @@ func TestConjunctionSearch(t *testing.T) {
 		for err == nil && next != nil {
 			if i < len(test.results) {
 				if !next.IndexInternalID.Equals(test.results[i].IndexInternalID) {
-					t.Errorf("expected result %d to have id %s got %s for test %d", i, test.results[i].IndexInternalID, next.IndexInternalID, testIndex)
+					t.Errorf(
+						"expected result %d to have id %s got %s for test %d",
+						i,
+						test.results[i].IndexInternalID,
+						next.IndexInternalID,
+						testIndex,
+					)
 				}
 				if !scoresCloseEnough(next.Score, test.results[i].Score) {
-					t.Errorf("expected result %d to have score %v got  %v for test %d", i, test.results[i].Score, next.Score, testIndex)
+					t.Errorf(
+						"expected result %d to have score %v got  %v for test %d",
+						i,
+						test.results[i].Score,
+						next.Score,
+						testIndex,
+					)
 					t.Logf("scoring explanation: %s", next.Expl)
 				}
 			}
@@ -249,29 +296,51 @@ func TestScorchCompositeSearchOptimizations(t *testing.T) {
 	}()
 
 	tests := []compositeSearchOptimizationTest{
-		{fieldTerms: []string{},
-			expectEmpty: "conjunction,disjunction"},
-		{fieldTerms: []string{"name:marty"},
-			expectEmpty: ""},
-		{fieldTerms: []string{"name:marty", "desc:beer"},
-			expectEmpty: ""},
-		{fieldTerms: []string{"name:marty", "name:marty"},
-			expectEmpty: ""},
-		{fieldTerms: []string{"name:marty", "desc:beer", "title:mister", "street:couchbase"},
-			expectEmpty: "conjunction"},
-		{fieldTerms: []string{"name:steve", "desc:beer", "title:mister", "street:couchbase"},
-			expectEmpty: ""},
+		{
+			fieldTerms:  []string{},
+			expectEmpty: "conjunction,disjunction",
+		},
+		{
+			fieldTerms:  []string{"name:marty"},
+			expectEmpty: "",
+		},
+		{
+			fieldTerms:  []string{"name:marty", "desc:beer"},
+			expectEmpty: "",
+		},
+		{
+			fieldTerms:  []string{"name:marty", "name:marty"},
+			expectEmpty: "",
+		},
+		{
+			fieldTerms:  []string{"name:marty", "desc:beer", "title:mister", "street:couchbase"},
+			expectEmpty: "conjunction",
+		},
+		{
+			fieldTerms:  []string{"name:steve", "desc:beer", "title:mister", "street:couchbase"},
+			expectEmpty: "",
+		},
 
-		{fieldTerms: []string{"name:NotARealName"},
-			expectEmpty: "conjunction,disjunction"},
-		{fieldTerms: []string{"name:NotARealName", "name:marty"},
-			expectEmpty: "conjunction"},
-		{fieldTerms: []string{"name:NotARealName", "name:marty", "desc:beer"},
-			expectEmpty: "conjunction"},
-		{fieldTerms: []string{"name:NotARealName", "name:marty", "name:marty"},
-			expectEmpty: "conjunction"},
-		{fieldTerms: []string{"name:NotARealName", "name:marty", "desc:beer", "title:mister", "street:couchbase"},
-			expectEmpty: "conjunction"},
+		{
+			fieldTerms:  []string{"name:NotARealName"},
+			expectEmpty: "conjunction,disjunction",
+		},
+		{
+			fieldTerms:  []string{"name:NotARealName", "name:marty"},
+			expectEmpty: "conjunction",
+		},
+		{
+			fieldTerms:  []string{"name:NotARealName", "name:marty", "desc:beer"},
+			expectEmpty: "conjunction",
+		},
+		{
+			fieldTerms:  []string{"name:NotARealName", "name:marty", "name:marty"},
+			expectEmpty: "conjunction",
+		},
+		{
+			fieldTerms:  []string{"name:NotARealName", "name:marty", "desc:beer", "title:mister", "street:couchbase"},
+			expectEmpty: "conjunction",
+		},
 	}
 
 	// The theme of this unit test is that given one of the above
@@ -291,25 +360,35 @@ func TestScorchCompositeSearchOptimizations(t *testing.T) {
 		search.SearcherOptions{Score: "none", Explain: true},
 	}
 
-	testScorchCompositeSearchOptimizations(t, twoDocIndexReader, tests,
-		searcherOptionsToCompare, "conjunction")
+	testScorchCompositeSearchOptimizations(
+		t, twoDocIndexReader, tests,
+		searcherOptionsToCompare, "conjunction",
+	)
 
-	testScorchCompositeSearchOptimizations(t, twoDocIndexReader, tests,
-		searcherOptionsToCompare, "disjunction")
+	testScorchCompositeSearchOptimizations(
+		t, twoDocIndexReader, tests,
+		searcherOptionsToCompare, "disjunction",
+	)
 }
 
-func testScorchCompositeSearchOptimizations(t *testing.T, indexReader index.IndexReader,
+func testScorchCompositeSearchOptimizations(
+	t *testing.T, indexReader index.IndexReader,
 	tests []compositeSearchOptimizationTest,
 	searcherOptionsToCompare []search.SearcherOptions,
-	compositeKind string) {
+	compositeKind string,
+) {
 	for testi := range tests {
 		resultsToCompare := map[string]bool{}
 
-		testScorchCompositeSearchOptimizationsHelper(t, indexReader, tests, testi,
-			searcherOptionsToCompare, compositeKind, false, resultsToCompare)
+		testScorchCompositeSearchOptimizationsHelper(
+			t, indexReader, tests, testi,
+			searcherOptionsToCompare, compositeKind, false, resultsToCompare,
+		)
 
-		testScorchCompositeSearchOptimizationsHelper(t, indexReader, tests, testi,
-			searcherOptionsToCompare, compositeKind, true, resultsToCompare)
+		testScorchCompositeSearchOptimizationsHelper(
+			t, indexReader, tests, testi,
+			searcherOptionsToCompare, compositeKind, true, resultsToCompare,
+		)
 	}
 }
 
@@ -317,7 +396,8 @@ func testScorchCompositeSearchOptimizationsHelper(
 	t *testing.T, indexReader index.IndexReader,
 	tests []compositeSearchOptimizationTest, testi int,
 	searcherOptionsToCompare []search.SearcherOptions,
-	compositeKind string, allowOptimizations bool, resultsToCompare map[string]bool) {
+	compositeKind string, allowOptimizations bool, resultsToCompare map[string]bool,
+) {
 	// Save the global allowed optimization settings to restore later.
 	optimizeConjunction := scorch.OptimizeConjunction
 	optimizeConjunctionUnadorned := scorch.OptimizeConjunctionUnadorned
@@ -401,11 +481,13 @@ func testScorchCompositeSearchOptimizationsHelper(
 		}
 
 		if i == 0 && !strings.Contains(test.expectEmpty, compositeKind) {
-			t.Errorf("testi: %d, compositeKind: %s, allowOptimizations: %t,"+
-				" searcherOptionsI: %d, searcherOptions: %#v,"+
-				" expected some results but got no results on test: %#v",
+			t.Errorf(
+				"testi: %d, compositeKind: %s, allowOptimizations: %t,"+
+					" searcherOptionsI: %d, searcherOptions: %#v,"+
+					" expected some results but got no results on test: %#v",
 				testi, compositeKind, allowOptimizations,
-				searcherOptionsI, searcherOptions, test)
+				searcherOptionsI, searcherOptions, test,
+			)
 		}
 	}
 }

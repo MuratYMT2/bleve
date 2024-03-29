@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/size"
 )
 
 var reflectStaticSizeDisjunctionQueryScorer int
@@ -43,7 +43,11 @@ func NewDisjunctionQueryScorer(options search.SearcherOptions) *DisjunctionQuery
 	}
 }
 
-func (s *DisjunctionQueryScorer) Score(ctx *search.SearchContext, constituents []*search.DocumentMatch, countMatch, countTotal int) *search.DocumentMatch {
+func (s *DisjunctionQueryScorer) Score(
+	ctx *search.SearchContext,
+	constituents []*search.DocumentMatch,
+	countMatch, countTotal int,
+) *search.DocumentMatch {
 	var sum float64
 	var childrenExplanations []*search.Explanation
 	if s.options.Explain {
@@ -77,7 +81,8 @@ func (s *DisjunctionQueryScorer) Score(ctx *search.SearchContext, constituents [
 	rv.Score = newScore
 	rv.Expl = newExpl
 	rv.FieldTermLocations = search.MergeFieldTermLocations(
-		rv.FieldTermLocations, constituents[1:])
+		rv.FieldTermLocations, constituents[1:],
+	)
 
 	return rv
 }
@@ -85,8 +90,10 @@ func (s *DisjunctionQueryScorer) Score(ctx *search.SearchContext, constituents [
 // This method is used only when disjunction searcher is used over multiple
 // KNN searchers, where only the score breakdown and the optional explanation breakdown
 // is required. The final score and explanation is set when we finalize the KNN hits.
-func (s *DisjunctionQueryScorer) ScoreAndExplBreakdown(ctx *search.SearchContext, constituents []*search.DocumentMatch,
-	matchingIdxs []int, originalPositions []int, countTotal int) *search.DocumentMatch {
+func (s *DisjunctionQueryScorer) ScoreAndExplBreakdown(
+	ctx *search.SearchContext, constituents []*search.DocumentMatch,
+	matchingIdxs []int, originalPositions []int, countTotal int,
+) *search.DocumentMatch {
 
 	scoreBreakdown := make(map[int]float64)
 	var childrenExplanations []*search.Explanation
@@ -118,6 +125,7 @@ func (s *DisjunctionQueryScorer) ScoreAndExplBreakdown(ctx *search.SearchContext
 	rv.ScoreBreakdown = scoreBreakdown
 	rv.Expl = explBreakdown
 	rv.FieldTermLocations = search.MergeFieldTermLocations(
-		rv.FieldTermLocations, constituents[1:])
+		rv.FieldTermLocations, constituents[1:],
+	)
 	return rv
 }

@@ -28,7 +28,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/registry"
 	store "github.com/blevesearch/upsidedown_store_api"
 	bolt "go.etcd.io/bbolt"
 )
@@ -87,11 +87,13 @@ func New(mo store.MergeOperator, config map[string]interface{}) (store.KVStore, 
 	db.NoSync = noSync
 
 	if !bo.ReadOnly {
-		err = db.Update(func(tx *bolt.Tx) error {
-			_, err := tx.CreateBucketIfNotExists([]byte(bucket))
+		err = db.Update(
+			func(tx *bolt.Tx) error {
+				_, err := tx.CreateBucketIfNotExists([]byte(bucket))
 
-			return err
-		})
+				return err
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -141,24 +143,26 @@ func (bs *Store) Stats() json.Marshaler {
 func (bs *Store) CompactWithBatchSize(batchSize int) error {
 	for {
 		cnt := 0
-		err := bs.db.Batch(func(tx *bolt.Tx) error {
-			c := tx.Bucket([]byte(bs.bucket)).Cursor()
-			prefix := []byte("d")
+		err := bs.db.Batch(
+			func(tx *bolt.Tx) error {
+				c := tx.Bucket([]byte(bs.bucket)).Cursor()
+				prefix := []byte("d")
 
-			for k, v := c.Seek(prefix); bytes.HasPrefix(k, prefix); k, v = c.Next() {
-				if bytes.Equal(v, []byte{0}) {
-					cnt++
-					if err := c.Delete(); err != nil {
-						return err
+				for k, v := c.Seek(prefix); bytes.HasPrefix(k, prefix); k, v = c.Next() {
+					if bytes.Equal(v, []byte{0}) {
+						cnt++
+						if err := c.Delete(); err != nil {
+							return err
+						}
+						if cnt == batchSize {
+							break
+						}
 					}
-					if cnt == batchSize {
-						break
-					}
+
 				}
-
-			}
-			return nil
-		})
+				return nil
+			},
+		)
 		if err != nil {
 			return err
 		}

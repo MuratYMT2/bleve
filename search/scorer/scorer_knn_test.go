@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -51,8 +51,10 @@ func TestKNNScorerExplanation(t *testing.T) {
 				Vector: resVector,
 			},
 			norm: 1.0,
-			scorer: NewKNNQueryScorer(queryVector, "desc", 1.0,
-				search.SearcherOptions{Explain: true}, index.EuclideanDistance),
+			scorer: NewKNNQueryScorer(
+				queryVector, "desc", 1.0,
+				search.SearcherOptions{Explain: true}, index.EuclideanDistance,
+			),
 			// Specifically testing EuclideanDistance since that involves score inversion.
 			result: &search.DocumentMatch{
 				IndexInternalID: index.IndexInternalID("one"),
@@ -77,8 +79,10 @@ func TestKNNScorerExplanation(t *testing.T) {
 				Vector: queryVector,
 			},
 			norm: 1.0,
-			scorer: NewKNNQueryScorer(queryVector, "desc", 1.0,
-				search.SearcherOptions{Explain: true}, index.EuclideanDistance),
+			scorer: NewKNNQueryScorer(
+				queryVector, "desc", 1.0,
+				search.SearcherOptions{Explain: true}, index.EuclideanDistance,
+			),
 			// Specifically testing EuclideanDistance with 0 score.
 			result: &search.DocumentMatch{
 				IndexInternalID: index.IndexInternalID("one"),
@@ -102,8 +106,10 @@ func TestKNNScorerExplanation(t *testing.T) {
 				Vector: resVector,
 			},
 			norm: 1.0,
-			scorer: NewKNNQueryScorer(queryVector, "desc", 1.0,
-				search.SearcherOptions{Explain: true}, index.CosineSimilarity),
+			scorer: NewKNNQueryScorer(
+				queryVector, "desc", 1.0,
+				search.SearcherOptions{Explain: true}, index.CosineSimilarity,
+			),
 			result: &search.DocumentMatch{
 				IndexInternalID: index.IndexInternalID("one"),
 				Score:           0.5,
@@ -126,8 +132,10 @@ func TestKNNScorerExplanation(t *testing.T) {
 				Vector: resVector,
 			},
 			norm: 0.5,
-			scorer: NewKNNQueryScorer(queryVector, "desc", 1.0,
-				search.SearcherOptions{Explain: true}, index.CosineSimilarity),
+			scorer: NewKNNQueryScorer(
+				queryVector, "desc", 1.0,
+				search.SearcherOptions{Explain: true}, index.CosineSimilarity,
+			),
 			result: &search.DocumentMatch{
 				IndexInternalID: index.IndexInternalID("one"),
 				Score:           0.25,
@@ -174,8 +182,10 @@ func TestKNNScorerExplanation(t *testing.T) {
 		actual.Complete(nil)
 
 		if !reflect.DeepEqual(actual.Expl, test.result.Expl) {
-			t.Errorf("expected %#v got %#v for %#v", test.result.Expl,
-				actual.Expl, test.vectorMatch)
+			t.Errorf(
+				"expected %#v got %#v for %#v", test.result.Expl,
+				actual.Expl, test.vectorMatch,
+			)
 		}
 	}
 }

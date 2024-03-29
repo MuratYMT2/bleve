@@ -18,8 +18,8 @@ import (
 	"bytes"
 	"reflect"
 
+	"github.com/MuratYMT2/bleve/v2/size"
 	"github.com/RoaringBitmap/roaring"
-	"github.com/blevesearch/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 

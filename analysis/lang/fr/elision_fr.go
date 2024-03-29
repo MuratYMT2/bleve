@@ -17,9 +17,9 @@ package fr
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/analysis/token/elision"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis/token/elision"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 const ElisionName = "elision_fr"

@@ -18,10 +18,10 @@ import (
 	"math"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/index/upsidedown"
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/gtreap"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/gtreap"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -38,7 +38,8 @@ func TestTermSearcher(t *testing.T) {
 		map[string]interface{}{
 			"path": "",
 		},
-		analysisQueue)
+		analysisQueue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}

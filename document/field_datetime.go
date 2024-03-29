@@ -21,9 +21,9 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -95,13 +95,15 @@ func (n *DateTimeField) splitValue() (numeric.PrefixCoded, string) {
 func (n *DateTimeField) Analyze() {
 	valueWithoutLayout, _ := n.splitValue()
 	tokens := make(analysis.TokenStream, 0)
-	tokens = append(tokens, &analysis.Token{
-		Start:    0,
-		End:      len(valueWithoutLayout),
-		Term:     valueWithoutLayout,
-		Position: 1,
-		Type:     analysis.DateTime,
-	})
+	tokens = append(
+		tokens, &analysis.Token{
+			Start:    0,
+			End:      len(valueWithoutLayout),
+			Term:     valueWithoutLayout,
+			Position: 1,
+			Type:     analysis.DateTime,
+		},
+	)
 
 	original, err := valueWithoutLayout.Int64()
 	if err == nil {
@@ -163,7 +165,13 @@ func NewDateTimeField(name string, arrayPositions []uint64, dt time.Time, layout
 	return NewDateTimeFieldWithIndexingOptions(name, arrayPositions, dt, layout, DefaultDateTimeIndexingOptions)
 }
 
-func NewDateTimeFieldWithIndexingOptions(name string, arrayPositions []uint64, dt time.Time, layout string, options index.FieldIndexingOptions) (*DateTimeField, error) {
+func NewDateTimeFieldWithIndexingOptions(
+	name string,
+	arrayPositions []uint64,
+	dt time.Time,
+	layout string,
+	options index.FieldIndexingOptions,
+) (*DateTimeField, error) {
 	if canRepresent(dt) {
 		dtInt64 := dt.UnixNano()
 		prefixCoded := numeric.MustNewPrefixCodedInt64(dtInt64, 0)

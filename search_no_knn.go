@@ -22,9 +22,9 @@ import (
 	"encoding/json"
 	"sort"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/collector"
-	"github.com/blevesearch/bleve/v2/search/query"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/collector"
+	"github.com/MuratYMT2/bleve/v2/search/query"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -171,7 +171,12 @@ func validateKNN(req *SearchRequest) error {
 	return nil
 }
 
-func (i *indexImpl) runKnnCollector(ctx context.Context, req *SearchRequest, reader index.IndexReader, preSearch bool) ([]*search.DocumentMatch, error) {
+func (i *indexImpl) runKnnCollector(
+	ctx context.Context,
+	req *SearchRequest,
+	reader index.IndexReader,
+	preSearch bool,
+) ([]*search.DocumentMatch, error) {
 	return nil, nil
 }
 
@@ -193,8 +198,10 @@ func isKNNrequestSatisfiedByPreSearch(req *SearchRequest) bool {
 	return false
 }
 
-func constructKnnPreSearchData(mergedOut map[string]map[string]interface{}, preSearchResult *SearchResult,
-	indexes []Index) (map[string]map[string]interface{}, error) {
+func constructKnnPreSearchData(
+	mergedOut map[string]map[string]interface{}, preSearchResult *SearchResult,
+	indexes []Index,
+) (map[string]map[string]interface{}, error) {
 	return mergedOut, nil
 }
 

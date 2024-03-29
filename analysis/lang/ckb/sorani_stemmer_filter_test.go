@@ -18,8 +18,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/analysis/tokenizer/single"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis/tokenizer/single"
 )
 
 func TestSoraniStemmerFilter(t *testing.T) {
@@ -38,7 +38,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 		input  []byte
 		output analysis.TokenStream
 	}{
-		{ // -ek
+		{
+			// -ek
 			input: []byte("پیاوێک"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -49,7 +50,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -yek
+		{
+			// -yek
 			input: []byte("دەرگایەک"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -60,7 +62,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -aka
+		{
+			// -aka
 			input: []byte("پیاوەكە"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -71,7 +74,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -ka
+		{
+			// -ka
 			input: []byte("دەرگاكە"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -82,7 +86,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -a
+		{
+			// -a
 			input: []byte("کتاویە"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -93,7 +98,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -ya
+		{
+			// -ya
 			input: []byte("دەرگایە"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -104,7 +110,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -An
+		{
+			// -An
 			input: []byte("پیاوان"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -115,7 +122,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -yAn
+		{
+			// -yAn
 			input: []byte("دەرگایان"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -126,7 +134,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -akAn
+		{
+			// -akAn
 			input: []byte("پیاوەکان"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -137,7 +146,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -kAn
+		{
+			// -kAn
 			input: []byte("دەرگاکان"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -148,7 +158,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -Ana
+		{
+			// -Ana
 			input: []byte("پیاوانە"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -159,7 +170,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -yAna
+		{
+			// -yAna
 			input: []byte("دەرگایانە"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -170,7 +182,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // Ezafe singular
+		{
+			// Ezafe singular
 			input: []byte("هۆتیلی"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -181,7 +194,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // Ezafe indefinite
+		{
+			// Ezafe indefinite
 			input: []byte("هۆتیلێکی"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -192,7 +206,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // Ezafe plural
+		{
+			// Ezafe plural
 			input: []byte("هۆتیلانی"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -203,7 +218,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -awa
+		{
+			// -awa
 			input: []byte("دوورەوە"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -214,7 +230,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -dA
+		{
+			// -dA
 			input: []byte("نیوەشەودا"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -225,7 +242,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -A
+		{
+			// -A
 			input: []byte("سۆرانا"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -236,7 +254,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -mAn
+		{
+			// -mAn
 			input: []byte("پارەمان"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -247,7 +266,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -tAn
+		{
+			// -tAn
 			input: []byte("پارەتان"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -258,7 +278,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // -yAn
+		{
+			// -yAn
 			input: []byte("پارەیان"),
 			output: analysis.TokenStream{
 				&analysis.Token{
@@ -269,7 +290,8 @@ func TestSoraniStemmerFilter(t *testing.T) {
 				},
 			},
 		},
-		{ // empty
+		{
+			// empty
 			input: []byte(""),
 			output: analysis.TokenStream{
 				&analysis.Token{

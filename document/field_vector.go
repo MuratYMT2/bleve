@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -89,24 +89,32 @@ func (n *VectorField) Value() []byte {
 }
 
 func (n *VectorField) GoString() string {
-	return fmt.Sprintf("&document.VectorField{Name:%s, Options: %s, "+
-		"Value: %+v}", n.name, n.options, n.value)
+	return fmt.Sprintf(
+		"&document.VectorField{Name:%s, Options: %s, "+
+			"Value: %+v}", n.name, n.options, n.value,
+	)
 }
 
 // For the sake of not polluting the API, we are keeping arrayPositions as a
 // parameter, but it is not used.
-func NewVectorField(name string, arrayPositions []uint64,
-	vector []float32, dims int, similarity, vectorIndexOptimizedFor string) *VectorField {
-	return NewVectorFieldWithIndexingOptions(name, arrayPositions,
-		vector, dims, similarity, vectorIndexOptimizedFor,
-		DefaultVectorIndexingOptions)
-}
-
-// For the sake of not polluting the API, we are keeping arrayPositions as a
-// parameter, but it is not used.
-func NewVectorFieldWithIndexingOptions(name string, arrayPositions []uint64,
+func NewVectorField(
+	name string, arrayPositions []uint64,
 	vector []float32, dims int, similarity, vectorIndexOptimizedFor string,
-	options index.FieldIndexingOptions) *VectorField {
+) *VectorField {
+	return NewVectorFieldWithIndexingOptions(
+		name, arrayPositions,
+		vector, dims, similarity, vectorIndexOptimizedFor,
+		DefaultVectorIndexingOptions,
+	)
+}
+
+// For the sake of not polluting the API, we are keeping arrayPositions as a
+// parameter, but it is not used.
+func NewVectorFieldWithIndexingOptions(
+	name string, arrayPositions []uint64,
+	vector []float32, dims int, similarity, vectorIndexOptimizedFor string,
+	options index.FieldIndexingOptions,
+) *VectorField {
 	options = options | DefaultVectorIndexingOptions
 
 	return &VectorField{

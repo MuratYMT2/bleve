@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 	segment_api "github.com/blevesearch/scorch_segment_api/v2"
 )
@@ -70,7 +70,8 @@ func (i *IndexSnapshotVectorReader) Size() int {
 }
 
 func (i *IndexSnapshotVectorReader) Next(preAlloced *index.VectorDoc) (
-	*index.VectorDoc, error) {
+	*index.VectorDoc, error,
+) {
 	rv := preAlloced
 	if rv == nil {
 		rv = &index.VectorDoc{}
@@ -99,8 +100,10 @@ func (i *IndexSnapshotVectorReader) Next(preAlloced *index.VectorDoc) (
 	return nil, nil
 }
 
-func (i *IndexSnapshotVectorReader) Advance(ID index.IndexInternalID,
-	preAlloced *index.VectorDoc) (*index.VectorDoc, error) {
+func (i *IndexSnapshotVectorReader) Advance(
+	ID index.IndexInternalID,
+	preAlloced *index.VectorDoc,
+) (*index.VectorDoc, error) {
 
 	if i.currPosting != nil && bytes.Compare(i.currID, ID) >= 0 {
 		i2, err := i.snapshot.VectorReader(i.ctx, i.vector, i.field, i.k)
@@ -118,8 +121,10 @@ func (i *IndexSnapshotVectorReader) Advance(ID index.IndexInternalID,
 	}
 	segIndex, ldocNum := i.snapshot.segmentIndexAndLocalDocNumFromGlobal(num)
 	if segIndex >= len(i.snapshot.segment) {
-		return nil, fmt.Errorf("computed segment index %d out of bounds %d",
-			segIndex, len(i.snapshot.segment))
+		return nil, fmt.Errorf(
+			"computed segment index %d out of bounds %d",
+			segIndex, len(i.snapshot.segment),
+		)
 	}
 	// skip directly to the target segment
 	i.segmentOffset = segIndex
@@ -137,8 +142,10 @@ func (i *IndexSnapshotVectorReader) Advance(ID index.IndexInternalID,
 	if preAlloced == nil {
 		preAlloced = &index.VectorDoc{}
 	}
-	preAlloced.ID = docNumberToBytes(preAlloced.ID, next.Number()+
-		i.snapshot.offsets[segIndex])
+	preAlloced.ID = docNumberToBytes(
+		preAlloced.ID, next.Number()+
+			i.snapshot.offsets[segIndex],
+	)
 	i.currID = preAlloced.ID
 	i.currPosting = next
 	return preAlloced, nil

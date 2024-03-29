@@ -17,7 +17,7 @@ package registry
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/search/highlight"
+	"github.com/MuratYMT2/bleve/v2/search/highlight"
 )
 
 func RegisterFragmentFormatter(name string, constructor FragmentFormatterConstructor) {
@@ -53,7 +53,10 @@ func FragmentFormatterBuild(name string, config map[string]interface{}, cache *C
 	return fragmentFormatter, nil
 }
 
-func (c *FragmentFormatterCache) FragmentFormatterNamed(name string, cache *Cache) (highlight.FragmentFormatter, error) {
+func (c *FragmentFormatterCache) FragmentFormatterNamed(name string, cache *Cache) (
+	highlight.FragmentFormatter,
+	error,
+) {
 	item, err := c.ItemNamed(name, cache, FragmentFormatterBuild)
 	if err != nil {
 		return nil, err
@@ -61,7 +64,12 @@ func (c *FragmentFormatterCache) FragmentFormatterNamed(name string, cache *Cach
 	return item.(highlight.FragmentFormatter), nil
 }
 
-func (c *FragmentFormatterCache) DefineFragmentFormatter(name string, typ string, config map[string]interface{}, cache *Cache) (highlight.FragmentFormatter, error) {
+func (c *FragmentFormatterCache) DefineFragmentFormatter(
+	name string,
+	typ string,
+	config map[string]interface{},
+	cache *Cache,
+) (highlight.FragmentFormatter, error) {
 	item, err := c.DefineItem(name, typ, config, cache, FragmentFormatterBuild)
 	if err != nil {
 		if err == ErrAlreadyDefined {

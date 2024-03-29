@@ -15,7 +15,7 @@
 package boltdb
 
 import (
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/util"
 )
 
 type stats struct {

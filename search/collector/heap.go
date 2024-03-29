@@ -17,7 +17,7 @@ package collector
 import (
 	"container/heap"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 )
 
 type collectStoreHeap struct {
@@ -34,8 +34,10 @@ func newStoreHeap(capacity int, compare collectorCompare) *collectStoreHeap {
 	return rv
 }
 
-func (c *collectStoreHeap) AddNotExceedingSize(doc *search.DocumentMatch,
-	size int) *search.DocumentMatch {
+func (c *collectStoreHeap) AddNotExceedingSize(
+	doc *search.DocumentMatch,
+	size int,
+) *search.DocumentMatch {
 	c.add(doc)
 	if c.Len() > size {
 		return c.removeLast()

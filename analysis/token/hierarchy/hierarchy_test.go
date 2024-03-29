@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis"
 )
 
 func TestHierarchyFilter(t *testing.T) {
@@ -217,13 +217,15 @@ func TestHierarchyFilter(t *testing.T) {
 
 	for _, test := range tests {
 		test := test
-		t.Run(test.name, func(t *testing.T) {
-			filter := NewHierarchyFilter([]byte(test.delimiter), test.max, test.splitInput)
-			actual := filter.Filter(test.input)
-			if !reflect.DeepEqual(actual, test.output) {
-				t.Errorf("expected %s, got %s", test.output, actual)
-			}
-		})
+		t.Run(
+			test.name, func(t *testing.T) {
+				filter := NewHierarchyFilter([]byte(test.delimiter), test.max, test.splitInput)
+				actual := filter.Filter(test.input)
+				if !reflect.DeepEqual(actual, test.output) {
+					t.Errorf("expected %s, got %s", test.output, actual)
+				}
+			},
+		)
 	}
 
 }

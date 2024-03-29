@@ -31,17 +31,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/null"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/query"
+	"github.com/MuratYMT2/bleve/v2/analysis/analyzer/keyword"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/boltdb"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/null"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/query"
 	index "github.com/blevesearch/bleve_index_api"
 
-	"github.com/blevesearch/bleve/v2/index/scorch"
-	"github.com/blevesearch/bleve/v2/index/upsidedown"
+	"github.com/MuratYMT2/bleve/v2/index/scorch"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown"
 )
 
 type Fatalfable interface {
@@ -198,11 +198,13 @@ func TestCrud(t *testing.T) {
 		t.Fatal(err)
 	}
 	foundNameField := false
-	doc.VisitFields(func(field index.Field) {
-		if field.Name() == "name" && string(field.Value()) == "marty" {
-			foundNameField = true
-		}
-	})
+	doc.VisitFields(
+		func(field index.Field) {
+			if field.Name() == "name" && string(field.Value()) == "marty" {
+				foundNameField = true
+			}
+		},
+	)
 	if !foundNameField {
 		t.Errorf("expected to find field named 'name' with value 'marty'")
 	}
@@ -240,8 +242,10 @@ func approxSame(actual, expected uint64) bool {
 	return float64(modulus(actual, expected))/float64(expected) < float64(0.30)
 }
 
-func checkStatsOnIndexedBatch(indexPath string, indexMapping mapping.IndexMapping,
-	expectedVal uint64) error {
+func checkStatsOnIndexedBatch(
+	indexPath string, indexMapping mapping.IndexMapping,
+	expectedVal uint64,
+) error {
 	var wg sync.WaitGroup
 	var statValError error
 
@@ -255,15 +259,19 @@ func checkStatsOnIndexedBatch(indexPath string, indexMapping mapping.IndexMappin
 		return fmt.Errorf("failed to form a batch %v\n", err)
 	}
 	wg.Add(1)
-	batch.SetPersistedCallback(func(e error) {
-		defer wg.Done()
-		stats, _ := idx.StatsMap()["index"].(map[string]interface{})
-		bytesWritten, _ := stats["num_bytes_written_at_index_time"].(uint64)
-		if !approxSame(bytesWritten, expectedVal) {
-			statValError = fmt.Errorf("expected bytes written is %d, got %v", expectedVal,
-				bytesWritten)
-		}
-	})
+	batch.SetPersistedCallback(
+		func(e error) {
+			defer wg.Done()
+			stats, _ := idx.StatsMap()["index"].(map[string]interface{})
+			bytesWritten, _ := stats["num_bytes_written_at_index_time"].(uint64)
+			if !approxSame(bytesWritten, expectedVal) {
+				statValError = fmt.Errorf(
+					"expected bytes written is %d, got %v", expectedVal,
+					bytesWritten,
+				)
+			}
+		},
+	)
 	err = idx.Batch(batch)
 	if err != nil {
 		return fmt.Errorf("failed to index batch %v\n", err)
@@ -402,8 +410,10 @@ func TestBytesRead(t *testing.T) {
 	stats, _ := idx.StatsMap()["index"].(map[string]interface{})
 	prevBytesRead, _ := stats["num_bytes_read_at_query_time"].(uint64)
 	if prevBytesRead != 21639 && res.Cost == prevBytesRead {
-		t.Fatalf("expected bytes read for query string 21639, got %v",
-			prevBytesRead)
+		t.Fatalf(
+			"expected bytes read for query string 21639, got %v",
+			prevBytesRead,
+		)
 	}
 
 	// subsequent queries on the same field results in lesser amount
@@ -416,8 +426,10 @@ func TestBytesRead(t *testing.T) {
 	stats, _ = idx.StatsMap()["index"].(map[string]interface{})
 	bytesRead, _ := stats["num_bytes_read_at_query_time"].(uint64)
 	if bytesRead-prevBytesRead != 23 && res.Cost == bytesRead-prevBytesRead {
-		t.Fatalf("expected bytes read for query string 23, got %v",
-			bytesRead-prevBytesRead)
+		t.Fatalf(
+			"expected bytes read for query string 23, got %v",
+			bytesRead-prevBytesRead,
+		)
 	}
 	prevBytesRead = bytesRead
 
@@ -432,8 +444,10 @@ func TestBytesRead(t *testing.T) {
 	stats, _ = idx.StatsMap()["index"].(map[string]interface{})
 	bytesRead, _ = stats["num_bytes_read_at_query_time"].(uint64)
 	if bytesRead-prevBytesRead != 8468 && res.Cost == bytesRead-prevBytesRead {
-		t.Fatalf("expected bytes read for fuzzy query is 8468, got %v",
-			bytesRead-prevBytesRead)
+		t.Fatalf(
+			"expected bytes read for fuzzy query is 8468, got %v",
+			bytesRead-prevBytesRead,
+		)
 	}
 	prevBytesRead = bytesRead
 
@@ -449,8 +463,10 @@ func TestBytesRead(t *testing.T) {
 	stats, _ = idx.StatsMap()["index"].(map[string]interface{})
 	bytesRead, _ = stats["num_bytes_read_at_query_time"].(uint64)
 	if !approxSame(bytesRead-prevBytesRead, 150) && res.Cost == bytesRead-prevBytesRead {
-		t.Fatalf("expected bytes read for faceted query is around 150, got %v",
-			bytesRead-prevBytesRead)
+		t.Fatalf(
+			"expected bytes read for faceted query is around 150, got %v",
+			bytesRead-prevBytesRead,
+		)
 	}
 	prevBytesRead = bytesRead
 
@@ -467,8 +483,10 @@ func TestBytesRead(t *testing.T) {
 	stats, _ = idx.StatsMap()["index"].(map[string]interface{})
 	bytesRead, _ = stats["num_bytes_read_at_query_time"].(uint64)
 	if bytesRead-prevBytesRead != 924 && res.Cost == bytesRead-prevBytesRead {
-		t.Fatalf("expected bytes read for numeric range query is 924, got %v",
-			bytesRead-prevBytesRead)
+		t.Fatalf(
+			"expected bytes read for numeric range query is 924, got %v",
+			bytesRead-prevBytesRead,
+		)
 	}
 	prevBytesRead = bytesRead
 
@@ -482,8 +500,10 @@ func TestBytesRead(t *testing.T) {
 	stats, _ = idx.StatsMap()["index"].(map[string]interface{})
 	bytesRead, _ = stats["num_bytes_read_at_query_time"].(uint64)
 	if bytesRead-prevBytesRead != 60 && res.Cost == bytesRead-prevBytesRead {
-		t.Fatalf("expected bytes read for query with highlighter is 60, got %v",
-			bytesRead-prevBytesRead)
+		t.Fatalf(
+			"expected bytes read for query with highlighter is 60, got %v",
+			bytesRead-prevBytesRead,
+		)
 	}
 	prevBytesRead = bytesRead
 
@@ -499,8 +519,10 @@ func TestBytesRead(t *testing.T) {
 	stats, _ = idx.StatsMap()["index"].(map[string]interface{})
 	bytesRead, _ = stats["num_bytes_read_at_query_time"].(uint64)
 	if bytesRead-prevBytesRead != 83 && res.Cost == bytesRead-prevBytesRead {
-		t.Fatalf("expected bytes read for disjunction query is 83, got %v",
-			bytesRead-prevBytesRead)
+		t.Fatalf(
+			"expected bytes read for disjunction query is 83, got %v",
+			bytesRead-prevBytesRead,
+		)
 	}
 }
 
@@ -581,8 +603,10 @@ func TestBytesReadStored(t *testing.T) {
 	bytesRead, _ = stats["num_bytes_read_at_query_time"].(uint64)
 
 	if bytesRead-prevBytesRead != 26478 && bytesRead-prevBytesRead == res.Cost {
-		t.Fatalf("expected the bytes read stat to be around 26478, got %v",
-			bytesRead-prevBytesRead)
+		t.Fatalf(
+			"expected the bytes read stat to be around 26478, got %v",
+			bytesRead-prevBytesRead,
+		)
 	}
 	idx.Close()
 	cleanupTmpIndexPath(t, tmpIndexPath)
@@ -817,7 +841,12 @@ type slowQuery struct {
 	delay  time.Duration
 }
 
-func (s *slowQuery) Searcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping, options search.SearcherOptions) (search.Searcher, error) {
+func (s *slowQuery) Searcher(
+	ctx context.Context,
+	i index.IndexReader,
+	m mapping.IndexMapping,
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	time.Sleep(s.delay)
 	return s.actual.Searcher(ctx, i, m, options)
 }
@@ -1157,9 +1186,14 @@ func TestSortMatchSearch(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	names := []string{"Noam", "Uri", "David", "Yosef", "Eitan", "Itay", "Ariel", "Daniel", "Omer", "Yogev", "Yehonatan", "Moshe", "Mohammed", "Yusuf", "Omar"}
+	names := []string{
+		"Noam", "Uri", "David", "Yosef", "Eitan", "Itay", "Ariel", "Daniel", "Omer", "Yogev", "Yehonatan", "Moshe",
+		"Mohammed", "Yusuf", "Omar",
+	}
 	days := []string{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
-	numbers := []string{"One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve"}
+	numbers := []string{
+		"One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve",
+	}
 	b := index.NewBatch()
 	for i := 0; i < 200; i++ {
 		doc := make(map[string]interface{})
@@ -1270,11 +1304,13 @@ func TestBatchReset(t *testing.T) {
 	}
 
 	batch := index.NewBatch()
-	err = batch.Index("k1", struct {
-		Body string
-	}{
-		Body: "v1",
-	})
+	err = batch.Index(
+		"k1", struct {
+			Body string
+		}{
+			Body: "v1",
+		},
+	)
 	if err != nil {
 		t.Error(err)
 	}
@@ -1309,16 +1345,18 @@ func TestDocumentFieldArrayPositions(t *testing.T) {
 	}
 
 	// index a document with an array of strings
-	err = idx.Index("k", struct {
-		Messages []string
-	}{
-		Messages: []string{
-			"first",
-			"second",
-			"third",
-			"last",
+	err = idx.Index(
+		"k", struct {
+			Messages []string
+		}{
+			Messages: []string{
+				"first",
+				"second",
+				"third",
+				"last",
+			},
 		},
-	})
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1329,55 +1367,59 @@ func TestDocumentFieldArrayPositions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	doc.VisitFields(func(f index.Field) {
-		if reflect.DeepEqual(f.Value(), []byte("first")) {
-			ap := f.ArrayPositions()
-			if len(ap) < 1 {
-				t.Errorf("expected an array position, got none")
-				return
+	doc.VisitFields(
+		func(f index.Field) {
+			if reflect.DeepEqual(f.Value(), []byte("first")) {
+				ap := f.ArrayPositions()
+				if len(ap) < 1 {
+					t.Errorf("expected an array position, got none")
+					return
+				}
+				if ap[0] != 0 {
+					t.Errorf("expected 'first' in array position 0, got %d", ap[0])
+				}
 			}
-			if ap[0] != 0 {
-				t.Errorf("expected 'first' in array position 0, got %d", ap[0])
+			if reflect.DeepEqual(f.Value(), []byte("second")) {
+				ap := f.ArrayPositions()
+				if len(ap) < 1 {
+					t.Errorf("expected an array position, got none")
+					return
+				}
+				if ap[0] != 1 {
+					t.Errorf("expected 'second' in array position 1, got %d", ap[0])
+				}
 			}
-		}
-		if reflect.DeepEqual(f.Value(), []byte("second")) {
-			ap := f.ArrayPositions()
-			if len(ap) < 1 {
-				t.Errorf("expected an array position, got none")
-				return
+			if reflect.DeepEqual(f.Value(), []byte("third")) {
+				ap := f.ArrayPositions()
+				if len(ap) < 1 {
+					t.Errorf("expected an array position, got none")
+					return
+				}
+				if ap[0] != 2 {
+					t.Errorf("expected 'third' in array position 2, got %d", ap[0])
+				}
 			}
-			if ap[0] != 1 {
-				t.Errorf("expected 'second' in array position 1, got %d", ap[0])
+			if reflect.DeepEqual(f.Value(), []byte("last")) {
+				ap := f.ArrayPositions()
+				if len(ap) < 1 {
+					t.Errorf("expected an array position, got none")
+					return
+				}
+				if ap[0] != 3 {
+					t.Errorf("expected 'last' in array position 3, got %d", ap[0])
+				}
 			}
-		}
-		if reflect.DeepEqual(f.Value(), []byte("third")) {
-			ap := f.ArrayPositions()
-			if len(ap) < 1 {
-				t.Errorf("expected an array position, got none")
-				return
-			}
-			if ap[0] != 2 {
-				t.Errorf("expected 'third' in array position 2, got %d", ap[0])
-			}
-		}
-		if reflect.DeepEqual(f.Value(), []byte("last")) {
-			ap := f.ArrayPositions()
-			if len(ap) < 1 {
-				t.Errorf("expected an array position, got none")
-				return
-			}
-			if ap[0] != 3 {
-				t.Errorf("expected 'last' in array position 3, got %d", ap[0])
-			}
-		}
-	})
+		},
+	)
 
 	// now index a document in the same field with a single string
-	err = idx.Index("k2", struct {
-		Messages string
-	}{
-		Messages: "only",
-	})
+	err = idx.Index(
+		"k2", struct {
+			Messages string
+		}{
+			Messages: "only",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1388,15 +1430,17 @@ func TestDocumentFieldArrayPositions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	doc.VisitFields(func(f index.Field) {
-		if reflect.DeepEqual(f.Value(), []byte("only")) {
-			ap := f.ArrayPositions()
-			if len(ap) != 0 {
-				t.Errorf("expected no array positions, got %d", len(ap))
-				return
+	doc.VisitFields(
+		func(f index.Field) {
+			if reflect.DeepEqual(f.Value(), []byte("only")) {
+				ap := f.ArrayPositions()
+				if len(ap) != 0 {
+					t.Errorf("expected no array positions, got %d", len(ap))
+					return
+				}
 			}
-		}
-	})
+		},
+	)
 
 	err = idx.Close()
 	if err != nil {
@@ -1508,16 +1552,18 @@ func TestTermVectorArrayPositions(t *testing.T) {
 	}
 
 	// index a document with an array of strings
-	err = index.Index("k", struct {
-		Messages []string
-	}{
-		Messages: []string{
-			"first",
-			"second",
-			"third",
-			"last",
+	err = index.Index(
+		"k", struct {
+			Messages []string
+		}{
+			Messages: []string{
+				"first",
+				"second",
+				"third",
+				"last",
+			},
 		},
-	})
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1540,7 +1586,10 @@ func TestTermVectorArrayPositions(t *testing.T) {
 		t.Fatalf("expected at least one location array position")
 	}
 	if results.Hits[0].Locations["Messages"]["second"][0].ArrayPositions[0] != 1 {
-		t.Fatalf("expected array position 1, got %d", results.Hits[0].Locations["Messages"]["second"][0].ArrayPositions[0])
+		t.Fatalf(
+			"expected array position 1, got %d",
+			results.Hits[0].Locations["Messages"]["second"][0].ArrayPositions[0],
+		)
 	}
 
 	// repeat search for this document in Messages field
@@ -1562,7 +1611,10 @@ func TestTermVectorArrayPositions(t *testing.T) {
 		t.Fatalf("expected at least one location array position")
 	}
 	if results.Hits[0].Locations["Messages"]["third"][0].ArrayPositions[0] != 2 {
-		t.Fatalf("expected array position 2, got %d", results.Hits[0].Locations["Messages"]["third"][0].ArrayPositions[0])
+		t.Fatalf(
+			"expected array position 2, got %d",
+			results.Hits[0].Locations["Messages"]["third"][0].ArrayPositions[0],
+		)
 	}
 
 	err = index.Close()
@@ -1758,23 +1810,25 @@ func TestDocumentFieldArrayPositionsBug295(t *testing.T) {
 	}
 
 	// index a document with an array of strings
-	err = index.Index("k", struct {
-		Messages []string
-		Another  string
-		MoreData []string
-	}{
-		Messages: []string{
-			"bleve",
-			"bleve",
+	err = index.Index(
+		"k", struct {
+			Messages []string
+			Another  string
+			MoreData []string
+		}{
+			Messages: []string{
+				"bleve",
+				"bleve",
+			},
+			Another: "text",
+			MoreData: []string{
+				"a",
+				"b",
+				"c",
+				"bleve",
+			},
 		},
-		Another: "text",
-		MoreData: []string{
-			"a",
-			"b",
-			"c",
-			"bleve",
-		},
-	})
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2038,18 +2092,22 @@ func TestOpenReadonlyMultiple(t *testing.T) {
 	}
 
 	// now open it read-only
-	index, err = OpenUsing(tmpIndexPath, map[string]interface{}{
-		"read_only": true,
-	})
+	index, err = OpenUsing(
+		tmpIndexPath, map[string]interface{}{
+			"read_only": true,
+		},
+	)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// now open it again
-	index2, err := OpenUsing(tmpIndexPath, map[string]interface{}{
-		"read_only": true,
-	})
+	index2, err := OpenUsing(
+		tmpIndexPath, map[string]interface{}{
+			"read_only": true,
+		},
+	)
 
 	if err != nil {
 		t.Fatal(err)
@@ -2197,8 +2255,10 @@ func benchmarkSearchOverhead(indexType string, b *testing.B) {
 	tmpIndexPath := createTmpIndexPath(b)
 	defer cleanupTmpIndexPath(b, tmpIndexPath)
 
-	index, err := NewUsing(tmpIndexPath, NewIndexMapping(),
-		indexType, Config.DefaultKVStore, nil)
+	index, err := NewUsing(
+		tmpIndexPath, NewIndexMapping(),
+		indexType, Config.DefaultKVStore, nil,
+	)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -2211,8 +2271,10 @@ func benchmarkSearchOverhead(indexType string, b *testing.B) {
 
 	elements := []string{"air", "water", "fire", "earth"}
 	for j := 0; j < 10000; j++ {
-		err = index.Index(fmt.Sprintf("%d", j),
-			map[string]interface{}{"name": elements[j%len(elements)]})
+		err = index.Index(
+			fmt.Sprintf("%d", j),
+			map[string]interface{}{"name": elements[j%len(elements)]},
+		)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -2267,8 +2329,10 @@ func TestSearchQueryCallback(t *testing.T) {
 		return expErr
 	}
 
-	ctx := context.WithValue(context.Background(), SearchQueryStartCallbackKey,
-		SearchQueryStartCallbackFn(f))
+	ctx := context.WithValue(
+		context.Background(), SearchQueryStartCallbackKey,
+		SearchQueryStartCallbackFn(f),
+	)
 	_, err = index.SearchInContext(ctx, req)
 	if err != expErr {
 		t.Fatalf("Expected: %v, Got: %v", expErr, err)
@@ -2388,11 +2452,13 @@ func TestBatchMerge(t *testing.T) {
 	}
 
 	foundNameField := false
-	doc.VisitFields(func(field index.Field) {
-		if field.Name() == "name" && string(field.Value()) == "blahblah" {
-			foundNameField = true
-		}
-	})
+	doc.VisitFields(
+		func(field index.Field) {
+			if field.Name() == "name" && string(field.Value()) == "blahblah" {
+				foundNameField = true
+			}
+		},
+	)
 	if !foundNameField {
 		t.Errorf("expected to find field named 'name' with value 'blahblah'")
 	}
@@ -2460,10 +2526,12 @@ func TestBug1096(t *testing.T) {
 			//   this too should be OK and update the item in the index
 			id := fmt.Sprintf("%d", j)
 
-			err = batch.Index(id, map[string]interface{}{
-				"name":  id,
-				"batch": fmt.Sprintf("%d", i),
-			})
+			err = batch.Index(
+				id, map[string]interface{}{
+					"name":  id,
+					"batch": fmt.Sprintf("%d", i),
+				},
+			)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -2836,11 +2904,13 @@ func TestCopyIndex(t *testing.T) {
 		t.Fatal(err)
 	}
 	foundNameField := false
-	doc.VisitFields(func(field index.Field) {
-		if field.Name() == "name" && string(field.Value()) == "tester" {
-			foundNameField = true
-		}
-	})
+	doc.VisitFields(
+		func(field index.Field) {
+			if field.Name() == "name" && string(field.Value()) == "tester" {
+				foundNameField = true
+			}
+		},
+	)
 	if !foundNameField {
 		t.Errorf("expected to find field named 'name' with value 'tester'")
 	}
@@ -2905,11 +2975,13 @@ func TestCopyIndex(t *testing.T) {
 		t.Fatal(err)
 	}
 	copyFoundNameField := false
-	copyDoc.VisitFields(func(field index.Field) {
-		if field.Name() == "name" && string(field.Value()) == "tester" {
-			copyFoundNameField = true
-		}
-	})
+	copyDoc.VisitFields(
+		func(field index.Field) {
+			if field.Name() == "name" && string(field.Value()) == "tester" {
+				copyFoundNameField = true
+			}
+		},
+	)
 	if !copyFoundNameField {
 		t.Errorf("expected copy index to find field named 'name' with value 'tester'")
 	}

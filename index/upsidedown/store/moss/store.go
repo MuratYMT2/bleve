@@ -24,8 +24,8 @@ import (
 
 	"github.com/couchbase/moss"
 
-	"github.com/blevesearch/bleve/v2/registry"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/util"
 	store "github.com/blevesearch/upsidedown_store_api"
 )
 
@@ -55,21 +55,26 @@ type statsFunc func() map[string]interface{}
 // Finally, base case defaults are taken from
 // moss.DefaultCollectionOptions.
 func New(mo store.MergeOperator, config map[string]interface{}) (
-	store.KVStore, error) {
+	store.KVStore, error,
+) {
 	options := moss.DefaultCollectionOptions // Copy.
 
 	v, ok := config["mossCollectionOptionsName"]
 	if ok {
 		name, ok := v.(string)
 		if !ok {
-			return nil, fmt.Errorf("moss store,"+
-				" could not parse config[mossCollectionOptionsName]: %v", v)
+			return nil, fmt.Errorf(
+				"moss store,"+
+					" could not parse config[mossCollectionOptionsName]: %v", v,
+			)
 		}
 
 		options, ok = RegistryCollectionOptions[name] // Copy.
 		if !ok {
-			return nil, fmt.Errorf("moss store,"+
-				" could not find RegistryCollectionOptions, name: %s", name)
+			return nil, fmt.Errorf(
+				"moss store,"+
+					" could not find RegistryCollectionOptions, name: %s", name,
+			)
 		}
 	}
 
@@ -80,14 +85,18 @@ func New(mo store.MergeOperator, config map[string]interface{}) (
 	if ok {
 		b, err := util.MarshalJSON(v) // Convert from map[string]interface{}.
 		if err != nil {
-			return nil, fmt.Errorf("moss store,"+
-				" could not marshal config[mossCollectionOptions]: %v, err: %v", v, err)
+			return nil, fmt.Errorf(
+				"moss store,"+
+					" could not marshal config[mossCollectionOptions]: %v, err: %v", v, err,
+			)
 		}
 
 		err = util.UnmarshalJSON(b, &options)
 		if err != nil {
-			return nil, fmt.Errorf("moss store,"+
-				" could not unmarshal config[mossCollectionOptions]: %v, err: %v", v, err)
+			return nil, fmt.Errorf(
+				"moss store,"+
+					" could not unmarshal config[mossCollectionOptions]: %v, err: %v", v, err,
+			)
 		}
 	}
 
@@ -104,8 +113,10 @@ func New(mo store.MergeOperator, config map[string]interface{}) (
 	if ok {
 		mossLowerLevelStoreName, ok = v.(string)
 		if !ok {
-			return nil, fmt.Errorf("moss store,"+
-				" could not parse config[mossLowerLevelStoreName]: %v", v)
+			return nil, fmt.Errorf(
+				"moss store,"+
+					" could not parse config[mossLowerLevelStoreName]: %v", v,
+			)
 		}
 	}
 
@@ -120,8 +131,10 @@ func New(mo store.MergeOperator, config map[string]interface{}) (
 		if ok {
 			mossLowerLevelStoreConfig, ok = v.(map[string]interface{})
 			if !ok {
-				return nil, fmt.Errorf("moss store, initLowerLevelStore,"+
-					" could parse mossLowerLevelStoreConfig: %v", v)
+				return nil, fmt.Errorf(
+					"moss store, initLowerLevelStore,"+
+						" could parse mossLowerLevelStoreConfig: %v", v,
+				)
 			}
 		}
 
@@ -130,19 +143,23 @@ func New(mo store.MergeOperator, config map[string]interface{}) (
 		if ok {
 			mossLowerLevelMaxBatchSizeF, ok := v.(float64)
 			if !ok {
-				return nil, fmt.Errorf("moss store,"+
-					" could not parse config[mossLowerLevelMaxBatchSize]: %v", v)
+				return nil, fmt.Errorf(
+					"moss store,"+
+						" could not parse config[mossLowerLevelMaxBatchSize]: %v", v,
+				)
 			}
 
 			mossLowerLevelMaxBatchSize = uint64(mossLowerLevelMaxBatchSizeF)
 		}
 
 		lowerLevelInit, lowerLevelUpdate, lowerLevelStore, lowerLevelStats, err :=
-			initLowerLevelStore(config,
+			initLowerLevelStore(
+				config,
 				mossLowerLevelStoreName,
 				mossLowerLevelStoreConfig,
 				mossLowerLevelMaxBatchSize,
-				options)
+				options,
+			)
 		if err != nil {
 			return nil, err
 		}

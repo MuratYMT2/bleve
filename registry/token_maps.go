@@ -17,7 +17,7 @@ package registry
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis"
 )
 
 func RegisterTokenMap(name string, constructor TokenMapConstructor) {
@@ -61,7 +61,12 @@ func (c *TokenMapCache) TokenMapNamed(name string, cache *Cache) (analysis.Token
 	return item.(analysis.TokenMap), nil
 }
 
-func (c *TokenMapCache) DefineTokenMap(name string, typ string, config map[string]interface{}, cache *Cache) (analysis.TokenMap, error) {
+func (c *TokenMapCache) DefineTokenMap(
+	name string,
+	typ string,
+	config map[string]interface{},
+	cache *Cache,
+) (analysis.TokenMap, error) {
 	item, err := c.DefineItem(name, typ, config, cache, TokenMapBuild)
 	if err != nil {
 		if err == ErrAlreadyDefined {

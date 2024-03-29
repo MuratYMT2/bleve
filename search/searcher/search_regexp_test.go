@@ -21,7 +21,7 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -75,8 +75,10 @@ func searcherMaker(t *testing.T, ir index.IndexReader, re, field string) search.
 		t.Fatal(err)
 	}
 
-	regexpSearcher, err := NewRegexpSearcher(nil, ir, pattern, field, 1.0,
-		search.SearcherOptions{Explain: true})
+	regexpSearcher, err := NewRegexpSearcher(
+		nil, ir, pattern, field, 1.0,
+		search.SearcherOptions{Explain: true},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,8 +87,10 @@ func searcherMaker(t *testing.T, ir index.IndexReader, re, field string) search.
 }
 
 func searcherStringMaker(t *testing.T, ir index.IndexReader, re, field string) search.Searcher {
-	regexpSearcher, err := NewRegexpStringSearcher(nil, ir, re, field, 1.0,
-		search.SearcherOptions{Explain: true})
+	regexpSearcher, err := NewRegexpStringSearcher(
+		nil, ir, re, field, 1.0,
+		search.SearcherOptions{Explain: true},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -94,9 +98,11 @@ func searcherStringMaker(t *testing.T, ir index.IndexReader, re, field string) s
 	return regexpSearcher
 }
 
-func testRegexpSearch(t *testing.T, twoDocIndex index.Index,
+func testRegexpSearch(
+	t *testing.T, twoDocIndex index.Index,
 	internalIDMaker func(int) index.IndexInternalID,
-	searcherMaker func(t *testing.T, ir index.IndexReader, re, field string) search.Searcher) {
+	searcherMaker func(t *testing.T, ir index.IndexReader, re, field string) search.Searcher,
+) {
 	twoDocIndexReader, err := twoDocIndex.Reader()
 	if err != nil {
 		t.Error(err)
@@ -150,8 +156,10 @@ func testRegexpSearch(t *testing.T, twoDocIndex index.Index,
 			} else {
 				score := test.id2score[exID]
 				if next.Score != score {
-					t.Errorf("test %d, expected result %d to have score %v got %v,next: %#v",
-						testIndex, i, score, next.Score, next)
+					t.Errorf(
+						"test %d, expected result %d to have score %v got %v,next: %#v",
+						testIndex, i, score, next.Score, next,
+					)
 					t.Logf("scoring explanation: %s", next.Expl)
 				}
 			}

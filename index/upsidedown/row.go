@@ -22,7 +22,7 @@ import (
 	"math"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/size"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -376,7 +376,14 @@ func (tv *TermVector) Size() int {
 }
 
 func (tv *TermVector) String() string {
-	return fmt.Sprintf("Field: %d Pos: %d Start: %d End %d ArrayPositions: %#v", tv.field, tv.pos, tv.start, tv.end, tv.arrayPositions)
+	return fmt.Sprintf(
+		"Field: %d Pos: %d Start: %d End %d ArrayPositions: %#v",
+		tv.field,
+		tv.pos,
+		tv.start,
+		tv.end,
+		tv.arrayPositions,
+	)
 }
 
 type TermFrequencyRow struct {
@@ -518,10 +525,25 @@ func (tfr *TermFrequencyRow) ValueTo(buf []byte) (int, error) {
 }
 
 func (tfr *TermFrequencyRow) String() string {
-	return fmt.Sprintf("Term: `%s` Field: %d DocId: `%s` Frequency: %d Norm: %f Vectors: %v", string(tfr.term), tfr.field, string(tfr.doc), tfr.freq, tfr.norm, tfr.vectors)
+	return fmt.Sprintf(
+		"Term: `%s` Field: %d DocId: `%s` Frequency: %d Norm: %f Vectors: %v",
+		string(tfr.term),
+		tfr.field,
+		string(tfr.doc),
+		tfr.freq,
+		tfr.norm,
+		tfr.vectors,
+	)
 }
 
-func InitTermFrequencyRow(tfr *TermFrequencyRow, term []byte, field uint16, docID []byte, freq uint64, norm float32) *TermFrequencyRow {
+func InitTermFrequencyRow(
+	tfr *TermFrequencyRow,
+	term []byte,
+	field uint16,
+	docID []byte,
+	freq uint64,
+	norm float32,
+) *TermFrequencyRow {
 	tfr.term = term
 	tfr.field = field
 	tfr.doc = docID
@@ -540,7 +562,14 @@ func NewTermFrequencyRow(term []byte, field uint16, docID []byte, freq uint64, n
 	}
 }
 
-func NewTermFrequencyRowWithTermVectors(term []byte, field uint16, docID []byte, freq uint64, norm float32, vectors []*TermVector) *TermFrequencyRow {
+func NewTermFrequencyRowWithTermVectors(
+	term []byte,
+	field uint16,
+	docID []byte,
+	freq uint64,
+	norm float32,
+	vectors []*TermVector,
+) *TermFrequencyRow {
 	return &TermFrequencyRow{
 		term:    term,
 		field:   field,
@@ -711,7 +740,13 @@ func (br *BackIndexRow) AllStoredKeys() [][]byte {
 	}
 	rv := make([][]byte, len(br.storedEntries))
 	for i, storedEntry := range br.storedEntries {
-		storedRow := NewStoredRow(br.doc, uint16(storedEntry.GetField()), storedEntry.GetArrayPositions(), 'x', []byte{})
+		storedRow := NewStoredRow(
+			br.doc,
+			uint16(storedEntry.GetField()),
+			storedEntry.GetArrayPositions(),
+			'x',
+			[]byte{},
+		)
 		rv[i] = storedRow.Key()
 	}
 	return rv
@@ -756,7 +791,12 @@ func (br *BackIndexRow) ValueTo(buf []byte) (int, error) {
 }
 
 func (br *BackIndexRow) String() string {
-	return fmt.Sprintf("Backindex DocId: `%s` Terms Entries: %v, Stored Entries: %v", string(br.doc), br.termsEntries, br.storedEntries)
+	return fmt.Sprintf(
+		"Backindex DocId: `%s` Terms Entries: %v, Stored Entries: %v",
+		string(br.doc),
+		br.termsEntries,
+		br.storedEntries,
+	)
 }
 
 func NewBackIndexRow(docID []byte, entries []*BackIndexTermsEntry, storedFields []*BackIndexStoreEntry) *BackIndexRow {
@@ -848,7 +888,14 @@ func (s *StoredRow) ValueTo(buf []byte) (int, error) {
 }
 
 func (s *StoredRow) String() string {
-	return fmt.Sprintf("Document: %s Field %d, Array Positions: %v, Type: %s Value: %s", s.doc, s.field, s.arrayPositions, string(s.typ), s.value)
+	return fmt.Sprintf(
+		"Document: %s Field %d, Array Positions: %v, Type: %s Value: %s",
+		s.doc,
+		s.field,
+		s.arrayPositions,
+		string(s.typ),
+		s.value,
+	)
 }
 
 func (s *StoredRow) ScanPrefixForDoc() []byte {
@@ -1029,7 +1076,7 @@ func visitBackIndexRow(data []byte, callback backIndexFieldTermVisitor) error {
 				return io.ErrUnexpectedEOF
 			}
 			// don't track unrecognized data
-			//m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			// m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}
@@ -1109,7 +1156,7 @@ func visitBackIndexRowFieldTerms(data []byte, callback backIndexFieldTermVisitor
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			//m.Terms = append(m.Terms, string(data[iNdEx:postIndex]))
+			// m.Terms = append(m.Terms, string(data[iNdEx:postIndex]))
 			callback(theField, data[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
@@ -1132,7 +1179,7 @@ func visitBackIndexRowFieldTerms(data []byte, callback backIndexFieldTermVisitor
 			if (iNdEx + skippy) > l {
 				return io.ErrUnexpectedEOF
 			}
-			//m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
+			// m.XXX_unrecognized = append(m.XXX_unrecognized, data[iNdEx:iNdEx+skippy]...)
 			iNdEx += skippy
 		}
 	}

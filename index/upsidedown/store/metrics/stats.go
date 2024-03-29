@@ -15,7 +15,7 @@
 package metrics
 
 import (
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/util"
 	store "github.com/blevesearch/upsidedown_store_api"
 )
 

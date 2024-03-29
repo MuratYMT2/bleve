@@ -18,7 +18,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis"
 )
 
 func TestSpanishNormalizeFilter(t *testing.T) {
@@ -106,7 +106,13 @@ func TestSpanishNormalizeFilter(t *testing.T) {
 		actual := spanishNormalizeFilter.Filter(test.input)
 		if !reflect.DeepEqual(actual, test.output) {
 			t.Errorf("expected %#v, got %#v", test.output, actual)
-			t.Errorf("expected %s(% x), got %s(% x)", test.output[0].Term, test.output[0].Term, actual[0].Term, actual[0].Term)
+			t.Errorf(
+				"expected %s(% x), got %s(% x)",
+				test.output[0].Term,
+				test.output[0].Term,
+				actual[0].Term,
+				actual[0].Term,
+			)
 		}
 	}
 }

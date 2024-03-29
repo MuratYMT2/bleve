@@ -3,9 +3,9 @@ package facet
 import (
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/size"
 )
 
 var reflectStaticSizeNumericMinMaxAggFacetBuilder int

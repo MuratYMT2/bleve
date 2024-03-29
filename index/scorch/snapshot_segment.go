@@ -19,8 +19,8 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/MuratYMT2/bleve/v2/size"
 	"github.com/RoaringBitmap/roaring"
-	"github.com/blevesearch/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
 )
@@ -260,8 +260,10 @@ func (c *cachedDocs) updateSizeLOCKED() {
 	atomic.StoreUint64(&c.size, uint64(sizeInBytes))
 }
 
-func (c *cachedDocs) visitDoc(localDocNum uint64,
-	fields []string, visitor index.DocValueVisitor) {
+func (c *cachedDocs) visitDoc(
+	localDocNum uint64,
+	fields []string, visitor index.DocValueVisitor,
+) {
 	c.m.Lock()
 
 	for _, field := range fields {

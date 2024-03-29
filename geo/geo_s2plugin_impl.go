@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 	"github.com/blevesearch/geo/geojson"
 	"github.com/blevesearch/geo/s2"
@@ -217,7 +217,7 @@ type s2TokenizableEx interface {
 	QueryTokens(*S2SpatialAnalyzerPlugin) []string
 }
 
-//----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 
 func (p *Point) Type() string {
 	return PointType
@@ -238,15 +238,18 @@ func (p *Point) Contains(s index.GeoJSON) (bool, error) {
 }
 
 func (p *Point) IndexTokens(s *S2SpatialAnalyzerPlugin) []string {
-	return s.s2GeoPointsRegionTermIndexer.GetIndexTermsForPoint(s2.PointFromLatLng(
-		s2.LatLngFromDegrees(p.Lat, p.Lon)), "")
+	return s.s2GeoPointsRegionTermIndexer.GetIndexTermsForPoint(
+		s2.PointFromLatLng(
+			s2.LatLngFromDegrees(p.Lat, p.Lon),
+		), "",
+	)
 }
 
 func (p *Point) QueryTokens(s *S2SpatialAnalyzerPlugin) []string {
 	return nil
 }
 
-//----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 
 type boundedRectangle struct {
 	minLat float64
@@ -255,10 +258,14 @@ type boundedRectangle struct {
 	maxLon float64
 }
 
-func NewBoundedRectangle(minLat, minLon, maxLat,
-	maxLon float64) *boundedRectangle {
-	return &boundedRectangle{minLat: minLat,
-		maxLat: maxLat, minLon: minLon, maxLon: maxLon}
+func NewBoundedRectangle(
+	minLat, minLon, maxLat,
+	maxLon float64,
+) *boundedRectangle {
+	return &boundedRectangle{
+		minLat: minLat,
+		maxLat: maxLat, minLon: minLon, maxLon: maxLon,
+	}
 }
 
 func (br *boundedRectangle) Type() string {
@@ -293,7 +300,7 @@ func (br *boundedRectangle) QueryTokens(s *S2SpatialAnalyzerPlugin) []string {
 	return geojson.StripCoveringTerms(terms)
 }
 
-//----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 
 type boundedPolygon struct {
 	coordinates []Point
@@ -330,18 +337,20 @@ func (bp *boundedPolygon) QueryTokens(s *S2SpatialAnalyzerPlugin) []string {
 	vertices := make([]s2.Point, len(bp.coordinates))
 	for i, point := range bp.coordinates {
 		vertices[i] = s2.PointFromLatLng(
-			s2.LatLngFromDegrees(point.Lat, point.Lon))
+			s2.LatLngFromDegrees(point.Lat, point.Lon),
+		)
 	}
 	s2polygon := s2.PolygonFromOrientedLoops([]*s2.Loop{s2.LoopFromPoints(vertices)})
 
 	// obtain the terms to be searched for the given polygon.
 	terms := s.s2GeoPointsRegionTermIndexer.GetQueryTermsForRegion(
-		s2polygon.CapBound(), "")
+		s2polygon.CapBound(), "",
+	)
 
 	return geojson.StripCoveringTerms(terms)
 }
 
-//----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 
 type pointDistance struct {
 	dist      float64
@@ -358,10 +367,14 @@ func (p *pointDistance) Value() ([]byte, error) {
 	return util.MarshalJSON(p)
 }
 
-func NewPointDistance(centerLat, centerLon,
-	dist float64) *pointDistance {
-	return &pointDistance{centerLat: centerLat,
-		centerLon: centerLon, dist: dist}
+func NewPointDistance(
+	centerLat, centerLon,
+	dist float64,
+) *pointDistance {
+	return &pointDistance{
+		centerLat: centerLat,
+		centerLon: centerLon, dist: dist,
+	}
 }
 
 func (p *pointDistance) Intersects(s index.GeoJSON) (bool, error) {
@@ -380,8 +393,10 @@ func (pd *pointDistance) IndexTokens(s *S2SpatialAnalyzerPlugin) []string {
 
 func (pd *pointDistance) QueryTokens(s *S2SpatialAnalyzerPlugin) []string {
 	// obtain the covering query region from the given points.
-	queryRegion := s2.CapFromCenterAndRadius(pd.centerLat,
-		pd.centerLon, pd.dist)
+	queryRegion := s2.CapFromCenterAndRadius(
+		pd.centerLat,
+		pd.centerLon, pd.dist,
+	)
 
 	// obtain the query terms for the query region.
 	terms := s.s2GeoPointsRegionTermIndexer.GetQueryTermsForRegion(queryRegion, "")
@@ -394,8 +409,10 @@ func (pd *pointDistance) QueryTokens(s *S2SpatialAnalyzerPlugin) []string {
 // NewGeometryCollection instantiate a geometrycollection
 // and prefix the byte contents with certain glue bytes that
 // can be used later while filering the doc values.
-func NewGeometryCollection(coordinates [][][][][]float64,
-	typs []string) (index.GeoJSON, []byte, error) {
+func NewGeometryCollection(
+	coordinates [][][][][]float64,
+	typs []string,
+) (index.GeoJSON, []byte, error) {
 
 	return geojson.NewGeometryCollection(coordinates, typs)
 }
@@ -403,13 +420,16 @@ func NewGeometryCollection(coordinates [][][][][]float64,
 // NewGeoCircleShape instantiate a circle shape and
 // prefix the byte contents with certain glue bytes that
 // can be used later while filering the doc values.
-func NewGeoCircleShape(cp []float64,
-	radius string) (index.GeoJSON, []byte, error) {
+func NewGeoCircleShape(
+	cp []float64,
+	radius string,
+) (index.GeoJSON, []byte, error) {
 	return geojson.NewGeoCircleShape(cp, radius)
 }
 
 func NewGeoJsonShape(coordinates [][][][]float64, typ string) (
-	index.GeoJSON, []byte, error) {
+	index.GeoJSON, []byte, error,
+) {
 	return geojson.NewGeoJsonShape(coordinates, typ)
 }
 

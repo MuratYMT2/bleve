@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -102,9 +102,11 @@ func NewTopNCollectorAfter(size int, sort search.SortOrder, after []string) *Top
 func newTopNCollector(size int, skip int, sort search.SortOrder) *TopNCollector {
 	hc := &TopNCollector{size: size, skip: skip, sort: sort}
 
-	hc.store = getOptimalCollectorStore(size, skip, func(i, j *search.DocumentMatch) int {
-		return hc.sort.Compare(hc.cachedScoring, hc.cachedDesc, i, j)
-	})
+	hc.store = getOptimalCollectorStore(
+		size, skip, func(i, j *search.DocumentMatch) int {
+			return hc.sort.Compare(hc.cachedScoring, hc.cachedDesc, i, j)
+		},
+	)
 
 	// these lookups traverse an interface, so do once up-front
 	if sort.RequiresDocID() {
@@ -135,7 +137,11 @@ func createSearchAfterDocument(sort search.SortOrder, after []string) *search.Do
 }
 
 // Filter document matches based on the SearchAfter field in the SearchRequest.
-func FilterHitsBySearchAfter(hits []*search.DocumentMatch, sort search.SortOrder, after []string) []*search.DocumentMatch {
+func FilterHitsBySearchAfter(
+	hits []*search.DocumentMatch,
+	sort search.SortOrder,
+	after []string,
+) []*search.DocumentMatch {
 	if len(hits) == 0 {
 		return hits
 	}
@@ -311,8 +317,10 @@ func (hc *TopNCollector) Collect(ctx context.Context, searcher search.Searcher, 
 
 var sortByScoreOpt = []string{"_score"}
 
-func (hc *TopNCollector) adjustDocumentMatch(ctx *search.SearchContext,
-	reader index.IndexReader, d *search.DocumentMatch) (err error) {
+func (hc *TopNCollector) adjustDocumentMatch(
+	ctx *search.SearchContext,
+	reader index.IndexReader, d *search.DocumentMatch,
+) (err error) {
 	if hc.knnHits != nil {
 		d.ID, err = reader.ExternalID(d.IndexInternalID)
 		if err != nil {
@@ -326,8 +334,10 @@ func (hc *TopNCollector) adjustDocumentMatch(ctx *search.SearchContext,
 	return nil
 }
 
-func (hc *TopNCollector) prepareDocumentMatch(ctx *search.SearchContext,
-	reader index.IndexReader, d *search.DocumentMatch, isKnnDoc bool) (err error) {
+func (hc *TopNCollector) prepareDocumentMatch(
+	ctx *search.SearchContext,
+	reader index.IndexReader, d *search.DocumentMatch, isKnnDoc bool,
+) (err error) {
 
 	// visit field terms for features that require it (sort, facets)
 	if !isKnnDoc && len(hc.neededFields) > 0 {
@@ -340,11 +350,13 @@ func (hc *TopNCollector) prepareDocumentMatch(ctx *search.SearchContext,
 		// only for those fields that are required for faceting
 		// and not for sorting. This is because the knn document's
 		// sort value is already computed in the knn collector.
-		err = hc.visitFieldTerms(reader, d, func(field string, term []byte) {
-			if hc.facetsBuilder != nil {
-				hc.facetsBuilder.UpdateVisitor(field, term)
-			}
-		})
+		err = hc.visitFieldTerms(
+			reader, d, func(field string, term []byte) {
+				if hc.facetsBuilder != nil {
+					hc.facetsBuilder.UpdateVisitor(field, term)
+				}
+			},
+		)
 		if err != nil {
 			return err
 		}
@@ -383,7 +395,8 @@ func (hc *TopNCollector) prepareDocumentMatch(ctx *search.SearchContext,
 }
 
 func MakeTopNDocumentMatchHandler(
-	ctx *search.SearchContext) (search.DocumentMatchHandler, bool, error) {
+	ctx *search.SearchContext,
+) (search.DocumentMatchHandler, bool, error) {
 	var hc *TopNCollector
 	var ok bool
 	if hc, ok = ctx.Collector.(*TopNCollector); ok {
@@ -409,8 +422,10 @@ func MakeTopNDocumentMatchHandler(
 			// with this one comparison, we can avoid all heap operations if
 			// this hit would have been added and then immediately removed
 			if hc.lowestMatchOutsideResults != nil {
-				cmp := hc.sort.Compare(hc.cachedScoring, hc.cachedDesc, d,
-					hc.lowestMatchOutsideResults)
+				cmp := hc.sort.Compare(
+					hc.cachedScoring, hc.cachedDesc, d,
+					hc.lowestMatchOutsideResults,
+				)
 				if cmp >= 0 {
 					// this hit can't possibly be in the result set, so avoid heap ops
 					ctx.DocumentMatchPool.Put(d)
@@ -423,8 +438,10 @@ func MakeTopNDocumentMatchHandler(
 				if hc.lowestMatchOutsideResults == nil {
 					hc.lowestMatchOutsideResults = removed
 				} else {
-					cmp := hc.sort.Compare(hc.cachedScoring, hc.cachedDesc,
-						removed, hc.lowestMatchOutsideResults)
+					cmp := hc.sort.Compare(
+						hc.cachedScoring, hc.cachedDesc,
+						removed, hc.lowestMatchOutsideResults,
+					)
 					if cmp < 0 {
 						tmp := hc.lowestMatchOutsideResults
 						hc.lowestMatchOutsideResults = removed
@@ -440,7 +457,11 @@ func MakeTopNDocumentMatchHandler(
 
 // visitFieldTerms is responsible for visiting the field terms of the
 // search hit, and passing visited terms to the sort and facet builder
-func (hc *TopNCollector) visitFieldTerms(reader index.IndexReader, d *search.DocumentMatch, v index.DocValueVisitor) error {
+func (hc *TopNCollector) visitFieldTerms(
+	reader index.IndexReader,
+	d *search.DocumentMatch,
+	v index.DocValueVisitor,
+) error {
 	if hc.facetsBuilder != nil {
 		hc.facetsBuilder.StartDoc()
 	}
@@ -488,18 +509,20 @@ func (hc *TopNCollector) SetFacetsBuilder(facetsBuilder *search.FacetsBuilder) {
 // and does final doc id lookup (if necessary)
 func (hc *TopNCollector) finalizeResults(r index.IndexReader) error {
 	var err error
-	hc.results, err = hc.store.Final(hc.skip, func(doc *search.DocumentMatch) error {
-		if doc.ID == "" {
-			// look up the id since we need it for lookup
-			var err error
-			doc.ID, err = r.ExternalID(doc.IndexInternalID)
-			if err != nil {
-				return err
+	hc.results, err = hc.store.Final(
+		hc.skip, func(doc *search.DocumentMatch) error {
+			if doc.ID == "" {
+				// look up the id since we need it for lookup
+				var err error
+				doc.ID, err = r.ExternalID(doc.IndexInternalID)
+				if err != nil {
+					return err
+				}
 			}
-		}
-		doc.Complete(nil)
-		return nil
-	})
+			doc.Complete(nil)
+			return nil
+		},
+	)
 
 	return err
 }
@@ -532,7 +555,10 @@ func (hc *TopNCollector) FacetResults() search.FacetResults {
 	return nil
 }
 
-func (hc *TopNCollector) SetKNNHits(knnHits search.DocumentMatchCollection, newScoreExplComputer search.ScoreExplCorrectionCallbackFunc) {
+func (hc *TopNCollector) SetKNNHits(
+	knnHits search.DocumentMatchCollection,
+	newScoreExplComputer search.ScoreExplCorrectionCallbackFunc,
+) {
 	hc.knnHits = make(map[string]*search.DocumentMatch, len(knnHits))
 	for _, hit := range knnHits {
 		hc.knnHits[hit.ID] = hit

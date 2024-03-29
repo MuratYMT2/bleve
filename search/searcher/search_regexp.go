@@ -18,7 +18,7 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -35,9 +35,12 @@ type Regexp interface {
 
 // NewRegexpStringSearcher is similar to NewRegexpSearcher, but
 // additionally optimizes for index readers that handle regexp's.
-func NewRegexpStringSearcher(ctx context.Context, indexReader index.IndexReader, pattern string,
-	field string, boost float64, options search.SearcherOptions) (
-	search.Searcher, error) {
+func NewRegexpStringSearcher(
+	ctx context.Context, indexReader index.IndexReader, pattern string,
+	field string, boost float64, options search.SearcherOptions,
+) (
+	search.Searcher, error,
+) {
 	ir, ok := indexReader.(index.IndexReaderRegexp)
 	if !ok {
 		r, err := regexp.Compile(pattern)
@@ -69,8 +72,10 @@ func NewRegexpStringSearcher(ctx context.Context, indexReader index.IndexReader,
 		return nil, err
 	}
 
-	return NewMultiTermSearcher(ctx, indexReader, candidateTerms, field, boost,
-		options, true)
+	return NewMultiTermSearcher(
+		ctx, indexReader, candidateTerms, field, boost,
+		options, true,
+	)
 }
 
 // NewRegexpSearcher creates a searcher which will match documents that
@@ -78,9 +83,12 @@ func NewRegexpStringSearcher(ctx context.Context, indexReader index.IndexReader,
 // matching the entire term.  The provided regexp SHOULD NOT start with ^
 // or end with $ as this can intefere with the implementation.  Separately,
 // matches will be checked to ensure they match the entire term.
-func NewRegexpSearcher(ctx context.Context, indexReader index.IndexReader, pattern Regexp,
-	field string, boost float64, options search.SearcherOptions) (
-	search.Searcher, error) {
+func NewRegexpSearcher(
+	ctx context.Context, indexReader index.IndexReader, pattern Regexp,
+	field string, boost float64, options search.SearcherOptions,
+) (
+	search.Searcher, error,
+) {
 	var candidateTerms []string
 	var regexpCandidates *regexpCandidates
 	prefixTerm, complete := pattern.LiteralPrefix()
@@ -89,8 +97,10 @@ func NewRegexpSearcher(ctx context.Context, indexReader index.IndexReader, patte
 		candidateTerms = []string{prefixTerm}
 	} else {
 		var err error
-		regexpCandidates, err = findRegexpCandidateTerms(indexReader, pattern, field,
-			prefixTerm)
+		regexpCandidates, err = findRegexpCandidateTerms(
+			indexReader, pattern, field,
+			prefixTerm,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -106,8 +116,10 @@ func NewRegexpSearcher(ctx context.Context, indexReader index.IndexReader, patte
 		search.RecordSearchCost(ctx, search.AddM, dictBytesRead)
 	}
 
-	return NewMultiTermSearcher(ctx, indexReader, candidateTerms, field, boost,
-		options, true)
+	return NewMultiTermSearcher(
+		ctx, indexReader, candidateTerms, field, boost,
+		options, true,
+	)
 }
 
 type regexpCandidates struct {
@@ -115,8 +127,10 @@ type regexpCandidates struct {
 	bytesRead  uint64
 }
 
-func findRegexpCandidateTerms(indexReader index.IndexReader,
-	pattern Regexp, field, prefixTerm string) (rv *regexpCandidates, err error) {
+func findRegexpCandidateTerms(
+	indexReader index.IndexReader,
+	pattern Regexp, field, prefixTerm string,
+) (rv *regexpCandidates, err error) {
 	rv = &regexpCandidates{
 		candidates: make([]string, 0),
 	}

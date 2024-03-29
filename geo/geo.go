@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/blevesearch/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/numeric"
 )
 
 // GeoBits is the number of bits used for a single geo point
@@ -178,7 +178,8 @@ func checkLongitude(longitude float64) error {
 }
 
 func BoundingRectangleForPolygon(polygon []Point) (
-	float64, float64, float64, float64, error) {
+	float64, float64, float64, float64, error,
+) {
 	err := checkLongitude(polygon[0].Lon)
 	if err != nil {
 		return 0, 0, 0, 0, err

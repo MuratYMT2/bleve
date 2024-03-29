@@ -15,8 +15,8 @@
 package de
 
 import (
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/registry"
 
 	"github.com/blevesearch/snowballstem"
 	"github.com/blevesearch/snowballstem/german"
@@ -40,7 +40,10 @@ func (s *GermanStemmerFilter) Filter(input analysis.TokenStream) analysis.TokenS
 	return input
 }
 
-func GermanStemmerFilterConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.TokenFilter, error) {
+func GermanStemmerFilterConstructor(config map[string]interface{}, cache *registry.Cache) (
+	analysis.TokenFilter,
+	error,
+) {
 	return NewGermanStemmerFilter(), nil
 }
 

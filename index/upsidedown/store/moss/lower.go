@@ -24,8 +24,8 @@ import (
 
 	"github.com/couchbase/moss"
 
-	"github.com/blevesearch/bleve/v2/registry"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/util"
 	store "github.com/blevesearch/upsidedown_store_api"
 )
 
@@ -53,8 +53,10 @@ func initLowerLevelStore(
 
 	constructor := registry.KVStoreConstructorByName(lowerLevelStoreName)
 	if constructor == nil {
-		return nil, nil, nil, nil, fmt.Errorf("moss store, initLowerLevelStore,"+
-			" could not find lower level store: %s", lowerLevelStoreName)
+		return nil, nil, nil, nil, fmt.Errorf(
+			"moss store, initLowerLevelStore,"+
+				" could not find lower level store: %s", lowerLevelStoreName,
+		)
 	}
 
 	kvStore, err := constructor(options.MergeOperator, lowerLevelStoreConfig)
@@ -153,12 +155,15 @@ func (s *llStore) decRef() {
 // that the higher level can use which represents this lower level
 // store.
 func (s *llStore) update(ssHigher moss.Snapshot, maxBatchSize uint64) (
-	ssLower moss.Snapshot, err error) {
+	ssLower moss.Snapshot, err error,
+) {
 	if ssHigher != nil {
-		iter, err := ssHigher.StartIterator(nil, nil, moss.IteratorOptions{
-			IncludeDeletions: true,
-			SkipLowerLevel:   true,
-		})
+		iter, err := ssHigher.StartIterator(
+			nil, nil, moss.IteratorOptions{
+				IncludeDeletions: true,
+				SkipLowerLevel:   true,
+			},
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -229,8 +234,10 @@ func (s *llStore) update(ssHigher moss.Snapshot, maxBatchSize uint64) (
 				}
 
 			default:
-				return nil, fmt.Errorf("moss store, update,"+
-					" unexpected operation, ex: %v", ex)
+				return nil, fmt.Errorf(
+					"moss store, update,"+
+						" unexpected operation, ex: %v", ex,
+				)
 			}
 
 			i++
@@ -259,16 +266,20 @@ func (s *llStore) update(ssHigher moss.Snapshot, maxBatchSize uint64) (
 		}
 
 		if i > 0 {
-			s.logf("llStore.update, ExecuteBatch,"+
-				" path: %s, total: %d, start", s.llConfig["path"], i)
+			s.logf(
+				"llStore.update, ExecuteBatch,"+
+					" path: %s, total: %d, start", s.llConfig["path"], i,
+			)
 
 			err = kvWriter.ExecuteBatch(batch)
 			if err != nil {
 				return nil, err
 			}
 
-			s.logf("llStore.update, ExecuteBatch,"+
-				" path: %s: total: %d, done", s.llConfig["path"], i)
+			s.logf(
+				"llStore.update, ExecuteBatch,"+
+					" path: %s: total: %d, done", s.llConfig["path"], i,
+			)
 		}
 	}
 
@@ -331,7 +342,8 @@ func (llss *llSnapshot) ChildCollectionNames() ([]string, error) {
 // ChildCollectionSnapshot returns a Snapshot on a given child
 // collection by its name.
 func (llss *llSnapshot) ChildCollectionSnapshot(childCollectionName string) (
-	moss.Snapshot, error) {
+	moss.Snapshot, error,
+) {
 	childSnapshot, exists := llss.childSnapshots[childCollectionName]
 	if !exists {
 		return nil, nil
@@ -346,8 +358,10 @@ func (llss *llSnapshot) Close() error {
 	return nil
 }
 
-func (llss *llSnapshot) Get(key []byte,
-	readOptions moss.ReadOptions) ([]byte, error) {
+func (llss *llSnapshot) Get(
+	key []byte,
+	readOptions moss.ReadOptions,
+) ([]byte, error) {
 	rs, ok := llss.kvReader.(readerSource)
 	if ok {
 		r2, err := rs.Reader()
@@ -367,7 +381,8 @@ func (llss *llSnapshot) Get(key []byte,
 
 func (llss *llSnapshot) StartIterator(
 	startKeyInclusive, endKeyExclusive []byte,
-	iteratorOptions moss.IteratorOptions) (moss.Iterator, error) {
+	iteratorOptions moss.IteratorOptions,
+) (moss.Iterator, error) {
 	rs, ok := llss.kvReader.(readerSource)
 	if ok {
 		r2, err := rs.Reader()
@@ -436,14 +451,16 @@ func (lli *llIterator) Current() (key, val []byte, err error) {
 }
 
 func (lli *llIterator) CurrentEx() (
-	entryEx moss.EntryEx, key, val []byte, err error) {
+	entryEx moss.EntryEx, key, val []byte, err error,
+) {
 	return moss.EntryEx{}, nil, nil, moss.ErrUnimplemented
 }
 
 // ------------------------------------------------
 
 func InitMossStore(config map[string]interface{}, options moss.CollectionOptions) (
-	moss.Snapshot, moss.LowerLevelUpdate, store.KVStore, statsFunc, error) {
+	moss.Snapshot, moss.LowerLevelUpdate, store.KVStore, statsFunc, error,
+) {
 	path, ok := config["path"].(string)
 	if !ok {
 		return nil, nil, nil, nil, fmt.Errorf("lower: missing path for InitMossStore config")
@@ -454,8 +471,10 @@ func InitMossStore(config map[string]interface{}, options moss.CollectionOptions
 
 	err := os.MkdirAll(path, 0700)
 	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("lower: InitMossStore mkdir,"+
-			" path: %s, err: %v", path, err)
+		return nil, nil, nil, nil, fmt.Errorf(
+			"lower: InitMossStore mkdir,"+
+				" path: %s, err: %v", path, err,
+		)
 	}
 
 	storeOptions := moss.StoreOptions{
@@ -476,16 +495,20 @@ func InitMossStore(config map[string]interface{}, options moss.CollectionOptions
 
 	s, err := moss.OpenStore(path, storeOptions)
 	if err != nil {
-		return nil, nil, nil, nil, fmt.Errorf("lower: moss.OpenStore,"+
-			" path: %s, err: %v", path, err)
+		return nil, nil, nil, nil, fmt.Errorf(
+			"lower: moss.OpenStore,"+
+				" path: %s, err: %v", path, err,
+		)
 	}
 
 	sw := &mossStoreWrapper{s: s}
 
 	llUpdate := func(ssHigher moss.Snapshot) (moss.Snapshot, error) {
-		ss, err := sw.s.Persist(ssHigher, moss.StorePersistOptions{
-			CompactionConcern: moss.CompactionAllow,
-		})
+		ss, err := sw.s.Persist(
+			ssHigher, moss.StorePersistOptions{
+				CompactionConcern: moss.CompactionAllow,
+			},
+		)
 		if err != nil {
 			return nil, err
 		}

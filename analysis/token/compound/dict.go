@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"unicode/utf8"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 const Name = "dict_compound"
@@ -38,7 +38,11 @@ type DictionaryCompoundFilter struct {
 	onlyLongestMatch bool
 }
 
-func NewDictionaryCompoundFilter(dict analysis.TokenMap, minWordSize, minSubWordSize, maxSubWordSize int, onlyLongestMatch bool) *DictionaryCompoundFilter {
+func NewDictionaryCompoundFilter(
+	dict analysis.TokenMap,
+	minWordSize, minSubWordSize, maxSubWordSize int,
+	onlyLongestMatch bool,
+) *DictionaryCompoundFilter {
 	return &DictionaryCompoundFilter{
 		dict:             dict,
 		minWordSize:      minWordSize,
@@ -101,7 +105,10 @@ func (f *DictionaryCompoundFilter) decompose(token *analysis.Token) []*analysis.
 	return rv
 }
 
-func DictionaryCompoundFilterConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.TokenFilter, error) {
+func DictionaryCompoundFilterConstructor(config map[string]interface{}, cache *registry.Cache) (
+	analysis.TokenFilter,
+	error,
+) {
 
 	minWordSize := defaultMinWordSize
 	minSubWordSize := defaultMinSubWordSize

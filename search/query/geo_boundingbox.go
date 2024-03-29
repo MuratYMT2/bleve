@@ -18,11 +18,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/searcher"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/searcher"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -57,7 +57,12 @@ func (q *GeoBoundingBoxQuery) Field() string {
 	return q.FieldVal
 }
 
-func (q *GeoBoundingBoxQuery) Searcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping, options search.SearcherOptions) (search.Searcher, error) {
+func (q *GeoBoundingBoxQuery) Searcher(
+	ctx context.Context,
+	i index.IndexReader,
+	m mapping.IndexMapping,
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	field := q.FieldVal
 	if q.FieldVal == "" {
 		field = m.DefaultSearchField()
@@ -68,11 +73,33 @@ func (q *GeoBoundingBoxQuery) Searcher(ctx context.Context, i index.IndexReader,
 	if q.BottomRight[0] < q.TopLeft[0] {
 		// cross date line, rewrite as two parts
 
-		leftSearcher, err := searcher.NewGeoBoundingBoxSearcher(ctx, i, -180, q.BottomRight[1], q.BottomRight[0], q.TopLeft[1], field, q.BoostVal.Value(), options, true)
+		leftSearcher, err := searcher.NewGeoBoundingBoxSearcher(
+			ctx,
+			i,
+			-180,
+			q.BottomRight[1],
+			q.BottomRight[0],
+			q.TopLeft[1],
+			field,
+			q.BoostVal.Value(),
+			options,
+			true,
+		)
 		if err != nil {
 			return nil, err
 		}
-		rightSearcher, err := searcher.NewGeoBoundingBoxSearcher(ctx, i, q.TopLeft[0], q.BottomRight[1], 180, q.TopLeft[1], field, q.BoostVal.Value(), options, true)
+		rightSearcher, err := searcher.NewGeoBoundingBoxSearcher(
+			ctx,
+			i,
+			q.TopLeft[0],
+			q.BottomRight[1],
+			180,
+			q.TopLeft[1],
+			field,
+			q.BoostVal.Value(),
+			options,
+			true,
+		)
 		if err != nil {
 			_ = leftSearcher.Close()
 			return nil, err
@@ -81,7 +108,18 @@ func (q *GeoBoundingBoxQuery) Searcher(ctx context.Context, i index.IndexReader,
 		return searcher.NewDisjunctionSearcher(ctx, i, []search.Searcher{leftSearcher, rightSearcher}, 0, options)
 	}
 
-	return searcher.NewGeoBoundingBoxSearcher(ctx, i, q.TopLeft[0], q.BottomRight[1], q.BottomRight[0], q.TopLeft[1], field, q.BoostVal.Value(), options, true)
+	return searcher.NewGeoBoundingBoxSearcher(
+		ctx,
+		i,
+		q.TopLeft[0],
+		q.BottomRight[1],
+		q.BottomRight[0],
+		q.TopLeft[1],
+		field,
+		q.BoostVal.Value(),
+		options,
+		true,
+	)
 }
 
 func (q *GeoBoundingBoxQuery) Validate() error {

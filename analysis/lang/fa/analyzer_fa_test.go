@@ -18,8 +18,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 func TestPersianAnalyzerVerbs(t *testing.T) {
@@ -311,7 +311,13 @@ func TestPersianAnalyzerVerbs(t *testing.T) {
 		}
 		for i, tok := range actual {
 			if !reflect.DeepEqual(tok.Term, test.output[i].Term) {
-				t.Errorf("expected term %s (% x) got %s (% x)", test.output[i].Term, test.output[i].Term, tok.Term, tok.Term)
+				t.Errorf(
+					"expected term %s (% x) got %s (% x)",
+					test.output[i].Term,
+					test.output[i].Term,
+					tok.Term,
+					tok.Term,
+				)
 			}
 		}
 	}
@@ -606,7 +612,13 @@ func TestPersianAnalyzerVerbsDefective(t *testing.T) {
 		}
 		for i, tok := range actual {
 			if !reflect.DeepEqual(tok.Term, test.output[i].Term) {
-				t.Errorf("expected term %s (% x) got %s (% x)", test.output[i].Term, test.output[i].Term, tok.Term, tok.Term)
+				t.Errorf(
+					"expected term %s (% x) got %s (% x)",
+					test.output[i].Term,
+					test.output[i].Term,
+					tok.Term,
+					tok.Term,
+				)
 			}
 		}
 	}
@@ -677,7 +689,13 @@ func TestPersianAnalyzerOthers(t *testing.T) {
 		}
 		for i, tok := range actual {
 			if !reflect.DeepEqual(tok.Term, test.output[i].Term) {
-				t.Errorf("expected term %s (% x) got %s (% x)", test.output[i].Term, test.output[i].Term, tok.Term, tok.Term)
+				t.Errorf(
+					"expected term %s (% x) got %s (% x)",
+					test.output[i].Term,
+					test.output[i].Term,
+					tok.Term,
+					tok.Term,
+				)
 			}
 		}
 	}

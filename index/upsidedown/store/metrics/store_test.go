@@ -17,16 +17,18 @@ package metrics
 import (
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/gtreap"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/gtreap"
 	store "github.com/blevesearch/upsidedown_store_api"
 	"github.com/blevesearch/upsidedown_store_api/test"
 )
 
 func open(t *testing.T, mo store.MergeOperator) store.KVStore {
-	rv, err := New(mo, map[string]interface{}{
-		"kvStoreName_actual": gtreap.Name,
-		"path":               "",
-	})
+	rv, err := New(
+		mo, map[string]interface{}{
+			"kvStoreName_actual": gtreap.Name,
+			"path":               "",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}

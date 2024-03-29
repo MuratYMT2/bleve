@@ -20,14 +20,16 @@ import (
 	"math"
 	"sort"
 
-	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
-func NewNumericRangeSearcher(ctx context.Context, indexReader index.IndexReader,
+func NewNumericRangeSearcher(
+	ctx context.Context, indexReader index.IndexReader,
 	min *float64, max *float64, inclusiveMin, inclusiveMax *bool, field string,
-	boost float64, options search.SearcherOptions) (search.Searcher, error) {
+	boost float64, options search.SearcherOptions,
+) (search.Searcher, error) {
 	// account for unbounded edges
 	if min == nil {
 		negInf := math.Inf(-1)
@@ -94,8 +96,10 @@ func NewNumericRangeSearcher(ctx context.Context, indexReader index.IndexReader,
 
 		// cannot return MatchNoneSearcher because of interaction with
 		// commit f391b991c20f02681bacd197afc6d8aed444e132
-		return NewMultiTermSearcherBytes(ctx, indexReader, terms, field,
-			boost, options, true)
+		return NewMultiTermSearcherBytes(
+			ctx, indexReader, terms, field,
+			boost, options, true,
+		)
 	}
 
 	// for upside_down
@@ -115,12 +119,16 @@ func NewNumericRangeSearcher(ctx context.Context, indexReader index.IndexReader,
 		search.RecordSearchCost(ctx, search.AddM, dictBytesRead)
 	}
 
-	return NewMultiTermSearcherBytes(ctx, indexReader, terms, field,
-		boost, options, true)
+	return NewMultiTermSearcherBytes(
+		ctx, indexReader, terms, field,
+		boost, options, true,
+	)
 }
 
-func filterCandidateTerms(indexReader index.IndexReader,
-	terms [][]byte, field string) (rv [][]byte, err error) {
+func filterCandidateTerms(
+	indexReader index.IndexReader,
+	terms [][]byte, field string,
+) (rv [][]byte, err error) {
 
 	fieldDict, err := indexReader.FieldDictRange(field, terms[0], terms[len(terms)-1])
 	if err != nil {

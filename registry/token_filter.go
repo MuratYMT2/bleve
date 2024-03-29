@@ -17,7 +17,7 @@ package registry
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis"
 )
 
 func RegisterTokenFilter(name string, constructor TokenFilterConstructor) {
@@ -61,7 +61,12 @@ func (c *TokenFilterCache) TokenFilterNamed(name string, cache *Cache) (analysis
 	return item.(analysis.TokenFilter), nil
 }
 
-func (c *TokenFilterCache) DefineTokenFilter(name string, typ string, config map[string]interface{}, cache *Cache) (analysis.TokenFilter, error) {
+func (c *TokenFilterCache) DefineTokenFilter(
+	name string,
+	typ string,
+	config map[string]interface{},
+	cache *Cache,
+) (analysis.TokenFilter, error) {
 	item, err := c.DefineItem(name, typ, config, cache, TokenFilterBuild)
 	if err != nil {
 		if err == ErrAlreadyDefined {

@@ -17,13 +17,16 @@ package searcher
 import (
 	"context"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
-func NewTermPrefixSearcher(ctx context.Context, indexReader index.IndexReader, prefix string,
-	field string, boost float64, options search.SearcherOptions) (
-	search.Searcher, error) {
+func NewTermPrefixSearcher(
+	ctx context.Context, indexReader index.IndexReader, prefix string,
+	field string, boost float64, options search.SearcherOptions,
+) (
+	search.Searcher, error,
+) {
 	// find the terms with this prefix
 	fieldDict, err := indexReader.FieldDictPrefix(field, []byte(prefix))
 	if err != nil {

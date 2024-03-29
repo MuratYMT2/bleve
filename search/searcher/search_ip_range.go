@@ -18,7 +18,7 @@ import (
 	"context"
 	"net"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -40,9 +40,12 @@ func netLimits(n *net.IPNet) (lo net.IP, hi net.IP) {
 	return lo, hi
 }
 
-func NewIPRangeSearcher(ctx context.Context, indexReader index.IndexReader, ipNet *net.IPNet,
-	field string, boost float64, options search.SearcherOptions) (
-	search.Searcher, error) {
+func NewIPRangeSearcher(
+	ctx context.Context, indexReader index.IndexReader, ipNet *net.IPNet,
+	field string, boost float64, options search.SearcherOptions,
+) (
+	search.Searcher, error,
+) {
 
 	lo, hi := netLimits(ipNet)
 	fieldDict, err := indexReader.FieldDictRange(field, lo, hi)

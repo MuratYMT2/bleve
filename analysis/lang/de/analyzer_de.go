@@ -15,10 +15,10 @@
 package de
 
 import (
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/analysis/token/lowercase"
-	"github.com/blevesearch/bleve/v2/analysis/tokenizer/unicode"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis/token/lowercase"
+	"github.com/MuratYMT2/bleve/v2/analysis/tokenizer/unicode"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 const AnalyzerName = "de"

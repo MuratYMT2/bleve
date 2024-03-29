@@ -18,9 +18,9 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/scorer"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/scorer"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -38,7 +38,12 @@ type MatchAllSearcher struct {
 	count       uint64
 }
 
-func NewMatchAllSearcher(ctx context.Context, indexReader index.IndexReader, boost float64, options search.SearcherOptions) (*MatchAllSearcher, error) {
+func NewMatchAllSearcher(
+	ctx context.Context,
+	indexReader index.IndexReader,
+	boost float64,
+	options search.SearcherOptions,
+) (*MatchAllSearcher, error) {
 	reader, err := indexReader.DocIDReaderAll()
 	if err != nil {
 		return nil, err

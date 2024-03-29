@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis"
 )
 
 func TestFlexibleDateTimeParser(t *testing.T) {
@@ -36,7 +36,8 @@ func TestFlexibleDateTimeParser(t *testing.T) {
 			rfc3339NoTimezone,
 			rfc3339NoTimezoneNoT,
 			rfc3339NoTime,
-		})
+		},
+	)
 
 	tests := []struct {
 		input          string
@@ -84,17 +85,19 @@ func TestFlexibleDateTimeParser(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		t.Run(test.input, func(t *testing.T) {
-			actualTime, actualLayout, actualErr := dateOptionalTimeParser.ParseDateTime(test.input)
-			if actualErr != test.expectedError {
-				t.Fatalf("expected error %#v, got %#v", test.expectedError, actualErr)
-			}
-			if !reflect.DeepEqual(actualTime, test.expectedTime) {
-				t.Errorf("expected time %v, got %v", test.expectedTime, actualTime)
-			}
-			if !reflect.DeepEqual(actualLayout, test.expectedLayout) {
-				t.Errorf("expected layout %v, got %v", test.expectedLayout, actualLayout)
-			}
-		})
+		t.Run(
+			test.input, func(t *testing.T) {
+				actualTime, actualLayout, actualErr := dateOptionalTimeParser.ParseDateTime(test.input)
+				if actualErr != test.expectedError {
+					t.Fatalf("expected error %#v, got %#v", test.expectedError, actualErr)
+				}
+				if !reflect.DeepEqual(actualTime, test.expectedTime) {
+					t.Errorf("expected time %v, got %v", test.expectedTime, actualTime)
+				}
+				if !reflect.DeepEqual(actualLayout, test.expectedLayout) {
+					t.Errorf("expected layout %v, got %v", test.expectedLayout, actualLayout)
+				}
+			},
+		)
 	}
 }

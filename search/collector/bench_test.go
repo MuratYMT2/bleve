@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -29,10 +29,12 @@ type createCollector func() search.Collector
 func benchHelper(numOfMatches int, cc createCollector, b *testing.B) {
 	matches := make([]*search.DocumentMatch, 0, numOfMatches)
 	for i := 0; i < numOfMatches; i++ {
-		matches = append(matches, &search.DocumentMatch{
-			IndexInternalID: index.IndexInternalID(strconv.Itoa(i)),
-			Score:           rand.Float64(),
-		})
+		matches = append(
+			matches, &search.DocumentMatch{
+				IndexInternalID: index.IndexInternalID(strconv.Itoa(i)),
+				Score:           rand.Float64(),
+			},
+		)
 	}
 
 	b.ResetTimer()

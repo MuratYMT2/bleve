@@ -18,13 +18,16 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
-func NewMultiTermSearcher(ctx context.Context, indexReader index.IndexReader, terms []string,
-	field string, boost float64, options search.SearcherOptions, limit bool) (
-	search.Searcher, error) {
+func NewMultiTermSearcher(
+	ctx context.Context, indexReader index.IndexReader, terms []string,
+	field string, boost float64, options search.SearcherOptions, limit bool,
+) (
+	search.Searcher, error,
+) {
 
 	if tooManyClauses(len(terms)) {
 		if optionsDisjunctionOptimizable(options) {
@@ -41,13 +44,18 @@ func NewMultiTermSearcher(ctx context.Context, indexReader index.IndexReader, te
 	}
 
 	// build disjunction searcher of these ranges
-	return newMultiTermSearcherInternal(ctx, indexReader, qsearchers, field, boost,
-		options, limit)
+	return newMultiTermSearcherInternal(
+		ctx, indexReader, qsearchers, field, boost,
+		options, limit,
+	)
 }
 
-func NewMultiTermSearcherBytes(ctx context.Context, indexReader index.IndexReader, terms [][]byte,
-	field string, boost float64, options search.SearcherOptions, limit bool) (
-	search.Searcher, error) {
+func NewMultiTermSearcherBytes(
+	ctx context.Context, indexReader index.IndexReader, terms [][]byte,
+	field string, boost float64, options search.SearcherOptions, limit bool,
+) (
+	search.Searcher, error,
+) {
 
 	if tooManyClauses(len(terms)) {
 		if optionsDisjunctionOptimizable(options) {
@@ -65,18 +73,25 @@ func NewMultiTermSearcherBytes(ctx context.Context, indexReader index.IndexReade
 	}
 
 	// build disjunction searcher of these ranges
-	return newMultiTermSearcherInternal(ctx, indexReader, qsearchers, field, boost,
-		options, limit)
+	return newMultiTermSearcherInternal(
+		ctx, indexReader, qsearchers, field, boost,
+		options, limit,
+	)
 }
 
-func newMultiTermSearcherInternal(ctx context.Context, indexReader index.IndexReader,
+func newMultiTermSearcherInternal(
+	ctx context.Context, indexReader index.IndexReader,
 	searchers []search.Searcher, field string, boost float64,
-	options search.SearcherOptions, limit bool) (
-	search.Searcher, error) {
+	options search.SearcherOptions, limit bool,
+) (
+	search.Searcher, error,
+) {
 
 	// build disjunction searcher of these ranges
-	searcher, err := newDisjunctionSearcher(ctx, indexReader, searchers, 0, options,
-		limit)
+	searcher, err := newDisjunctionSearcher(
+		ctx, indexReader, searchers, 0, options,
+		limit,
+	)
 	if err != nil {
 		for _, s := range searchers {
 			_ = s.Close()
@@ -87,9 +102,12 @@ func newMultiTermSearcherInternal(ctx context.Context, indexReader index.IndexRe
 	return searcher, nil
 }
 
-func optimizeMultiTermSearcher(ctx context.Context, indexReader index.IndexReader, terms []string,
-	field string, boost float64, options search.SearcherOptions) (
-	search.Searcher, error) {
+func optimizeMultiTermSearcher(
+	ctx context.Context, indexReader index.IndexReader, terms []string,
+	field string, boost float64, options search.SearcherOptions,
+) (
+	search.Searcher, error,
+) {
 	var finalSearcher search.Searcher
 	for len(terms) > 0 {
 		var batchTerms []string
@@ -114,8 +132,10 @@ func optimizeMultiTermSearcher(ctx context.Context, indexReader index.IndexReade
 				}
 			}
 		}
-		finalSearcher, err = optimizeCompositeSearcher(ctx, "disjunction:unadorned",
-			indexReader, batch, options)
+		finalSearcher, err = optimizeCompositeSearcher(
+			ctx, "disjunction:unadorned",
+			indexReader, batch, options,
+		)
 		// all searchers in batch should be closed, regardless of error or optimization failure
 		// either we're returning, or continuing and only finalSearcher is needed for next loop
 		cleanup()
@@ -129,8 +149,10 @@ func optimizeMultiTermSearcher(ctx context.Context, indexReader index.IndexReade
 	return finalSearcher, nil
 }
 
-func makeBatchSearchers(ctx context.Context, indexReader index.IndexReader, terms []string, field string,
-	boost float64, options search.SearcherOptions) ([]search.Searcher, error) {
+func makeBatchSearchers(
+	ctx context.Context, indexReader index.IndexReader, terms []string, field string,
+	boost float64, options search.SearcherOptions,
+) ([]search.Searcher, error) {
 
 	qsearchers := make([]search.Searcher, len(terms))
 	qsearchersClose := func() {
@@ -151,9 +173,12 @@ func makeBatchSearchers(ctx context.Context, indexReader index.IndexReader, term
 	return qsearchers, nil
 }
 
-func optimizeMultiTermSearcherBytes(ctx context.Context, indexReader index.IndexReader, terms [][]byte,
-	field string, boost float64, options search.SearcherOptions) (
-	search.Searcher, error) {
+func optimizeMultiTermSearcherBytes(
+	ctx context.Context, indexReader index.IndexReader, terms [][]byte,
+	field string, boost float64, options search.SearcherOptions,
+) (
+	search.Searcher, error,
+) {
 
 	var finalSearcher search.Searcher
 	for len(terms) > 0 {
@@ -179,8 +204,10 @@ func optimizeMultiTermSearcherBytes(ctx context.Context, indexReader index.Index
 				}
 			}
 		}
-		finalSearcher, err = optimizeCompositeSearcher(ctx, "disjunction:unadorned",
-			indexReader, batch, options)
+		finalSearcher, err = optimizeCompositeSearcher(
+			ctx, "disjunction:unadorned",
+			indexReader, batch, options,
+		)
 		// all searchers in batch should be closed, regardless of error or optimization failure
 		// either we're returning, or continuing and only finalSearcher is needed for next loop
 		cleanup()
@@ -194,8 +221,10 @@ func optimizeMultiTermSearcherBytes(ctx context.Context, indexReader index.Index
 	return finalSearcher, nil
 }
 
-func makeBatchSearchersBytes(ctx context.Context, indexReader index.IndexReader, terms [][]byte, field string,
-	boost float64, options search.SearcherOptions) ([]search.Searcher, error) {
+func makeBatchSearchersBytes(
+	ctx context.Context, indexReader index.IndexReader, terms [][]byte, field string,
+	boost float64, options search.SearcherOptions,
+) ([]search.Searcher, error) {
 
 	qsearchers := make([]search.Searcher, len(terms))
 	qsearchersClose := func() {

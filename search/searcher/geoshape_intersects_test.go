@@ -18,8 +18,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/index/scorch"
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/gtreap"
+	"github.com/MuratYMT2/bleve/v2/index/scorch"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/gtreap"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -30,7 +30,8 @@ func setupIndex(t *testing.T) index.Index {
 		map[string]interface{}{
 			"path": "",
 		},
-		analysisQueue)
+		analysisQueue,
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,24 +69,32 @@ func TestPointIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "point",
-			[][][][]float64{{{test.DocShapeVertices}}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "point",
+			[][][][]float64{{{test.DocShapeVertices}}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
 		// indexing and searching independently for each case.
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePointRelationQuery("intersects",
-				false, indexReader, [][]float64{test.QueryShape}, "geometry")
-			if err != nil {
-				t.Errorf(err.Error())
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for point: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePointRelationQuery(
+					"intersects",
+					false, indexReader, [][]float64{test.QueryShape}, "geometry",
+				)
+				if err != nil {
+					t.Errorf(err.Error())
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for point: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -120,24 +129,32 @@ func TestPointMultiPointIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "point",
-			[][][][]float64{{test.DocShapeVertices}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "point",
+			[][][][]float64{{test.DocShapeVertices}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
 		// indexing and searching independently for each case.
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePointRelationQuery("intersects",
-				false, indexReader, [][]float64{test.QueryShape}, "geometry")
-			if err != nil {
-				t.Errorf(err.Error())
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for point: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePointRelationQuery(
+					"intersects",
+					false, indexReader, [][]float64{test.QueryShape}, "geometry",
+				)
+				if err != nil {
+					t.Errorf(err.Error())
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for point: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -180,23 +197,31 @@ func TestPointLinestringIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "linestring",
-			[][][][]float64{{test.DocShapeVertices}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "linestring",
+			[][][][]float64{{test.DocShapeVertices}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePointRelationQuery("intersects",
-				false, indexReader, [][]float64{test.QueryShape}, "geometry")
-			if err != nil {
-				t.Errorf(err.Error())
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for point: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePointRelationQuery(
+					"intersects",
+					false, indexReader, [][]float64{test.QueryShape}, "geometry",
+				)
+				if err != nil {
+					t.Errorf(err.Error())
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for point: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -229,34 +254,44 @@ func TestPointMultiLinestringIntersects(t *testing.T) {
 			// of the endpoints of any of the linestrings
 		},
 		{
-			QueryShape:       []float64{1.5, 1.6001714},
-			DocShapeVertices: [][][]float64{{{0.0, 0.0}, {1.0, 1.0}, {2.0, 2.0}, {3.0, 3.0}}, {{1, 1.1}, {2, 2.1}, {3, 3.4}}},
-			DocShapeName:     "linestring1",
-			Desc:             "point outside all linestrings",
-			Expected:         nil,
+			QueryShape: []float64{1.5, 1.6001714},
+			DocShapeVertices: [][][]float64{
+				{{0.0, 0.0}, {1.0, 1.0}, {2.0, 2.0}, {3.0, 3.0}}, {{1, 1.1}, {2, 2.1}, {3, 3.4}},
+			},
+			DocShapeName: "linestring1",
+			Desc:         "point outside all linestrings",
+			Expected:     nil,
 		},
 	}
 
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "multilinestring",
-			[][][][]float64{test.DocShapeVertices}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "multilinestring",
+			[][][][]float64{test.DocShapeVertices}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePointRelationQuery("intersects",
-				false, indexReader, [][]float64{test.QueryShape}, "geometry")
-			if err != nil {
-				t.Errorf(err.Error())
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for point: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePointRelationQuery(
+					"intersects",
+					false, indexReader, [][]float64{test.QueryShape}, "geometry",
+				)
+				if err != nil {
+					t.Errorf(err.Error())
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for point: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -296,8 +331,10 @@ func TestPointPolygonIntersects(t *testing.T) {
 		},
 		{
 			QueryShape: []float64{0.3, 0.3},
-			DocShapeVertices: [][][]float64{{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}, {0.0, 0.0}},
-				{{0.2, 0.2}, {0.2, 0.4}, {0.4, 0.4}, {0.4, 0.2}, {0.2, 0.2}}},
+			DocShapeVertices: [][][]float64{
+				{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}, {0.0, 0.0}},
+				{{0.2, 0.2}, {0.2, 0.4}, {0.4, 0.4}, {0.4, 0.2}, {0.2, 0.2}},
+			},
 			DocShapeName: "polygon1",
 			Desc:         "point inside hole inside polygon",
 			Expected:     nil,
@@ -307,23 +344,31 @@ func TestPointPolygonIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "polygon",
-			[][][][]float64{test.DocShapeVertices}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "polygon",
+			[][][][]float64{test.DocShapeVertices}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePointRelationQuery("intersects",
-				false, indexReader, [][]float64{test.QueryShape}, "geometry")
-			if err != nil {
-				t.Errorf(err.Error())
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for point: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePointRelationQuery(
+					"intersects",
+					false, indexReader, [][]float64{test.QueryShape}, "geometry",
+				)
+				if err != nil {
+					t.Errorf(err.Error())
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for point: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -355,16 +400,22 @@ func TestPointMultiPolygonIntersects(t *testing.T) {
 		},
 		{
 			QueryShape: []float64{1.5, 1.9},
-			DocShapeVertices: [][][][]float64{{{{1.0, 1.0}, {2.0, 2.0}, {0.0, 2.0}, {1.0, 1.0}}},
-				{{{1.5, 1.9}, {2.5, 2.9}, {0.5, 2.9}, {1.5, 1.9}}}},
+			DocShapeVertices: [][][][]float64{
+				{{{1.0, 1.0}, {2.0, 2.0}, {0.0, 2.0}, {1.0, 1.0}}},
+				{{{1.5, 1.9}, {2.5, 2.9}, {0.5, 2.9}, {1.5, 1.9}}},
+			},
 			DocShapeName: "multipolygon1",
 			Desc:         "point inside a polygon and on vertex of another polygon",
 			Expected:     []string{"multipolygon1"},
 		},
 		{
 			QueryShape: []float64{0.3, 0.3},
-			DocShapeVertices: [][][][]float64{{{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}, {0.0, 0.0}},
-				{{0.2, 0.2}, {0.2, 0.4}, {0.4, 0.4}, {0.4, 0.2}, {0.2, 0.2}}}},
+			DocShapeVertices: [][][][]float64{
+				{
+					{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}, {0.0, 0.0}},
+					{{0.2, 0.2}, {0.2, 0.4}, {0.4, 0.4}, {0.4, 0.2}, {0.2, 0.2}},
+				},
+			},
 			DocShapeName: "multipolygon1",
 			Desc:         "point inside hole inside one of the polygons",
 			Expected:     nil,
@@ -379,17 +430,23 @@ func TestPointMultiPolygonIntersects(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePointRelationQuery("intersects",
-				false, indexReader, [][]float64{test.QueryShape}, "geometry")
-			if err != nil {
-				t.Errorf(err.Error())
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for point: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePointRelationQuery(
+					"intersects",
+					false, indexReader, [][]float64{test.QueryShape}, "geometry",
+				)
+				if err != nil {
+					t.Errorf(err.Error())
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for point: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -428,23 +485,31 @@ func TestEnvelopePointIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "point",
-			[][][][]float64{{{test.DocShapeVertices}}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "point",
+			[][][][]float64{{{test.DocShapeVertices}}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeEnvelopeRelationQuery(test.QueryType,
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for Envelope: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeEnvelopeRelationQuery(
+					test.QueryType,
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for Envelope: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -491,23 +556,31 @@ func TestEnvelopeLinestringIntersect(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "linestring",
-			[][][][]float64{{test.DocShapeVertices}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "linestring",
+			[][][][]float64{{test.DocShapeVertices}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeEnvelopeRelationQuery(test.QueryType,
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for Envelope: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeEnvelopeRelationQuery(
+					test.QueryType,
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for Envelope: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -546,23 +619,31 @@ func TestEnvelopePolygonIntersect(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "polygon",
-			[][][][]float64{test.DocShapeVertices}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "polygon",
+			[][][][]float64{test.DocShapeVertices}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeEnvelopeRelationQuery(test.QueryType,
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for Envelope: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeEnvelopeRelationQuery(
+					test.QueryType,
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for Envelope: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -590,23 +671,31 @@ func TestMultiPointIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "multipoint",
-			[][][][]float64{{test.DocShapeVertices}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "multipoint",
+			[][][][]float64{{test.DocShapeVertices}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePointRelationQuery("intersects",
-				true, indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Errorf(err.Error())
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for multipoint: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePointRelationQuery(
+					"intersects",
+					true, indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Errorf(err.Error())
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for multipoint: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -676,23 +765,31 @@ func TestLinestringIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "linestring",
-			[][][][]float64{{test.DocShapeVertices}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "linestring",
+			[][][][]float64{{test.DocShapeVertices}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeLinestringQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for polygon: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeLinestringQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for polygon: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -745,25 +842,31 @@ func TestLinestringPolygonIntersects(t *testing.T) {
 		},
 		{
 			QueryShape: [][]float64{{0.3, 0.3}, {0.35, 0.35}},
-			DocShapeVertices: [][][]float64{{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}, {0.0, 0.0}},
-				{{0.2, 0.2}, {0.2, 0.4}, {0.4, 0.4}, {0.4, 0.2}, {0.2, 0.2}}},
+			DocShapeVertices: [][][]float64{
+				{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}, {0.0, 0.0}},
+				{{0.2, 0.2}, {0.2, 0.4}, {0.4, 0.4}, {0.4, 0.2}, {0.2, 0.2}},
+			},
 			DocShapeName: "polygon1",
 			Desc:         "linestring does not intersect polygon when contained in the hole",
 			Expected:     nil,
 		},
 		{
 			QueryShape: [][]float64{{0.3, 0.3}, {0.5, 0.5}},
-			DocShapeVertices: [][][]float64{{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}, {0.0, 0.0}},
-				{{0.2, 0.2}, {0.2, 0.4}, {0.4, 0.4}, {0.4, 0.2}, {0.2, 0.2}}},
+			DocShapeVertices: [][][]float64{
+				{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}, {0.0, 0.0}},
+				{{0.2, 0.2}, {0.2, 0.4}, {0.4, 0.4}, {0.4, 0.2}, {0.2, 0.2}},
+			},
 			DocShapeName: "polygon1",
 			Desc:         "linestring intersects polygon in the hole",
 			Expected:     []string{"polygon1"},
 		},
 		{
 			QueryShape: [][]float64{{0.4, 0.3}, {0.6, 0.3}},
-			DocShapeVertices: [][][]float64{{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}, {0.0, 0.0}},
+			DocShapeVertices: [][][]float64{
+				{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}, {0.0, 0.0}},
 				{{0.3, 0.3}, {0.4, 0.2}, {0.5, 0.3}, {0.4, 0.4}, {0.3, 0.3}},
-				{{0.5, 0.3}, {0.6, 0.2}, {0.7, 0.3}, {0.6, 0.4}, {0.5, 0.3}}},
+				{{0.5, 0.3}, {0.6, 0.2}, {0.7, 0.3}, {0.6, 0.4}, {0.5, 0.3}},
+			},
 			DocShapeName: "polygon1",
 			Desc:         "linestring intersects polygon through touching holes",
 			Expected:     []string{"polygon1"},
@@ -773,23 +876,31 @@ func TestLinestringPolygonIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "polygon",
-			[][][][]float64{test.DocShapeVertices}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "polygon",
+			[][][][]float64{test.DocShapeVertices}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeLinestringQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for linestring: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeLinestringQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for linestring: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -852,23 +963,31 @@ func TestLinestringPointIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "point",
-			[][][][]float64{{{test.DocShapeVertices}}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "point",
+			[][][][]float64{{{test.DocShapeVertices}}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeLinestringQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for linestring: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeLinestringQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for linestring: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -903,23 +1022,31 @@ func TestMultiLinestringIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "multilinestring",
-			[][][][]float64{test.DocShapeVertices}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "multilinestring",
+			[][][][]float64{test.DocShapeVertices}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeMultiLinestringQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for multilinestring: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeMultiLinestringQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for multilinestring: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -954,23 +1081,31 @@ func TestMultiLinestringMultiPointIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "multipoint",
-			[][][][]float64{{test.DocShapeVertices}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "multipoint",
+			[][][][]float64{{test.DocShapeVertices}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeMultiLinestringQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for polygon: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeMultiLinestringQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for polygon: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -987,54 +1122,98 @@ func TestPolygonIntersects(t *testing.T) {
 		Expected         []string
 	}{
 		{
-			QueryShape: [][][]float64{{{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
-				{1.0, 2.0}, {1.0, 1.0}}},
-			DocShapeVertices: [][][]float64{{{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
-				{1.0, 2.0}, {1.0, 1.0}}},
+			QueryShape: [][][]float64{
+				{
+					{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
+					{1.0, 2.0}, {1.0, 1.0},
+				},
+			},
+			DocShapeVertices: [][][]float64{
+				{
+					{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
+					{1.0, 2.0}, {1.0, 1.0},
+				},
+			},
 			DocShapeName: "polygon1",
 			Desc:         "coincident polygons",
 			Expected:     []string{"polygon1"},
 		},
 		{
-			QueryShape: [][][]float64{{{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
-				{1.0, 2.0}, {1.0, 1.0}}},
-			DocShapeVertices: [][][]float64{{{1.2, 1.2}, {2.0, 1.0}, {2.0, 2.0},
-				{1.0, 2.0}, {1.2, 1.2}}},
+			QueryShape: [][][]float64{
+				{
+					{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
+					{1.0, 2.0}, {1.0, 1.0},
+				},
+			},
+			DocShapeVertices: [][][]float64{
+				{
+					{1.2, 1.2}, {2.0, 1.0}, {2.0, 2.0},
+					{1.0, 2.0}, {1.2, 1.2},
+				},
+			},
 			DocShapeName: "polygon1",
 			Desc:         "polygon and a window polygon",
 			Expected:     []string{"polygon1"},
 		},
 		{
-			QueryShape: [][][]float64{{{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
-				{1.0, 2.0}, {1.0, 1.0}}},
-			DocShapeVertices: [][][]float64{{{1.1, 1.1}, {1.2, 1.1}, {1.2, 1.2},
-				{1.1, 1.2}, {1.1, 1.1}}},
+			QueryShape: [][][]float64{
+				{
+					{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
+					{1.0, 2.0}, {1.0, 1.0},
+				},
+			},
+			DocShapeVertices: [][][]float64{
+				{
+					{1.1, 1.1}, {1.2, 1.1}, {1.2, 1.2},
+					{1.1, 1.2}, {1.1, 1.1},
+				},
+			},
 			DocShapeName: "polygon1",
 			Desc:         "nested polygons",
 			Expected:     []string{"polygon1"},
 		},
 		{
-			QueryShape: [][][]float64{{{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
-				{1.0, 2.0}, {1.0, 1.0}}},
-			DocShapeVertices: [][][]float64{{{0.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
-				{0.0, 2.0}, {0.0, 1.0}}},
+			QueryShape: [][][]float64{
+				{
+					{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
+					{1.0, 2.0}, {1.0, 1.0},
+				},
+			},
+			DocShapeVertices: [][][]float64{
+				{
+					{0.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
+					{0.0, 2.0}, {0.0, 1.0},
+				},
+			},
 			DocShapeName: "polygon1",
 			Desc:         "intersecting polygons",
 			Expected:     []string{"polygon1"},
 		},
 		{
-			QueryShape: [][][]float64{{{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 0}}, {{1, 4}, {4, 4},
-				{4, 1}, {1, 1}, {1, 4}}},
+			QueryShape: [][][]float64{
+				{{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 0}}, {
+					{1, 4}, {4, 4},
+					{4, 1}, {1, 1}, {1, 4},
+				},
+			},
 			DocShapeVertices: [][][]float64{{{2, 2}, {3, 2}, {3, 3}, {2, 3}, {2, 2}}},
 			DocShapeName:     "polygon1",
 			Desc:             "polygon inside hole of a larger polygon",
 			Expected:         nil,
 		},
 		{
-			QueryShape: [][][]float64{{{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
-				{1.0, 2.0}, {1.0, 1.0}}},
-			DocShapeVertices: [][][]float64{{{3.0, 3.0}, {4.0, 3.0}, {4.0, 4.0},
-				{3.0, 4.0}, {3.0, 3.0}}},
+			QueryShape: [][][]float64{
+				{
+					{1.0, 1.0}, {2.0, 1.0}, {2.0, 2.0},
+					{1.0, 2.0}, {1.0, 1.0},
+				},
+			},
+			DocShapeVertices: [][][]float64{
+				{
+					{3.0, 3.0}, {4.0, 3.0}, {4.0, 4.0},
+					{3.0, 4.0}, {3.0, 3.0},
+				},
+			},
 			DocShapeName: "polygon1",
 			Desc:         "disjoint polygons",
 			Expected:     nil,
@@ -1043,23 +1222,31 @@ func TestPolygonIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "polygon",
-			[][][][]float64{test.DocShapeVertices}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "polygon",
+			[][][][]float64{test.DocShapeVertices}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePolygonQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for polygon: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePolygonQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for polygon: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -1115,23 +1302,31 @@ func TestPolygonLinestringIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "linestring",
-			[][][][]float64{{test.DocShapeVertices}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "linestring",
+			[][][][]float64{{test.DocShapeVertices}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePolygonQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for polygon: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePolygonQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for polygon: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -1188,23 +1383,31 @@ func TestPolygonMultiLinestringIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "multilinestring",
-			[][][][]float64{test.DocShapeVertices}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "multilinestring",
+			[][][][]float64{test.DocShapeVertices}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePolygonQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for polygon: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePolygonQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for polygon: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -1240,23 +1443,31 @@ func TestPolygonPointIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "point",
-			[][][][]float64{{{test.DocShapeVertices}}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "point",
+			[][][][]float64{{{test.DocShapeVertices}}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePolygonQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for polygon: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePolygonQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for polygon: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -1274,19 +1485,43 @@ func TestMultiPolygonIntersects(t *testing.T) {
 		Expected         []string
 	}{
 		{
-			QueryShape: [][][][]float64{{{{15, 5}, {40, 10}, {10, 20},
-				{5, 10}, {15, 5}}}, {{{30, 20}, {45, 40}, {10, 40}, {30, 20}}}},
-			DocShapeVertices: [][][][]float64{{{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0},
-				{0.0, 1.0}, {0.0, 0.0}}, {{30, 20}, {45, 40}, {10, 40}, {30, 20}}}},
+			QueryShape: [][][][]float64{
+				{
+					{
+						{15, 5}, {40, 10}, {10, 20},
+						{5, 10}, {15, 5},
+					},
+				}, {{{30, 20}, {45, 40}, {10, 40}, {30, 20}}},
+			},
+			DocShapeVertices: [][][][]float64{
+				{
+					{
+						{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0},
+						{0.0, 1.0}, {0.0, 0.0},
+					}, {{30, 20}, {45, 40}, {10, 40}, {30, 20}},
+				},
+			},
 			DocShapeName: "multipolygon1",
 			Desc:         "intersecting multi polygons",
 			Expected:     []string{"multipolygon1"},
 		},
 		{
-			QueryShape: [][][][]float64{{{{15, 5}, {40, 10}, {10, 20},
-				{5, 10}, {15, 5}}}, {{{30, 20}, {45, 40}, {10, 40}, {30, 20}}}},
-			DocShapeVertices: [][][][]float64{{{{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0},
-				{0.0, 1.0}, {0.0, 0.0}}}},
+			QueryShape: [][][][]float64{
+				{
+					{
+						{15, 5}, {40, 10}, {10, 20},
+						{5, 10}, {15, 5},
+					},
+				}, {{{30, 20}, {45, 40}, {10, 40}, {30, 20}}},
+			},
+			DocShapeVertices: [][][][]float64{
+				{
+					{
+						{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0},
+						{0.0, 1.0}, {0.0, 0.0},
+					},
+				},
+			},
 			DocShapeName: "multipolygon1",
 			Desc:         "non intersecting multi polygons",
 			Expected:     nil,
@@ -1295,23 +1530,31 @@ func TestMultiPolygonIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "multipolygon",
-			test.DocShapeVertices, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "multipolygon",
+			test.DocShapeVertices, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeMultiPolygonQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for multipolygon: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeMultiPolygonQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for multipolygon: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -1328,16 +1571,20 @@ func TestMultiPolygonMultiPointIntersects(t *testing.T) {
 		Expected         []string
 	}{
 		{
-			QueryShape: [][][][]float64{{{{30, 20}, {45, 40}, {10, 40}, {30, 20}}},
-				{{{15, 5}, {40, 10}, {10, 20}, {5, 10}, {15, 5}}}},
+			QueryShape: [][][][]float64{
+				{{{30, 20}, {45, 40}, {10, 40}, {30, 20}}},
+				{{{15, 5}, {40, 10}, {10, 20}, {5, 10}, {15, 5}}},
+			},
 			DocShapeVertices: [][]float64{{30, 20}, {30, 30}},
 			DocShapeName:     "multipoint1",
 			Desc:             "multipolygon intersects multipoint at the vertex",
 			Expected:         []string{"multipoint1"},
 		},
 		{
-			QueryShape: [][][][]float64{{{{15, 5}, {40, 10}, {10, 20}, {5, 10}, {15, 5}}},
-				{{{30, 20}, {45, 50}, {10, 50}, {30, 20}}}},
+			QueryShape: [][][][]float64{
+				{{{15, 5}, {40, 10}, {10, 20}, {5, 10}, {15, 5}}},
+				{{{30, 20}, {45, 50}, {10, 50}, {30, 20}}},
+			},
 			DocShapeVertices: [][]float64{{30, -20}, {-30, 30}, {45, 66}},
 			DocShapeName:     "multipoint1",
 			Desc:             "multipolygon does not intersect multipoint",
@@ -1347,23 +1594,31 @@ func TestMultiPolygonMultiPointIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "multipoint",
-			[][][][]float64{{test.DocShapeVertices}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "multipoint",
+			[][][][]float64{{test.DocShapeVertices}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeMultiPolygonQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for multipolygon: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeMultiPolygonQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for multipolygon: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -1381,14 +1636,18 @@ func TestMultiPolygonMultiLinestringIntersects(t *testing.T) {
 		Expected         []string
 	}{
 		{
-			QueryShape:       [][][][]float64{{{{15, 5}, {40, 10}, {10, 20}, {5, 10}, {15, 5}}}, {{{30, 20}, {45, 40}, {10, 40}, {30, 20}}}},
+			QueryShape: [][][][]float64{
+				{{{15, 5}, {40, 10}, {10, 20}, {5, 10}, {15, 5}}}, {{{30, 20}, {45, 40}, {10, 40}, {30, 20}}},
+			},
 			DocShapeVertices: [][][]float64{{{65, 40}, {60, 40}}, {{45, 40}, {10, 40}, {30, 20}}},
 			DocShapeName:     "multilinestring1",
 			Desc:             "multipolygon intersects multilinestring",
 			Expected:         []string{"multilinestring1"},
 		},
 		{
-			QueryShape:       [][][][]float64{{{{15, 5}, {40, 10}, {10, 20}, {5, 10}, {15, 5}}}, {{{30, 20}, {45, 40}, {10, 40}, {30, 20}}}},
+			QueryShape: [][][][]float64{
+				{{{15, 5}, {40, 10}, {10, 20}, {5, 10}, {15, 5}}}, {{{30, 20}, {45, 40}, {10, 40}, {30, 20}}},
+			},
 			DocShapeVertices: [][][]float64{{{45, 41}, {60, 80}}, {{-45, -40}, {-10, -40}}},
 			DocShapeName:     "multilinestring1",
 			Desc:             "multipolygon does not intersect multilinestring",
@@ -1398,23 +1657,31 @@ func TestMultiPolygonMultiLinestringIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "multilinestring",
-			[][][][]float64{test.DocShapeVertices}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "multilinestring",
+			[][][][]float64{test.DocShapeVertices}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeMultiPolygonQueryWithRelation("intersects",
-				indexReader, test.QueryShape, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for multipolygon: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeMultiPolygonQueryWithRelation(
+					"intersects",
+					indexReader, test.QueryShape, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for multipolygon: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -1444,23 +1711,31 @@ func TestGeometryCollectionIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetupGeometryCollection(t, test.DocShapeName, test.Types,
-			test.DocShapeVertices, i)
+		indexReader, closeFn, err := testCaseSetupGeometryCollection(
+			t, test.DocShapeName, test.Types,
+			test.DocShapeVertices, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeGeometryCollectionRelationQuery("intersects",
-				indexReader, test.QueryShape, test.Types, "geometry")
-			if err != nil {
-				t.Errorf(err.Error())
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for geometry collection: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeGeometryCollectionRelationQuery(
+					"intersects",
+					indexReader, test.QueryShape, test.Types, "geometry",
+				)
+				if err != nil {
+					t.Errorf(err.Error())
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for geometry collection: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 
 		err = closeFn()
 		if err != nil {
@@ -1507,23 +1782,31 @@ func TestGeometryCollectionPointIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "point",
-			[][][][]float64{{{test.DocShapeVertices}}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "point",
+			[][][][]float64{{{test.DocShapeVertices}}}, i,
+		)
 		if err != nil {
 			t.Fatal(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeGeometryCollectionRelationQuery("intersects",
-				indexReader, test.QueryShape, test.Types, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for geometry collection: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeGeometryCollectionRelationQuery(
+					"intersects",
+					indexReader, test.QueryShape, test.Types, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for geometry collection: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -1561,23 +1844,31 @@ func TestGeometryCollectionLinestringIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "linestring",
-			[][][][]float64{{test.DocShapeVertices}}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "linestring",
+			[][][][]float64{{test.DocShapeVertices}}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeGeometryCollectionRelationQuery("intersects",
-				indexReader, test.QueryShape, test.Types, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for geometry collection: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeGeometryCollectionRelationQuery(
+					"intersects",
+					indexReader, test.QueryShape, test.Types, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for geometry collection: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -1595,7 +1886,11 @@ func TestGeometryCollectionPolygonIntersects(t *testing.T) {
 		Types            []string
 	}{
 		{
-			QueryShape:       [][][][][]float64{{{{{4, 5}, {6, 7}, {7, 8}, {4, 5}}}, {{{1, 2}, {2, 3}, {3, 4}, {1, 2}}}}},
+			QueryShape: [][][][][]float64{
+				{
+					{{{4, 5}, {6, 7}, {7, 8}, {4, 5}}}, {{{1, 2}, {2, 3}, {3, 4}, {1, 2}}},
+				},
+			},
 			DocShapeVertices: [][][]float64{{{4, 5}, {6, 7}, {7, 8}, {4, 5}}},
 			DocShapeName:     "polygon1",
 			Desc:             "polygon coincides with one of the polygons in multipolygon in geometry collection",
@@ -1615,23 +1910,31 @@ func TestGeometryCollectionPolygonIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetup(t, test.DocShapeName, "polygon",
-			[][][][]float64{test.DocShapeVertices}, i)
+		indexReader, closeFn, err := testCaseSetup(
+			t, test.DocShapeName, "polygon",
+			[][][][]float64{test.DocShapeVertices}, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapeGeometryCollectionRelationQuery("intersects",
-				indexReader, test.QueryShape, test.Types, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for geometry collection: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapeGeometryCollectionRelationQuery(
+					"intersects",
+					indexReader, test.QueryShape, test.Types, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for geometry collection: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())
@@ -1669,23 +1972,31 @@ func TestPointGeometryCollectionIntersects(t *testing.T) {
 	i := setupIndex(t)
 
 	for _, test := range tests {
-		indexReader, closeFn, err := testCaseSetupGeometryCollection(t, test.DocShapeName, test.Types,
-			test.DocShapeVertices, i)
+		indexReader, closeFn, err := testCaseSetupGeometryCollection(
+			t, test.DocShapeName, test.Types,
+			test.DocShapeVertices, i,
+		)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		t.Run(test.Desc, func(t *testing.T) {
-			got, err := runGeoShapePointRelationQuery("intersects",
-				false, indexReader, [][]float64{test.QueryShape}, "geometry")
-			if err != nil {
-				t.Fatal(err)
-			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Errorf("expected %v, got %v for point: %+v",
-					test.Expected, got, test.QueryShape)
-			}
-		})
+		t.Run(
+			test.Desc, func(t *testing.T) {
+				got, err := runGeoShapePointRelationQuery(
+					"intersects",
+					false, indexReader, [][]float64{test.QueryShape}, "geometry",
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if !reflect.DeepEqual(got, test.Expected) {
+					t.Errorf(
+						"expected %v, got %v for point: %+v",
+						test.Expected, got, test.QueryShape,
+					)
+				}
+			},
+		)
 		err = closeFn()
 		if err != nil {
 			t.Errorf(err.Error())

@@ -18,11 +18,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/searcher"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/searcher"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -34,7 +34,8 @@ type GeoBoundingPolygonQuery struct {
 
 func NewGeoBoundingPolygonQuery(points []geo.Point) *GeoBoundingPolygonQuery {
 	return &GeoBoundingPolygonQuery{
-		Points: points}
+		Points: points,
+	}
 }
 
 func (q *GeoBoundingPolygonQuery) SetBoost(b float64) {
@@ -54,8 +55,10 @@ func (q *GeoBoundingPolygonQuery) Field() string {
 	return q.FieldVal
 }
 
-func (q *GeoBoundingPolygonQuery) Searcher(ctx context.Context, i index.IndexReader,
-	m mapping.IndexMapping, options search.SearcherOptions) (search.Searcher, error) {
+func (q *GeoBoundingPolygonQuery) Searcher(
+	ctx context.Context, i index.IndexReader,
+	m mapping.IndexMapping, options search.SearcherOptions,
+) (search.Searcher, error) {
 	field := q.FieldVal
 	if q.FieldVal == "" {
 		field = m.DefaultSearchField()

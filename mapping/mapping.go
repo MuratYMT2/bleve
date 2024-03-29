@@ -18,8 +18,8 @@ import (
 	"io"
 	"log"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/document"
 )
 
 // A Classifier is an interface describing any object which knows how to

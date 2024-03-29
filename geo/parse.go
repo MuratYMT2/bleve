@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/util"
 )
 
 // ExtractGeoPoint takes an arbitrary interface{} and tries it's best to
@@ -377,8 +377,10 @@ func ExtractCircle(thing interface{}) ([]float64, string, bool) {
 // ExtractGeoShapeCoordinates takes an interface{} and tries it's best to
 // interpret the coordinates for any of the given geoshape typ like
 // a point, multipoint, linestring, multilinestring, polygon, multipolygon,
-func ExtractGeoShapeCoordinates(coordValue interface{},
-	typ string) ([][][][]float64, string, bool) {
+func ExtractGeoShapeCoordinates(
+	coordValue interface{},
+	typ string,
+) ([][][][]float64, string, bool) {
 	var rv [][][][]float64
 	if typ == PointType {
 		point := extractCoordinates(coordValue)

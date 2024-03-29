@@ -18,7 +18,7 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -102,7 +102,12 @@ func (sr *stubReader) Size() int {
 	return 0
 }
 
-func (sr *stubReader) TermFieldReader(ctx context.Context, term []byte, field string, includeFreq, includeNorm, includeTermVectors bool) (index.TermFieldReader, error) {
+func (sr *stubReader) TermFieldReader(
+	ctx context.Context,
+	term []byte,
+	field string,
+	includeFreq, includeNorm, includeTermVectors bool,
+) (index.TermFieldReader, error) {
 	return nil, nil
 }
 
@@ -130,7 +135,11 @@ func (sr *stubReader) Document(id string) (index.Document, error) {
 	return nil, nil
 }
 
-func (sr *stubReader) DocumentVisitFieldTerms(id index.IndexInternalID, fields []string, visitor index.DocValueVisitor) error {
+func (sr *stubReader) DocumentVisitFieldTerms(
+	id index.IndexInternalID,
+	fields []string,
+	visitor index.DocValueVisitor,
+) error {
 	return nil
 }
 

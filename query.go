@@ -17,7 +17,7 @@ package bleve
 import (
 	"time"
 
-	"github.com/blevesearch/bleve/v2/search/query"
+	"github.com/MuratYMT2/bleve/v2/search/query"
 )
 
 // NewBoolFieldQuery creates a new Query for boolean fields
@@ -98,7 +98,10 @@ func NewDateRangeStringQuery(start, end string) *query.DateRangeStringQuery {
 // is used.
 // Either, but not both endpoints can be nil.
 // startInclusive and endInclusive control inclusion of the endpoints.
-func NewDateRangeInclusiveStringQuery(start, end string, startInclusive, endInclusive *bool) *query.DateRangeStringQuery {
+func NewDateRangeInclusiveStringQuery(
+	start, end string,
+	startInclusive, endInclusive *bool,
+) *query.DateRangeStringQuery {
 	return query.NewDateRangeStringInclusiveQuery(start, end, startInclusive, endInclusive)
 }
 
@@ -285,6 +288,9 @@ func NewGeoShapeCircleQuery(coordinates []float64, radius, relation string) (*qu
 // NewGeometryCollectionQuery creates a new query for the provided
 // geometrycollection coordinates and types, which could contain
 // multiple geo shapes.
-func NewGeometryCollectionQuery(coordinates [][][][][]float64, types []string, relation string) (*query.GeoShapeQuery, error) {
+func NewGeometryCollectionQuery(coordinates [][][][][]float64, types []string, relation string) (
+	*query.GeoShapeQuery,
+	error,
+) {
 	return query.NewGeometryCollectionQuery(coordinates, types, relation)
 }

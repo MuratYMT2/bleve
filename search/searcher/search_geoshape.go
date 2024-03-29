@@ -18,16 +18,18 @@ import (
 	"bytes"
 	"context"
 
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 	"github.com/blevesearch/geo/geojson"
 	"github.com/blevesearch/geo/s2"
 )
 
-func NewGeoShapeSearcher(ctx context.Context, indexReader index.IndexReader, shape index.GeoJSON,
+func NewGeoShapeSearcher(
+	ctx context.Context, indexReader index.IndexReader, shape index.GeoJSON,
 	relation string, field string, boost float64,
-	options search.SearcherOptions) (search.Searcher, error) {
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	var err error
 	var spatialPlugin index.SpatialAnalyzerPlugin
 
@@ -43,8 +45,10 @@ func NewGeoShapeSearcher(ctx context.Context, indexReader index.IndexReader, sha
 
 	// obtain the query tokens.
 	terms := spatialPlugin.GetQueryTokens(shape)
-	mSearcher, err := NewMultiTermSearcher(ctx, indexReader, terms,
-		field, boost, options, false)
+	mSearcher, err := NewMultiTermSearcher(
+		ctx, indexReader, terms,
+		field, boost, options, false,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +58,10 @@ func NewGeoShapeSearcher(ctx context.Context, indexReader index.IndexReader, sha
 		return nil, err
 	}
 
-	return NewFilteringSearcher(ctx, mSearcher,
-		buildRelationFilterOnShapes(ctx, dvReader, field, relation, shape)), nil
+	return NewFilteringSearcher(
+		ctx, mSearcher,
+		buildRelationFilterOnShapes(ctx, dvReader, field, relation, shape),
+	), nil
 
 }
 
@@ -64,8 +70,10 @@ func NewGeoShapeSearcher(ctx context.Context, indexReader index.IndexReader, sha
 // implementation of doc values.
 var termSeparatorSplitSlice = []byte{0xff}
 
-func buildRelationFilterOnShapes(ctx context.Context, dvReader index.DocValueReader, field string,
-	relation string, shape index.GeoJSON) FilterFunc {
+func buildRelationFilterOnShapes(
+	ctx context.Context, dvReader index.DocValueReader, field string,
+	relation string, shape index.GeoJSON,
+) FilterFunc {
 	// this is for accumulating the shape's actual complete value
 	// spread across multiple docvalue visitor callbacks.
 	var dvShapeValue []byte
@@ -80,7 +88,8 @@ func buildRelationFilterOnShapes(ctx context.Context, dvReader index.DocValueRea
 	return func(d *search.DocumentMatch) bool {
 		var found bool
 
-		err := dvReader.VisitDocValues(d.IndexInternalID,
+		err := dvReader.VisitDocValues(
+			d.IndexInternalID,
 			func(field string, term []byte) {
 
 				// only consider the values which are GlueBytes prefixed or
@@ -110,8 +119,10 @@ func buildRelationFilterOnShapes(ctx context.Context, dvReader index.DocValueRea
 
 					// apply the filter once the entire docvalue is finished reading.
 					if finishReading {
-						v, err := geojson.FilterGeoShapesOnRelation(shape,
-							dvShapeValue, relation, &reader, bufPool)
+						v, err := geojson.FilterGeoShapesOnRelation(
+							shape,
+							dvShapeValue, relation, &reader, bufPool,
+						)
 						if err == nil && v {
 							found = true
 						}
@@ -120,7 +131,8 @@ func buildRelationFilterOnShapes(ctx context.Context, dvReader index.DocValueRea
 						finishReading = false
 					}
 				}
-			})
+			},
+		)
 
 		if err == nil && found {
 			bytes := dvReader.BytesRead()

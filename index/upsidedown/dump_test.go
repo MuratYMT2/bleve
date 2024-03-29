@@ -18,10 +18,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/boltdb"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/boltdb"
 	index "github.com/blevesearch/bleve_index_api"
 
-	"github.com/blevesearch/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/document"
 )
 
 func TestDump(t *testing.T) {
@@ -66,9 +66,29 @@ func TestDump(t *testing.T) {
 	}
 
 	doc := document.NewDocument("1")
-	doc.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("test"), index.IndexField|index.StoreField))
-	doc.AddField(document.NewNumericFieldWithIndexingOptions("age", []uint64{}, 35.99, index.IndexField|index.StoreField))
-	dateField, err := document.NewDateTimeFieldWithIndexingOptions("unixEpoch", []uint64{}, time.Unix(0, 0), time.RFC3339, index.IndexField|index.StoreField)
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("test"),
+			index.IndexField|index.StoreField,
+		),
+	)
+	doc.AddField(
+		document.NewNumericFieldWithIndexingOptions(
+			"age",
+			[]uint64{},
+			35.99,
+			index.IndexField|index.StoreField,
+		),
+	)
+	dateField, err := document.NewDateTimeFieldWithIndexingOptions(
+		"unixEpoch",
+		[]uint64{},
+		time.Unix(0, 0),
+		time.RFC3339,
+		index.IndexField|index.StoreField,
+	)
 	if err != nil {
 		t.Error(err)
 	}
@@ -79,9 +99,29 @@ func TestDump(t *testing.T) {
 	}
 
 	doc = document.NewDocument("2")
-	doc.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("test2"), index.IndexField|index.StoreField))
-	doc.AddField(document.NewNumericFieldWithIndexingOptions("age", []uint64{}, 35.99, index.IndexField|index.StoreField))
-	dateField, err = document.NewDateTimeFieldWithIndexingOptions("unixEpoch", []uint64{}, time.Unix(0, 0), time.RFC3339, index.IndexField|index.StoreField)
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("test2"),
+			index.IndexField|index.StoreField,
+		),
+	)
+	doc.AddField(
+		document.NewNumericFieldWithIndexingOptions(
+			"age",
+			[]uint64{},
+			35.99,
+			index.IndexField|index.StoreField,
+		),
+	)
+	dateField, err = document.NewDateTimeFieldWithIndexingOptions(
+		"unixEpoch",
+		[]uint64{},
+		time.Unix(0, 0),
+		time.RFC3339,
+		index.IndexField|index.StoreField,
+	)
 	if err != nil {
 		t.Error(err)
 	}

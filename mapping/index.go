@@ -18,12 +18,12 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
-	"github.com/blevesearch/bleve/v2/analysis/datetime/optional"
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/registry"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis/analyzer/standard"
+	"github.com/MuratYMT2/bleve/v2/analysis/datetime/optional"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -108,10 +108,10 @@ func (im *IndexMappingImpl) AddCustomTokenFilter(name string, config map[string]
 // use their metadata to fill configuration entries:
 //
 //	import (
-//	    "github.com/blevesearch/bleve/v2/analysis/analyzer/custom"
-//	    "github.com/blevesearch/bleve/v2/analysis/char/html"
-//	    "github.com/blevesearch/bleve/v2/analysis/token/lowercase"
-//	    "github.com/blevesearch/bleve/v2/analysis/tokenizer/unicode"
+//	    "github.com/MuratYMT2/bleve/v2/analysis/analyzer/custom"
+//	    "github.com/MuratYMT2/bleve/v2/analysis/char/html"
+//	    "github.com/MuratYMT2/bleve/v2/analysis/token/lowercase"
+//	    "github.com/MuratYMT2/bleve/v2/analysis/tokenizer/unicode"
 //	)
 //
 //	m := bleve.NewIndexMapping()
@@ -331,7 +331,13 @@ func (im *IndexMappingImpl) MapDocument(doc *document.Document, data interface{}
 		// see if the _all field was disabled
 		allMapping, _ := docMapping.documentMappingForPath("_all")
 		if allMapping == nil || allMapping.Enabled {
-			field := document.NewCompositeFieldWithIndexingOptions("_all", true, []string{}, walkContext.excludedFromAll, index.IndexField|index.IncludeTermVectors)
+			field := document.NewCompositeFieldWithIndexingOptions(
+				"_all",
+				true,
+				[]string{},
+				walkContext.excludedFromAll,
+				index.IndexField|index.IncludeTermVectors,
+			)
 			doc.AddField(field)
 		}
 	}

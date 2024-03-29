@@ -17,8 +17,8 @@ package simple
 import (
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/highlight"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/highlight"
 )
 
 func TestSimpleFragmentScorer(t *testing.T) {

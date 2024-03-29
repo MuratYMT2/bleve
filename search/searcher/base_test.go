@@ -18,12 +18,12 @@ import (
 	"math"
 	"regexp"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	regexpTokenizer "github.com/blevesearch/bleve/v2/analysis/tokenizer/regexp"
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/index/scorch"
-	"github.com/blevesearch/bleve/v2/index/upsidedown"
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/gtreap"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	regexpTokenizer "github.com/MuratYMT2/bleve/v2/analysis/tokenizer/regexp"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/index/scorch"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/gtreap"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -39,7 +39,8 @@ func initTwoDocUpsideDown() index.Index {
 		gtreap.Name,
 		map[string]interface{}{
 			"path": "",
-		}, analysisQueue)
+		}, analysisQueue,
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -53,7 +54,8 @@ func initTwoDocScorch(dir string) index.Index {
 		scorch.Name,
 		map[string]interface{}{
 			"path": dir,
-		}, analysisQueue)
+		}, analysisQueue,
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -88,27 +90,67 @@ var twoDocIndexDocs = []*document.Document{
 	// must have 4/4 beer
 	document.NewDocument("1").
 		AddField(document.NewTextField("name", []uint64{}, []byte("marty"))).
-		AddField(document.NewTextFieldCustom("desc", []uint64{}, []byte("beer beer beer beer"), twoDocIndexDescIndexingOptions, testAnalyzer)).
+		AddField(
+			document.NewTextFieldCustom(
+				"desc",
+				[]uint64{},
+				[]byte("beer beer beer beer"),
+				twoDocIndexDescIndexingOptions,
+				testAnalyzer,
+			),
+		).
 		AddField(document.NewTextFieldWithAnalyzer("street", []uint64{}, []byte("couchbase way"), testAnalyzer)),
 	// must have 1/4 beer
 	document.NewDocument("2").
 		AddField(document.NewTextField("name", []uint64{}, []byte("steve"))).
-		AddField(document.NewTextFieldCustom("desc", []uint64{}, []byte("angst beer couch database"), twoDocIndexDescIndexingOptions, testAnalyzer)).
+		AddField(
+			document.NewTextFieldCustom(
+				"desc",
+				[]uint64{},
+				[]byte("angst beer couch database"),
+				twoDocIndexDescIndexingOptions,
+				testAnalyzer,
+			),
+		).
 		AddField(document.NewTextFieldWithAnalyzer("street", []uint64{}, []byte("couchbase way"), testAnalyzer)).
 		AddField(document.NewTextFieldWithAnalyzer("title", []uint64{}, []byte("mister"), testAnalyzer)),
 	// must have 1/4 beer
 	document.NewDocument("3").
 		AddField(document.NewTextField("name", []uint64{}, []byte("dustin"))).
-		AddField(document.NewTextFieldCustom("desc", []uint64{}, []byte("apple beer column dank"), twoDocIndexDescIndexingOptions, testAnalyzer)).
+		AddField(
+			document.NewTextFieldCustom(
+				"desc",
+				[]uint64{},
+				[]byte("apple beer column dank"),
+				twoDocIndexDescIndexingOptions,
+				testAnalyzer,
+			),
+		).
 		AddField(document.NewTextFieldWithAnalyzer("title", []uint64{}, []byte("mister"), testAnalyzer)),
 	// must have 65/65 beer
 	document.NewDocument("4").
 		AddField(document.NewTextField("name", []uint64{}, []byte("ravi"))).
-		AddField(document.NewTextFieldCustom("desc", []uint64{}, []byte("beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer"), twoDocIndexDescIndexingOptions, testAnalyzer)),
+		AddField(
+			document.NewTextFieldCustom(
+				"desc",
+				[]uint64{},
+				[]byte("beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer beer"),
+				twoDocIndexDescIndexingOptions,
+				testAnalyzer,
+			),
+		),
 	// must have 0/x beer
 	document.NewDocument("5").
 		AddField(document.NewTextField("name", []uint64{}, []byte("bobert"))).
-		AddField(document.NewTextFieldCustom("desc", []uint64{}, []byte("water"), twoDocIndexDescIndexingOptions, testAnalyzer)).
+		AddField(
+			document.NewTextFieldCustom(
+				"desc",
+				[]uint64{},
+				[]byte("water"),
+				twoDocIndexDescIndexingOptions,
+				testAnalyzer,
+			),
+		).
 		AddField(document.NewTextFieldWithAnalyzer("title", []uint64{}, []byte("mister"), testAnalyzer)),
 }
 

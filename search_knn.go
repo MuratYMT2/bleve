@@ -23,9 +23,9 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/collector"
-	"github.com/blevesearch/bleve/v2/search/query"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/collector"
+	"github.com/MuratYMT2/bleve/v2/search/query"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -75,12 +75,14 @@ type KNNRequest struct {
 
 func (r *SearchRequest) AddKNN(field string, vector []float32, k int64, boost float64) {
 	b := query.Boost(boost)
-	r.KNN = append(r.KNN, &KNNRequest{
-		Field:  field,
-		Vector: vector,
-		K:      k,
-		Boost:  &b,
-	})
+	r.KNN = append(
+		r.KNN, &KNNRequest{
+			Field:  field,
+			Vector: vector,
+			K:      k,
+			Boost:  &b,
+		},
+	)
 }
 
 func (r *SearchRequest) AddKNNOperator(operator knnOperator) {
@@ -246,7 +248,12 @@ func validateKNN(req *SearchRequest) error {
 	return nil
 }
 
-func addSortAndFieldsToKNNHits(req *SearchRequest, knnHits []*search.DocumentMatch, reader index.IndexReader, name string) (err error) {
+func addSortAndFieldsToKNNHits(
+	req *SearchRequest,
+	knnHits []*search.DocumentMatch,
+	reader index.IndexReader,
+	name string,
+) (err error) {
 	requiredSortFields := req.Sort.RequiredFields()
 	var dvReader index.DocValueReader
 	var updateFieldVisitor index.DocValueVisitor
@@ -276,14 +283,21 @@ func addSortAndFieldsToKNNHits(req *SearchRequest, knnHits []*search.DocumentMat
 	return nil
 }
 
-func (i *indexImpl) runKnnCollector(ctx context.Context, req *SearchRequest, reader index.IndexReader, preSearch bool) ([]*search.DocumentMatch, error) {
+func (i *indexImpl) runKnnCollector(
+	ctx context.Context,
+	req *SearchRequest,
+	reader index.IndexReader,
+	preSearch bool,
+) ([]*search.DocumentMatch, error) {
 	KNNQuery, kArray, sumOfK, err := createKNNQuery(req)
 	if err != nil {
 		return nil, err
 	}
-	knnSearcher, err := KNNQuery.Searcher(ctx, reader, i.m, search.SearcherOptions{
-		Explain: req.Explain,
-	})
+	knnSearcher, err := KNNQuery.Searcher(
+		ctx, reader, i.m, search.SearcherOptions{
+			Explain: req.Explain,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -312,13 +326,18 @@ func (i *indexImpl) runKnnCollector(ctx context.Context, req *SearchRequest, rea
 
 func setKnnHitsInCollector(knnHits []*search.DocumentMatch, req *SearchRequest, coll *collector.TopNCollector) {
 	if len(knnHits) > 0 {
-		newScoreExplComputer := func(queryMatch *search.DocumentMatch, knnMatch *search.DocumentMatch) (float64, *search.Explanation) {
+		newScoreExplComputer := func(queryMatch *search.DocumentMatch, knnMatch *search.DocumentMatch) (
+			float64,
+			*search.Explanation,
+		) {
 			totalScore := queryMatch.Score + knnMatch.Score
 			if !req.Explain {
 				// exit early as we don't need to compute the explanation
 				return totalScore, nil
 			}
-			return totalScore, &search.Explanation{Value: totalScore, Message: "sum of:", Children: []*search.Explanation{queryMatch.Expl, knnMatch.Expl}}
+			return totalScore, &search.Explanation{
+				Value: totalScore, Message: "sum of:", Children: []*search.Explanation{queryMatch.Expl, knnMatch.Expl},
+			}
 		}
 		coll.SetKNNHits(knnHits, search.ScoreExplCorrectionCallbackFunc(newScoreExplComputer))
 	}
@@ -370,7 +389,10 @@ func finalizeKNNResults(req *SearchRequest, knnHits []*search.DocumentMatch) []*
 // hits, then the top K hits need to be distributed to I1 and I2,
 // so that the preSearchData for I1 contains the top K hits from I1 and
 // the preSearchData for I2 contains the top K hits from I2.
-func validateAndDistributeKNNHits(knnHits []*search.DocumentMatch, indexes []Index) (map[string][]*search.DocumentMatch, error) {
+func validateAndDistributeKNNHits(knnHits []*search.DocumentMatch, indexes []Index) (
+	map[string][]*search.DocumentMatch,
+	error,
+) {
 	// create a set of all the index names of this alias
 	indexNames := make(map[string]struct{}, len(indexes))
 	for _, index := range indexes {
@@ -440,8 +462,10 @@ func isKNNrequestSatisfiedByPreSearch(req *SearchRequest) bool {
 	return true
 }
 
-func constructKnnPreSearchData(mergedOut map[string]map[string]interface{}, preSearchResult *SearchResult,
-	indexes []Index) (map[string]map[string]interface{}, error) {
+func constructKnnPreSearchData(
+	mergedOut map[string]map[string]interface{}, preSearchResult *SearchResult,
+	indexes []Index,
+) (map[string]map[string]interface{}, error) {
 
 	distributedHits, err := validateAndDistributeKNNHits([]*search.DocumentMatch(preSearchResult.Hits), indexes)
 	if err != nil {

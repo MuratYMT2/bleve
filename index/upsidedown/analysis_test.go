@@ -17,10 +17,10 @@ package upsidedown
 import (
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/index/upsidedown/store/null"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis/analyzer/standard"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown/store/null"
+	"github.com/MuratYMT2/bleve/v2/registry"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -42,7 +42,13 @@ func TestAnalysisBug328(t *testing.T) {
 	d.AddField(f)
 	f = document.NewTextFieldCustom("body", nil, []byte("bleve"), index.IndexField|index.IncludeTermVectors, analyzer)
 	d.AddField(f)
-	cf := document.NewCompositeFieldWithIndexingOptions("_all", true, []string{}, []string{}, index.IndexField|index.IncludeTermVectors)
+	cf := document.NewCompositeFieldWithIndexingOptions(
+		"_all",
+		true,
+		[]string{},
+		[]string{},
+		index.IndexField|index.IncludeTermVectors,
+	)
 	d.AddField(cf)
 
 	rv := idx.(*UpsideDownCouch).analyze(d)
@@ -55,7 +61,12 @@ func TestAnalysisBug328(t *testing.T) {
 			for _, vec := range row.vectors {
 				if vec.field != row.field {
 					if fieldIndexes[row.field] != "_all" {
-						t.Errorf("row named %s field %d - vector field %d", fieldIndexes[row.field], row.field, vec.field)
+						t.Errorf(
+							"row named %s field %d - vector field %d",
+							fieldIndexes[row.field],
+							row.field,
+							vec.field,
+						)
 					}
 				}
 			}

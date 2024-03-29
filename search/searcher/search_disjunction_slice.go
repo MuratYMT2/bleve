@@ -20,9 +20,9 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/scorer"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/scorer"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -49,10 +49,13 @@ type DisjunctionSliceSearcher struct {
 	bytesRead              uint64
 }
 
-func newDisjunctionSliceSearcher(ctx context.Context, indexReader index.IndexReader,
+func newDisjunctionSliceSearcher(
+	ctx context.Context, indexReader index.IndexReader,
 	qsearchers []search.Searcher, min float64, options search.SearcherOptions,
-	limit bool) (
-	*DisjunctionSliceSearcher, error) {
+	limit bool,
+) (
+	*DisjunctionSliceSearcher, error,
+) {
 	if limit && tooManyClauses(len(qsearchers)) {
 		return nil, tooManyClausesErr("", len(qsearchers))
 	}
@@ -210,7 +213,8 @@ func (s *DisjunctionSliceSearcher) SetQueryNorm(qnorm float64) {
 }
 
 func (s *DisjunctionSliceSearcher) Next(ctx *search.SearchContext) (
-	*search.DocumentMatch, error) {
+	*search.DocumentMatch, error,
+) {
 	if !s.initialized {
 		err := s.initSearchers(ctx)
 		if err != nil {
@@ -256,8 +260,10 @@ func (s *DisjunctionSliceSearcher) Next(ctx *search.SearchContext) (
 	return rv, nil
 }
 
-func (s *DisjunctionSliceSearcher) Advance(ctx *search.SearchContext,
-	ID index.IndexInternalID) (*search.DocumentMatch, error) {
+func (s *DisjunctionSliceSearcher) Advance(
+	ctx *search.SearchContext,
+	ID index.IndexInternalID,
+) (*search.DocumentMatch, error) {
 	if !s.initialized {
 		err := s.initSearchers(ctx)
 		if err != nil {
@@ -322,7 +328,8 @@ func (s *DisjunctionSliceSearcher) DocumentMatchPoolSize() int {
 // but only activates on an edge case where the disjunction is a
 // wrapper around a single Optimizable child searcher
 func (s *DisjunctionSliceSearcher) Optimize(kind string, octx index.OptimizableContext) (
-	index.OptimizableContext, error) {
+	index.OptimizableContext, error,
+) {
 	if len(s.searchers) == 1 {
 		o, ok := s.searchers[0].(index.Optimizable)
 		if ok {

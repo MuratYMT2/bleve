@@ -19,9 +19,9 @@ import (
 	"math"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/scorer"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/scorer"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -49,7 +49,14 @@ type BooleanSearcher struct {
 	done            bool
 }
 
-func NewBooleanSearcher(ctx context.Context, indexReader index.IndexReader, mustSearcher search.Searcher, shouldSearcher search.Searcher, mustNotSearcher search.Searcher, options search.SearcherOptions) (*BooleanSearcher, error) {
+func NewBooleanSearcher(
+	ctx context.Context,
+	indexReader index.IndexReader,
+	mustSearcher search.Searcher,
+	shouldSearcher search.Searcher,
+	mustNotSearcher search.Searcher,
+	options search.SearcherOptions,
+) (*BooleanSearcher, error) {
 	// build our searcher
 	rv := BooleanSearcher{
 		indexReader:     indexReader,

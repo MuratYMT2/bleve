@@ -17,13 +17,15 @@ package searcher
 import (
 	"context"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
-func NewTermRangeSearcher(ctx context.Context, indexReader index.IndexReader,
+func NewTermRangeSearcher(
+	ctx context.Context, indexReader index.IndexReader,
 	min, max []byte, inclusiveMin, inclusiveMax *bool, field string,
-	boost float64, options search.SearcherOptions) (search.Searcher, error) {
+	boost float64, options search.SearcherOptions,
+) (search.Searcher, error) {
 
 	if inclusiveMin == nil {
 		defaultInclusiveMin := true

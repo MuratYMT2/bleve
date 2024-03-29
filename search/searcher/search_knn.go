@@ -21,10 +21,10 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/scorer"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/scorer"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -46,17 +46,21 @@ type KNNSearcher struct {
 	vd           index.VectorDoc
 }
 
-func NewKNNSearcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping,
+func NewKNNSearcher(
+	ctx context.Context, i index.IndexReader, m mapping.IndexMapping,
 	options search.SearcherOptions, field string, vector []float32, k int64,
-	boost float64, similarityMetric string) (search.Searcher, error) {
+	boost float64, similarityMetric string,
+) (search.Searcher, error) {
 	if vr, ok := i.(index.VectorIndexReader); ok {
 		vectorReader, err := vr.VectorReader(ctx, vector, field, k)
 		if err != nil {
 			return nil, err
 		}
 
-		knnScorer := scorer.NewKNNQueryScorer(vector, field, boost,
-			options, similarityMetric)
+		knnScorer := scorer.NewKNNQueryScorer(
+			vector, field, boost,
+			options, similarityMetric,
+		)
 		return &KNNSearcher{
 			indexReader:  i,
 			vectorReader: vectorReader,
@@ -70,7 +74,8 @@ func NewKNNSearcher(ctx context.Context, i index.IndexReader, m mapping.IndexMap
 }
 
 func (s *KNNSearcher) VectorOptimize(ctx context.Context, octx index.VectorOptimizableContext) (
-	index.VectorOptimizableContext, error) {
+	index.VectorOptimizableContext, error,
+) {
 	o, ok := s.vectorReader.(index.VectorOptimizable)
 	if ok {
 		return o.VectorOptimize(ctx, octx)
@@ -80,7 +85,8 @@ func (s *KNNSearcher) VectorOptimize(ctx context.Context, octx index.VectorOptim
 }
 
 func (s *KNNSearcher) Advance(ctx *search.SearchContext, ID index.IndexInternalID) (
-	*search.DocumentMatch, error) {
+	*search.DocumentMatch, error,
+) {
 	knnMatch, err := s.vectorReader.Next(s.vd.Reset())
 	if err != nil {
 		return nil, err

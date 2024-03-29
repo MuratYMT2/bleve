@@ -20,7 +20,7 @@ import (
 	"github.com/RoaringBitmap/roaring"
 	index "github.com/blevesearch/bleve_index_api"
 
-	"github.com/blevesearch/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/geo"
 	segment "github.com/blevesearch/scorch_segment_api/v2"
 
 	zapv11 "github.com/blevesearch/zapx/v11"
@@ -64,9 +64,12 @@ type SegmentPlugin interface {
 	// document number in the newly merged segment.
 	// The number of bytes written to the new segment file.
 	// An error, if any occurred.
-	Merge(segments []segment.Segment, drops []*roaring.Bitmap, path string,
-		closeCh chan struct{}, s segment.StatsReporter) (
-		[][]uint64, uint64, error)
+	Merge(
+		segments []segment.Segment, drops []*roaring.Bitmap, path string,
+		closeCh chan struct{}, s segment.StatsReporter,
+	) (
+		[][]uint64, uint64, error,
+	)
 }
 
 var supportedSegmentPlugins map[string]map[uint32]SegmentPlugin
@@ -110,8 +113,10 @@ func SupportedSegmentTypeVersions(typ string) (rv []uint32) {
 	return rv
 }
 
-func chooseSegmentPlugin(forcedSegmentType string,
-	forcedSegmentVersion uint32) (SegmentPlugin, error) {
+func chooseSegmentPlugin(
+	forcedSegmentType string,
+	forcedSegmentVersion uint32,
+) (SegmentPlugin, error) {
 	if versions, ok := supportedSegmentPlugins[forcedSegmentType]; ok {
 		if segPlugin, ok := versions[uint32(forcedSegmentVersion)]; ok {
 			return segPlugin, nil
@@ -119,16 +124,23 @@ func chooseSegmentPlugin(forcedSegmentType string,
 		return nil, fmt.Errorf(
 			"unsupported version %d for segment type: %s, supported: %v",
 			forcedSegmentVersion, forcedSegmentType,
-			SupportedSegmentTypeVersions(forcedSegmentType))
+			SupportedSegmentTypeVersions(forcedSegmentType),
+		)
 	}
-	return nil, fmt.Errorf("unsupported segment type: %s, supported: %v",
-		forcedSegmentType, SupportedSegmentTypes())
+	return nil, fmt.Errorf(
+		"unsupported segment type: %s, supported: %v",
+		forcedSegmentType, SupportedSegmentTypes(),
+	)
 }
 
-func (s *Scorch) loadSegmentPlugin(forcedSegmentType string,
-	forcedSegmentVersion uint32) error {
-	segPlugin, err := chooseSegmentPlugin(forcedSegmentType,
-		forcedSegmentVersion)
+func (s *Scorch) loadSegmentPlugin(
+	forcedSegmentType string,
+	forcedSegmentVersion uint32,
+) error {
+	segPlugin, err := chooseSegmentPlugin(
+		forcedSegmentType,
+		forcedSegmentVersion,
+	)
 	if err != nil {
 		return err
 	}

@@ -20,12 +20,12 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/index/scorch"
-	"github.com/blevesearch/bleve/v2/index/upsidedown"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/index/scorch"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -34,21 +34,27 @@ func TestDisjunctionSearchScoreIndexWithCompositeFields(t *testing.T) {
 	scHits := disjunctionQueryiOnIndexWithCompositeFields(scorch.Name, t)
 
 	if upHits[0].ID != scHits[0].ID || upHits[1].ID != scHits[1].ID {
-		t.Errorf("upsidedown, scorch returned different docs;\n"+
-			"upsidedown: (%s, %s), scorch: (%s, %s)\n",
-			upHits[0].ID, upHits[1].ID, scHits[0].ID, scHits[1].ID)
+		t.Errorf(
+			"upsidedown, scorch returned different docs;\n"+
+				"upsidedown: (%s, %s), scorch: (%s, %s)\n",
+			upHits[0].ID, upHits[1].ID, scHits[0].ID, scHits[1].ID,
+		)
 	}
 
 	if scHits[0].Score != upHits[0].Score || scHits[1].Score != upHits[1].Score {
-		t.Errorf("upsidedown, scorch showing different scores;\n"+
-			"upsidedown: (%+v, %+v), scorch: (%+v, %+v)\n",
-			*upHits[0].Expl, *upHits[1].Expl, *scHits[0].Expl, *scHits[1].Expl)
+		t.Errorf(
+			"upsidedown, scorch showing different scores;\n"+
+				"upsidedown: (%+v, %+v), scorch: (%+v, %+v)\n",
+			*upHits[0].Expl, *upHits[1].Expl, *scHits[0].Expl, *scHits[1].Expl,
+		)
 	}
 
 }
 
-func disjunctionQueryiOnIndexWithCompositeFields(indexName string,
-	t *testing.T) []*search.DocumentMatch {
+func disjunctionQueryiOnIndexWithCompositeFields(
+	indexName string,
+	t *testing.T,
+) []*search.DocumentMatch {
 	tmpIndexPath, err := os.MkdirTemp("", "bleve-testidx")
 	if err != nil {
 		t.Fatalf("error creating temp dir: %v", err)
@@ -61,8 +67,10 @@ func disjunctionQueryiOnIndexWithCompositeFields(indexName string,
 	}()
 	// create an index
 	idxMapping := mapping.NewIndexMapping()
-	idx, err := bleve.NewUsing(tmpIndexPath, idxMapping, indexName,
-		bleve.Config.DefaultKVStore, nil)
+	idx, err := bleve.NewUsing(
+		tmpIndexPath, idxMapping, indexName,
+		bleve.Config.DefaultKVStore, nil,
+	)
 	if err != nil {
 		t.Error(err)
 	}
@@ -99,7 +107,8 @@ func disjunctionQueryiOnIndexWithCompositeFields(indexName string,
 		doc.CompositeFields = []*document.CompositeField{
 			document.NewCompositeFieldWithIndexingOptions(
 				"_all", true, []string{"field1"}, []string{},
-				index.IndexField|index.IncludeTermVectors),
+				index.IndexField|index.IncludeTermVectors,
+			),
 		}
 		if err = batch.IndexAdvanced(doc); err != nil {
 			t.Error(err)
@@ -134,8 +143,12 @@ func disjunctionQueryiOnIndexWithCompositeFields(indexName string,
 	}
 
 	if len(res.Hits) != 2 {
-		t.Errorf(fmt.Sprintf("indexType: %s Expected 2 hits, "+
-			"but got: %v", indexName, len(res.Hits)))
+		t.Errorf(
+			fmt.Sprintf(
+				"indexType: %s Expected 2 hits, "+
+					"but got: %v", indexName, len(res.Hits),
+			),
+		)
 	}
 
 	return res.Hits

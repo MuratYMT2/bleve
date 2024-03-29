@@ -17,8 +17,8 @@ package es
 import (
 	"bytes"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 const LightStemmerName = "stemmer_es_light"
@@ -31,7 +31,8 @@ func NewSpanishLightStemmerFilter() *SpanishLightStemmerFilter {
 }
 
 func (s *SpanishLightStemmerFilter) Filter(
-	input analysis.TokenStream) analysis.TokenStream {
+	input analysis.TokenStream,
+) analysis.TokenStream {
 	for _, token := range input {
 		runes := bytes.Runes(token.Term)
 		runes = stem(runes)
@@ -65,12 +66,16 @@ func stem(input []rune) []rune {
 	return input
 }
 
-func SpanishLightStemmerFilterConstructor(config map[string]interface{},
-	cache *registry.Cache) (analysis.TokenFilter, error) {
+func SpanishLightStemmerFilterConstructor(
+	config map[string]interface{},
+	cache *registry.Cache,
+) (analysis.TokenFilter, error) {
 	return NewSpanishLightStemmerFilter(), nil
 }
 
 func init() {
-	registry.RegisterTokenFilter(LightStemmerName,
-		SpanishLightStemmerFilterConstructor)
+	registry.RegisterTokenFilter(
+		LightStemmerName,
+		SpanishLightStemmerFilterConstructor,
+	)
 }

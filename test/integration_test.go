@@ -25,11 +25,11 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2"
-	"github.com/blevesearch/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2"
+	"github.com/MuratYMT2/bleve/v2/mapping"
 
 	// allow choosing alternate kvstores
-	_ "github.com/blevesearch/bleve/v2/config"
+	_ "github.com/MuratYMT2/bleve/v2/config"
 )
 
 var dataset = flag.String("dataset", "", "only test datasets matching this regex")
@@ -158,19 +158,37 @@ func runTestDir(t *testing.T, dir, datasetName string) {
 				if hit.Fields != nil {
 					if !reflect.DeepEqual(hit.Fields, res.Hits[hi].Fields) {
 						t.Errorf("test error - %s", search.Comment)
-						t.Errorf("test  %d - expected hit %d to have fields %#v got %#v", testNum, hi, hit.Fields, res.Hits[hi].Fields)
+						t.Errorf(
+							"test  %d - expected hit %d to have fields %#v got %#v",
+							testNum,
+							hi,
+							hit.Fields,
+							res.Hits[hi].Fields,
+						)
 					}
 				}
 				if hit.Fragments != nil {
 					if !reflect.DeepEqual(hit.Fragments, res.Hits[hi].Fragments) {
 						t.Errorf("test error - %s", search.Comment)
-						t.Errorf("test %d - expected hit %d to have fragments %#v got %#v", testNum, hi, hit.Fragments, res.Hits[hi].Fragments)
+						t.Errorf(
+							"test %d - expected hit %d to have fragments %#v got %#v",
+							testNum,
+							hi,
+							hit.Fragments,
+							res.Hits[hi].Fragments,
+						)
 					}
 				}
 				if hit.Locations != nil {
 					if !reflect.DeepEqual(hit.Locations, res.Hits[hi].Locations) {
 						t.Errorf("test error - %s", search.Comment)
-						t.Errorf("test %d - expected hit %d to have locations %#v got %#v", testNum, hi, hit.Locations, res.Hits[hi].Locations)
+						t.Errorf(
+							"test %d - expected hit %d to have locations %#v got %#v",
+							testNum,
+							hi,
+							hit.Locations,
+							res.Hits[hi].Locations,
+						)
 					}
 				}
 				// assert that none of the scores were NaN,+Inf,-Inf
@@ -197,7 +215,11 @@ func runTestDir(t *testing.T, dir, datasetName string) {
 	}
 }
 
-func loadDataSet(t *testing.T, datasetName string, mapping mapping.IndexMappingImpl, path string) (bleve.Index, func(), error) {
+func loadDataSet(t *testing.T, datasetName string, mapping mapping.IndexMappingImpl, path string) (
+	bleve.Index,
+	func(),
+	error,
+) {
 	idxPath := fmt.Sprintf("test-%s.bleve", datasetName)
 	cfg := map[string]interface{}{}
 	if *segType != "" {
@@ -252,7 +274,11 @@ func loadDataSet(t *testing.T, datasetName string, mapping mapping.IndexMappingI
 	return index, cleanup, nil
 }
 
-func loadDataSets(t *testing.T, datasetName string, mapping mapping.IndexMappingImpl, path string) (bleve.Index, func(), error) {
+func loadDataSets(t *testing.T, datasetName string, mapping mapping.IndexMappingImpl, path string) (
+	bleve.Index,
+	func(),
+	error,
+) {
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		return nil, nil, fmt.Errorf("error reading datasets dir: %v", err)

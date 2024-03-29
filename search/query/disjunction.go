@@ -19,10 +19,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/searcher"
-	"github.com/blevesearch/bleve/v2/util"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/searcher"
+	"github.com/MuratYMT2/bleve/v2/util"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -65,8 +65,10 @@ func (q *DisjunctionQuery) SetMin(m float64) {
 	q.Min = m
 }
 
-func (q *DisjunctionQuery) Searcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping,
-	options search.SearcherOptions) (search.Searcher, error) {
+func (q *DisjunctionQuery) Searcher(
+	ctx context.Context, i index.IndexReader, m mapping.IndexMapping,
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	ss := make([]search.Searcher, 0, len(q.Disjuncts))
 	for _, disjunct := range q.Disjuncts {
 		sr, err := disjunct.Searcher(ctx, i, m, options)

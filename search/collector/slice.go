@@ -14,7 +14,7 @@
 
 package collector
 
-import "github.com/blevesearch/bleve/v2/search"
+import "github.com/MuratYMT2/bleve/v2/search"
 
 type collectStoreSlice struct {
 	slice   search.DocumentMatchCollection
@@ -29,8 +29,10 @@ func newStoreSlice(capacity int, compare collectorCompare) *collectStoreSlice {
 	return rv
 }
 
-func (c *collectStoreSlice) AddNotExceedingSize(doc *search.DocumentMatch,
-	size int) *search.DocumentMatch {
+func (c *collectStoreSlice) AddNotExceedingSize(
+	doc *search.DocumentMatch,
+	size int,
+) *search.DocumentMatch {
 	c.add(doc)
 	if c.len() > size {
 		return c.removeLast()

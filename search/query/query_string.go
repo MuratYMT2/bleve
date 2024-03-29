@@ -17,8 +17,8 @@ package query
 import (
 	"context"
 
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -49,7 +49,12 @@ func (q *QueryStringQuery) Parse() (Query, error) {
 	return parseQuerySyntax(q.Query)
 }
 
-func (q *QueryStringQuery) Searcher(ctx context.Context, i index.IndexReader, m mapping.IndexMapping, options search.SearcherOptions) (search.Searcher, error) {
+func (q *QueryStringQuery) Searcher(
+	ctx context.Context,
+	i index.IndexReader,
+	m mapping.IndexMapping,
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	newQuery, err := parseQuerySyntax(q.Query)
 	if err != nil {
 		return nil, err

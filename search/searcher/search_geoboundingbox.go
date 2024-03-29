@@ -17,10 +17,10 @@ package searcher
 import (
 	"context"
 
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/numeric"
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/numeric"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -29,17 +29,26 @@ type filterFunc func(key []byte) bool
 var GeoBitsShift1 = geo.GeoBits << 1
 var GeoBitsShift1Minus1 = GeoBitsShift1 - 1
 
-func NewGeoBoundingBoxSearcher(ctx context.Context, indexReader index.IndexReader, minLon, minLat,
+func NewGeoBoundingBoxSearcher(
+	ctx context.Context, indexReader index.IndexReader, minLon, minLat,
 	maxLon, maxLat float64, field string, boost float64,
-	options search.SearcherOptions, checkBoundaries bool) (
-	search.Searcher, error) {
+	options search.SearcherOptions, checkBoundaries bool,
+) (
+	search.Searcher, error,
+) {
 	if tp, ok := indexReader.(index.SpatialIndexPlugin); ok {
 		sp, err := tp.GetSpatialAnalyzerPlugin("s2")
 		if err == nil {
-			terms := sp.GetQueryTokens(geo.NewBoundedRectangle(minLat,
-				minLon, maxLat, maxLon))
-			boxSearcher, err := NewMultiTermSearcher(ctx, indexReader,
-				terms, field, boost, options, false)
+			terms := sp.GetQueryTokens(
+				geo.NewBoundedRectangle(
+					minLat,
+					minLon, maxLat, maxLon,
+				),
+			)
+			boxSearcher, err := NewMultiTermSearcher(
+				ctx, indexReader,
+				terms, field, boost, options, false,
+			)
 			if err != nil {
 				return nil, err
 			}
@@ -49,8 +58,12 @@ func NewGeoBoundingBoxSearcher(ctx context.Context, indexReader index.IndexReade
 				return nil, err
 			}
 
-			return NewFilteringSearcher(ctx, boxSearcher, buildRectFilter(ctx, dvReader,
-				field, minLon, minLat, maxLon, maxLat)), nil
+			return NewFilteringSearcher(
+				ctx, boxSearcher, buildRectFilter(
+					ctx, dvReader,
+					field, minLon, minLat, maxLon, maxLat,
+				),
+			), nil
 		}
 	}
 
@@ -65,8 +78,10 @@ func NewGeoBoundingBoxSearcher(ctx context.Context, indexReader index.IndexReade
 	}
 
 	// do math to produce list of terms needed for this search
-	onBoundaryTerms, notOnBoundaryTerms, err := ComputeGeoRange(nil, 0, GeoBitsShift1Minus1,
-		minLon, minLat, maxLon, maxLat, checkBoundaries, indexReader, field)
+	onBoundaryTerms, notOnBoundaryTerms, err := ComputeGeoRange(
+		nil, 0, GeoBitsShift1Minus1,
+		minLon, minLat, maxLon, maxLat, checkBoundaries, indexReader, field,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -78,22 +93,28 @@ func NewGeoBoundingBoxSearcher(ctx context.Context, indexReader index.IndexReade
 	}
 
 	if len(onBoundaryTerms) > 0 {
-		rawOnBoundarySearcher, err := NewMultiTermSearcherBytes(ctx, indexReader,
-			onBoundaryTerms, field, boost, options, false)
+		rawOnBoundarySearcher, err := NewMultiTermSearcherBytes(
+			ctx, indexReader,
+			onBoundaryTerms, field, boost, options, false,
+		)
 		if err != nil {
 			return nil, err
 		}
 		// add filter to check points near the boundary
-		onBoundarySearcher = NewFilteringSearcher(ctx, rawOnBoundarySearcher,
-			buildRectFilter(ctx, dvReader, field, minLon, minLat, maxLon, maxLat))
+		onBoundarySearcher = NewFilteringSearcher(
+			ctx, rawOnBoundarySearcher,
+			buildRectFilter(ctx, dvReader, field, minLon, minLat, maxLon, maxLat),
+		)
 		openedSearchers = append(openedSearchers, onBoundarySearcher)
 	}
 
 	var notOnBoundarySearcher search.Searcher
 	if len(notOnBoundaryTerms) > 0 {
 		var err error
-		notOnBoundarySearcher, err = NewMultiTermSearcherBytes(ctx, indexReader,
-			notOnBoundaryTerms, field, boost, options, false)
+		notOnBoundarySearcher, err = NewMultiTermSearcherBytes(
+			ctx, indexReader,
+			notOnBoundaryTerms, field, boost, options, false,
+		)
 		if err != nil {
 			cleanupOpenedSearchers()
 			return nil, err
@@ -102,12 +123,14 @@ func NewGeoBoundingBoxSearcher(ctx context.Context, indexReader index.IndexReade
 	}
 
 	if onBoundarySearcher != nil && notOnBoundarySearcher != nil {
-		rv, err := NewDisjunctionSearcher(ctx, indexReader,
+		rv, err := NewDisjunctionSearcher(
+			ctx, indexReader,
 			[]search.Searcher{
 				onBoundarySearcher,
 				notOnBoundarySearcher,
 			},
-			0, options)
+			0, options,
+		)
 		if err != nil {
 			cleanupOpenedSearchers()
 			return nil, err
@@ -127,10 +150,13 @@ var geoDetailLevel = ((geo.GeoBits << 1) - geoMaxShift) / 2
 
 type closeFunc func() error
 
-func ComputeGeoRange(ctx context.Context, term uint64, shift uint,
+func ComputeGeoRange(
+	ctx context.Context, term uint64, shift uint,
 	sminLon, sminLat, smaxLon, smaxLat float64, checkBoundaries bool,
-	indexReader index.IndexReader, field string) (
-	onBoundary [][]byte, notOnBoundary [][]byte, err error) {
+	indexReader index.IndexReader, field string,
+) (
+	onBoundary [][]byte, notOnBoundary [][]byte, err error,
+) {
 
 	isIndexed, closeF, err := buildIsIndexedFunc(ctx, indexReader, field)
 	if closeF != nil {
@@ -158,7 +184,11 @@ func ComputeGeoRange(ctx context.Context, term uint64, shift uint,
 	return grc.onBoundary, grc.notOnBoundary, nil
 }
 
-func buildIsIndexedFunc(ctx context.Context, indexReader index.IndexReader, field string) (isIndexed filterFunc, closeF closeFunc, err error) {
+func buildIsIndexedFunc(ctx context.Context, indexReader index.IndexReader, field string) (
+	isIndexed filterFunc,
+	closeF closeFunc,
+	err error,
+) {
 	if irr, ok := indexReader.(index.IndexReaderContains); ok {
 		fieldDict, err := irr.FieldDictContains(field)
 		if err != nil {
@@ -201,26 +231,30 @@ func buildIsIndexedFunc(ctx context.Context, indexReader index.IndexReader, fiel
 	return isIndexed, closeF, err
 }
 
-func buildRectFilter(ctx context.Context, dvReader index.DocValueReader, field string,
-	minLon, minLat, maxLon, maxLat float64) FilterFunc {
+func buildRectFilter(
+	ctx context.Context, dvReader index.DocValueReader, field string,
+	minLon, minLat, maxLon, maxLat float64,
+) FilterFunc {
 	return func(d *search.DocumentMatch) bool {
 		// check geo matches against all numeric type terms indexed
 		var lons, lats []float64
 		var found bool
-		err := dvReader.VisitDocValues(d.IndexInternalID, func(field string, term []byte) {
-			// only consider the values which are shifted 0
-			prefixCoded := numeric.PrefixCoded(term)
-			shift, err := prefixCoded.Shift()
-			if err == nil && shift == 0 {
-				var i64 int64
-				i64, err = prefixCoded.Int64()
-				if err == nil {
-					lons = append(lons, geo.MortonUnhashLon(uint64(i64)))
-					lats = append(lats, geo.MortonUnhashLat(uint64(i64)))
-					found = true
+		err := dvReader.VisitDocValues(
+			d.IndexInternalID, func(field string, term []byte) {
+				// only consider the values which are shifted 0
+				prefixCoded := numeric.PrefixCoded(term)
+				shift, err := prefixCoded.Shift()
+				if err == nil && shift == 0 {
+					var i64 int64
+					i64, err = prefixCoded.Int64()
+					if err == nil {
+						lons = append(lons, geo.MortonUnhashLon(uint64(i64)))
+						lats = append(lats, geo.MortonUnhashLat(uint64(i64)))
+						found = true
+					}
 				}
-			}
-		})
+			},
+		)
 		if err == nil && found {
 			bytes := dvReader.BytesRead()
 			if bytes > 0 {
@@ -228,8 +262,10 @@ func buildRectFilter(ctx context.Context, dvReader index.DocValueReader, field s
 				search.RecordSearchCost(ctx, search.AddM, bytes)
 			}
 			for i := range lons {
-				if geo.BoundingBoxContains(lons[i], lats[i],
-					minLon, minLat, maxLon, maxLat) {
+				if geo.BoundingBoxContains(
+					lons[i], lats[i],
+					minLon, minLat, maxLon, maxLat,
+				) {
 					return true
 				}
 			}
@@ -281,11 +317,15 @@ func (grc *geoRangeCompute) relateAndRecurse(start, end uint64, res uint) {
 	level := (GeoBitsShift1 - res) >> 1
 
 	within := res%document.GeoPrecisionStep == 0 &&
-		geo.RectWithin(minLon, minLat, maxLon, maxLat,
-			grc.sminLon, grc.sminLat, grc.smaxLon, grc.smaxLat)
+		geo.RectWithin(
+			minLon, minLat, maxLon, maxLat,
+			grc.sminLon, grc.sminLat, grc.smaxLon, grc.smaxLat,
+		)
 	if within || (level == geoDetailLevel &&
-		geo.RectIntersects(minLon, minLat, maxLon, maxLat,
-			grc.sminLon, grc.sminLat, grc.smaxLon, grc.smaxLat)) {
+		geo.RectIntersects(
+			minLon, minLat, maxLon, maxLat,
+			grc.sminLon, grc.sminLat, grc.smaxLon, grc.smaxLat,
+		)) {
 		codedTerm := grc.makePrefixCoded(int64(start), res)
 		if grc.isIndexed(codedTerm) {
 			if !within && grc.checkBoundaries {
@@ -295,8 +335,10 @@ func (grc *geoRangeCompute) relateAndRecurse(start, end uint64, res uint) {
 			}
 		}
 	} else if level < geoDetailLevel &&
-		geo.RectIntersects(minLon, minLat, maxLon, maxLat,
-			grc.sminLon, grc.sminLat, grc.smaxLon, grc.smaxLat) {
+		geo.RectIntersects(
+			minLon, minLat, maxLon, maxLat,
+			grc.sminLon, grc.sminLat, grc.smaxLon, grc.smaxLat,
+		) {
 		grc.computeGeoRange(start, res-1)
 	}
 }

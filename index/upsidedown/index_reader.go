@@ -18,7 +18,7 @@ import (
 	"context"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/document"
 	index "github.com/blevesearch/bleve_index_api"
 	"github.com/blevesearch/upsidedown_store_api"
 )
@@ -36,12 +36,31 @@ type IndexReader struct {
 	docCount uint64
 }
 
-func (i *IndexReader) TermFieldReader(ctx context.Context, term []byte, fieldName string, includeFreq, includeNorm, includeTermVectors bool) (index.TermFieldReader, error) {
+func (i *IndexReader) TermFieldReader(
+	ctx context.Context,
+	term []byte,
+	fieldName string,
+	includeFreq, includeNorm, includeTermVectors bool,
+) (index.TermFieldReader, error) {
 	fieldIndex, fieldExists := i.index.fieldCache.FieldNamed(fieldName, false)
 	if fieldExists {
-		return newUpsideDownCouchTermFieldReader(i, term, uint16(fieldIndex), includeFreq, includeNorm, includeTermVectors)
+		return newUpsideDownCouchTermFieldReader(
+			i,
+			term,
+			uint16(fieldIndex),
+			includeFreq,
+			includeNorm,
+			includeTermVectors,
+		)
 	}
-	return newUpsideDownCouchTermFieldReader(i, []byte{ByteSeparator}, ^uint16(0), includeFreq, includeNorm, includeTermVectors)
+	return newUpsideDownCouchTermFieldReader(
+		i,
+		[]byte{ByteSeparator},
+		^uint16(0),
+		includeFreq,
+		includeNorm,
+		includeTermVectors,
+	)
 }
 
 func (i *IndexReader) FieldDict(fieldName string) (index.FieldDict, error) {
@@ -110,7 +129,11 @@ func (i *IndexReader) Document(id string) (doc index.Document, err error) {
 	return rvd, nil
 }
 
-func (i *IndexReader) documentVisitFieldTerms(id index.IndexInternalID, fields []string, visitor index.DocValueVisitor) error {
+func (i *IndexReader) documentVisitFieldTerms(
+	id index.IndexInternalID,
+	fields []string,
+	visitor index.DocValueVisitor,
+) error {
 	fieldsMap := make(map[uint16]string, len(fields))
 	for _, f := range fields {
 		id, ok := i.index.fieldCache.FieldNamed(f, false)
@@ -141,11 +164,13 @@ func (i *IndexReader) documentVisitFieldTerms(id index.IndexInternalID, fields [
 		return nil
 	}
 
-	return visitBackIndexRow(value, func(field uint32, term []byte) {
-		if field, ok := fieldsMap[uint16(field)]; ok {
-			visitor(field, term)
-		}
-	})
+	return visitBackIndexRow(
+		value, func(field uint32, term []byte) {
+			if field, ok := fieldsMap[uint16(field)]; ok {
+				visitor(field, term)
+			}
+		},
+	)
 }
 
 func (i *IndexReader) Fields() (fields []string, err error) {
@@ -220,8 +245,10 @@ type DocValueReader struct {
 	fields []string
 }
 
-func (dvr *DocValueReader) VisitDocValues(id index.IndexInternalID,
-	visitor index.DocValueVisitor) error {
+func (dvr *DocValueReader) VisitDocValues(
+	id index.IndexInternalID,
+	visitor index.DocValueVisitor,
+) error {
 	return dvr.i.documentVisitFieldTerms(id, dvr.fields, visitor)
 }
 

@@ -17,8 +17,8 @@ package searcher
 import (
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -59,7 +59,10 @@ func (s *MatchNoneSearcher) Next(ctx *search.SearchContext) (*search.DocumentMat
 	return nil, nil
 }
 
-func (s *MatchNoneSearcher) Advance(ctx *search.SearchContext, ID index.IndexInternalID) (*search.DocumentMatch, error) {
+func (s *MatchNoneSearcher) Advance(ctx *search.SearchContext, ID index.IndexInternalID) (
+	*search.DocumentMatch,
+	error,
+) {
 	return nil, nil
 }
 

@@ -24,35 +24,35 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/custom"
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/simple"
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
-	html_char_filter "github.com/blevesearch/bleve/v2/analysis/char/html"
-	regexp_char_filter "github.com/blevesearch/bleve/v2/analysis/char/regexp"
-	"github.com/blevesearch/bleve/v2/analysis/datetime/flexible"
-	"github.com/blevesearch/bleve/v2/analysis/datetime/iso"
-	"github.com/blevesearch/bleve/v2/analysis/datetime/percent"
-	"github.com/blevesearch/bleve/v2/analysis/datetime/sanitized"
-	"github.com/blevesearch/bleve/v2/analysis/datetime/timestamp/microseconds"
-	"github.com/blevesearch/bleve/v2/analysis/datetime/timestamp/milliseconds"
-	"github.com/blevesearch/bleve/v2/analysis/datetime/timestamp/nanoseconds"
-	"github.com/blevesearch/bleve/v2/analysis/datetime/timestamp/seconds"
-	"github.com/blevesearch/bleve/v2/analysis/token/length"
-	"github.com/blevesearch/bleve/v2/analysis/token/lowercase"
-	"github.com/blevesearch/bleve/v2/analysis/token/shingle"
-	"github.com/blevesearch/bleve/v2/analysis/tokenizer/single"
-	"github.com/blevesearch/bleve/v2/analysis/tokenizer/whitespace"
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/geo"
-	"github.com/blevesearch/bleve/v2/index/scorch"
-	"github.com/blevesearch/bleve/v2/index/upsidedown"
-	"github.com/blevesearch/bleve/v2/mapping"
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/search/highlight/highlighter/ansi"
-	"github.com/blevesearch/bleve/v2/search/highlight/highlighter/html"
-	"github.com/blevesearch/bleve/v2/search/query"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis/analyzer/custom"
+	"github.com/MuratYMT2/bleve/v2/analysis/analyzer/keyword"
+	"github.com/MuratYMT2/bleve/v2/analysis/analyzer/simple"
+	"github.com/MuratYMT2/bleve/v2/analysis/analyzer/standard"
+	html_char_filter "github.com/MuratYMT2/bleve/v2/analysis/char/html"
+	regexp_char_filter "github.com/MuratYMT2/bleve/v2/analysis/char/regexp"
+	"github.com/MuratYMT2/bleve/v2/analysis/datetime/flexible"
+	"github.com/MuratYMT2/bleve/v2/analysis/datetime/iso"
+	"github.com/MuratYMT2/bleve/v2/analysis/datetime/percent"
+	"github.com/MuratYMT2/bleve/v2/analysis/datetime/sanitized"
+	"github.com/MuratYMT2/bleve/v2/analysis/datetime/timestamp/microseconds"
+	"github.com/MuratYMT2/bleve/v2/analysis/datetime/timestamp/milliseconds"
+	"github.com/MuratYMT2/bleve/v2/analysis/datetime/timestamp/nanoseconds"
+	"github.com/MuratYMT2/bleve/v2/analysis/datetime/timestamp/seconds"
+	"github.com/MuratYMT2/bleve/v2/analysis/token/length"
+	"github.com/MuratYMT2/bleve/v2/analysis/token/lowercase"
+	"github.com/MuratYMT2/bleve/v2/analysis/token/shingle"
+	"github.com/MuratYMT2/bleve/v2/analysis/tokenizer/single"
+	"github.com/MuratYMT2/bleve/v2/analysis/tokenizer/whitespace"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/geo"
+	"github.com/MuratYMT2/bleve/v2/index/scorch"
+	"github.com/MuratYMT2/bleve/v2/index/upsidedown"
+	"github.com/MuratYMT2/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search/highlight/highlighter/ansi"
+	"github.com/MuratYMT2/bleve/v2/search/highlight/highlighter/html"
+	"github.com/MuratYMT2/bleve/v2/search/query"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -83,18 +83,24 @@ func TestSortedFacetedQuery(t *testing.T) {
 		}
 	}()
 
-	index.Index("1", map[string]interface{}{
-		"country": "india",
-		"content": "k",
-	})
-	index.Index("2", map[string]interface{}{
-		"country": "india",
-		"content": "l",
-	})
-	index.Index("3", map[string]interface{}{
-		"country": "india",
-		"content": "k",
-	})
+	index.Index(
+		"1", map[string]interface{}{
+			"country": "india",
+			"content": "k",
+		},
+	)
+	index.Index(
+		"2", map[string]interface{}{
+			"country": "india",
+			"content": "l",
+		},
+	)
+	index.Index(
+		"3", map[string]interface{}{
+			"country": "india",
+			"content": "k",
+		},
+	)
 
 	d, err := index.DocCount()
 	if err != nil {
@@ -152,18 +158,24 @@ func TestMatchAllScorer(t *testing.T) {
 		}
 	}()
 
-	index.Index("1", map[string]interface{}{
-		"country": "india",
-		"content": "k",
-	})
-	index.Index("2", map[string]interface{}{
-		"country": "india",
-		"content": "l",
-	})
-	index.Index("3", map[string]interface{}{
-		"country": "india",
-		"content": "k",
-	})
+	index.Index(
+		"1", map[string]interface{}{
+			"country": "india",
+			"content": "k",
+		},
+	)
+	index.Index(
+		"2", map[string]interface{}{
+			"country": "india",
+			"content": "l",
+		},
+	)
+	index.Index(
+		"3", map[string]interface{}{
+			"country": "india",
+			"content": "k",
+		},
+	)
 
 	d, err := index.DocCount()
 	if err != nil {
@@ -585,11 +597,13 @@ func TestMemoryNeededForSearchResult(t *testing.T) {
 func TestNestedBooleanSearchers(t *testing.T) {
 	// create an index with a custom analyzer
 	idxMapping := NewIndexMapping()
-	if err := idxMapping.AddCustomAnalyzer("3xbla", map[string]interface{}{
-		"type":          custom.Name,
-		"tokenizer":     whitespace.Name,
-		"token_filters": []interface{}{lowercase.Name, "stop_en"},
-	}); err != nil {
+	if err := idxMapping.AddCustomAnalyzer(
+		"3xbla", map[string]interface{}{
+			"type":          custom.Name,
+			"tokenizer":     whitespace.Name,
+			"token_filters": []interface{}{lowercase.Name, "stop_en"},
+		},
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -625,7 +639,8 @@ func TestNestedBooleanSearchers(t *testing.T) {
 
 		doc := document.NewDocument(strconv.Itoa(i))
 		doc.Fields = []document.Field{
-			document.NewTextFieldCustom("hostname", []uint64{}, []byte(hostname),
+			document.NewTextFieldCustom(
+				"hostname", []uint64{}, []byte(hostname),
 				index.IndexField,
 				&analysis.DefaultAnalyzer{
 					Tokenizer: single.NewSingleTokenTokenizer(),
@@ -636,13 +651,17 @@ func TestNestedBooleanSearchers(t *testing.T) {
 			),
 		}
 		for k, v := range metadata {
-			doc.AddField(document.NewTextFieldWithIndexingOptions(
-				fmt.Sprintf("metadata.%s", k), []uint64{}, []byte(v), index.IndexField))
+			doc.AddField(
+				document.NewTextFieldWithIndexingOptions(
+					fmt.Sprintf("metadata.%s", k), []uint64{}, []byte(v), index.IndexField,
+				),
+			)
 		}
 		doc.CompositeFields = []*document.CompositeField{
 			document.NewCompositeFieldWithIndexingOptions(
 				"_all", true, []string{"text"}, []string{},
-				index.IndexField|index.IncludeTermVectors),
+				index.IndexField|index.IncludeTermVectors,
+			),
 		}
 
 		if err = batch.IndexAdvanced(doc); err != nil {
@@ -654,8 +673,9 @@ func TestNestedBooleanSearchers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	que, err := query.ParseQuery([]byte(
-		`{
+	que, err := query.ParseQuery(
+		[]byte(
+			`{
 			"conjuncts": [
 			{
 				"must": {
@@ -687,7 +707,8 @@ func TestNestedBooleanSearchers(t *testing.T) {
 			}
 			]
 		}`,
-	))
+		),
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -793,7 +814,8 @@ func TestNestedBooleanMustNotSearcherUpsidedown(t *testing.T) {
 		doc.CompositeFields = []*document.CompositeField{
 			document.NewCompositeFieldWithIndexingOptions(
 				"_all", true, []string{"text"}, []string{},
-				index.IndexField|index.IncludeTermVectors),
+				index.IndexField|index.IncludeTermVectors,
+			),
 		}
 
 		if err = batch.IndexAdvanced(doc); err != nil {
@@ -929,7 +951,8 @@ func TestMultipleNestedBooleanMustNotSearchersOnScorch(t *testing.T) {
 	doc.CompositeFields = []*document.CompositeField{
 		document.NewCompositeFieldWithIndexingOptions(
 			"_all", true, []string{"text"}, []string{},
-			index.IndexField|index.IncludeTermVectors),
+			index.IndexField|index.IncludeTermVectors,
+		),
 	}
 
 	if err = batch.IndexAdvanced(doc); err != nil {
@@ -974,7 +997,8 @@ func TestMultipleNestedBooleanMustNotSearchersOnScorch(t *testing.T) {
 		doc.CompositeFields = []*document.CompositeField{
 			document.NewCompositeFieldWithIndexingOptions(
 				"_all", true, []string{"text"}, []string{},
-				index.IndexField|index.IncludeTermVectors),
+				index.IndexField|index.IncludeTermVectors,
+			),
 		}
 
 		if err = batch.IndexAdvanced(doc); err != nil {
@@ -998,7 +1022,8 @@ func TestMultipleNestedBooleanMustNotSearchersOnScorch(t *testing.T) {
 	doc.CompositeFields = []*document.CompositeField{
 		document.NewCompositeFieldWithIndexingOptions(
 			"_all", true, []string{"text"}, []string{},
-			index.IndexField|index.IncludeTermVectors),
+			index.IndexField|index.IncludeTermVectors,
+		),
 	}
 
 	if err = batch.IndexAdvanced(doc); err != nil {
@@ -1202,7 +1227,8 @@ func TestDisjunctionQueryIncorrectMin(t *testing.T) {
 		doc.CompositeFields = []*document.CompositeField{
 			document.NewCompositeFieldWithIndexingOptions(
 				"_all", true, []string{"text"}, []string{},
-				index.IndexField|index.IncludeTermVectors),
+				index.IndexField|index.IncludeTermVectors,
+			),
 		}
 		if err = batch.IndexAdvanced(doc); err != nil {
 			t.Fatal(err)
@@ -1223,8 +1249,10 @@ func TestDisjunctionQueryIncorrectMin(t *testing.T) {
 	}
 
 	if res.Total > 0 {
-		t.Fatalf("Expected 0 matches as disjunction query contains a single clause"+
-			" but got: %v", res.Total)
+		t.Fatalf(
+			"Expected 0 matches as disjunction query contains a single clause"+
+				" but got: %v", res.Total,
+		)
 	}
 }
 
@@ -1510,9 +1538,11 @@ func TestDuplicateLocationsIssue1168(t *testing.T) {
 		t.Fatalf("bleve new err: %v", err)
 	}
 
-	err = idx.Index("x", map[string]interface{}{
-		"name": "marty",
-	})
+	err = idx.Index(
+		"x", map[string]interface{}{
+			"name": "marty",
+		},
+	)
 	if err != nil {
 		t.Fatalf("bleve index err: %v", err)
 	}
@@ -1536,18 +1566,22 @@ func TestDuplicateLocationsIssue1168(t *testing.T) {
 
 func TestBooleanMustSingleMatchNone(t *testing.T) {
 	idxMapping := NewIndexMapping()
-	if err := idxMapping.AddCustomTokenFilter(length.Name, map[string]interface{}{
-		"min":  3.0,
-		"max":  5.0,
-		"type": length.Name,
-	}); err != nil {
+	if err := idxMapping.AddCustomTokenFilter(
+		length.Name, map[string]interface{}{
+			"min":  3.0,
+			"max":  5.0,
+			"type": length.Name,
+		},
+	); err != nil {
 		t.Fatal(err)
 	}
-	if err := idxMapping.AddCustomAnalyzer("custom1", map[string]interface{}{
-		"type":          "custom",
-		"tokenizer":     "single",
-		"token_filters": []interface{}{length.Name},
-	}); err != nil {
+	if err := idxMapping.AddCustomAnalyzer(
+		"custom1", map[string]interface{}{
+			"type":          "custom",
+			"tokenizer":     "single",
+			"token_filters": []interface{}{length.Name},
+		},
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1608,18 +1642,22 @@ func TestBooleanMustSingleMatchNone(t *testing.T) {
 
 func TestBooleanMustNotSingleMatchNone(t *testing.T) {
 	idxMapping := NewIndexMapping()
-	if err := idxMapping.AddCustomTokenFilter(shingle.Name, map[string]interface{}{
-		"min":  3.0,
-		"max":  5.0,
-		"type": shingle.Name,
-	}); err != nil {
+	if err := idxMapping.AddCustomTokenFilter(
+		shingle.Name, map[string]interface{}{
+			"min":  3.0,
+			"max":  5.0,
+			"type": shingle.Name,
+		},
+	); err != nil {
 		t.Fatal(err)
 	}
-	if err := idxMapping.AddCustomAnalyzer("custom1", map[string]interface{}{
-		"type":          "custom",
-		"tokenizer":     "unicode",
-		"token_filters": []interface{}{shingle.Name},
-	}); err != nil {
+	if err := idxMapping.AddCustomAnalyzer(
+		"custom1", map[string]interface{}{
+			"type":          "custom",
+			"tokenizer":     "unicode",
+			"token_filters": []interface{}{shingle.Name},
+		},
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1706,68 +1744,86 @@ func TestBooleanSearchBug1185(t *testing.T) {
 		}
 	}()
 
-	err = idx.Index("17112", map[string]interface{}{
-		"owner": "marty",
-		"type":  "A Demo Type",
-	})
+	err = idx.Index(
+		"17112", map[string]interface{}{
+			"owner": "marty",
+			"type":  "A Demo Type",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = idx.Index("17139", map[string]interface{}{
-		"type": "A Demo Type",
-	})
+	err = idx.Index(
+		"17139", map[string]interface{}{
+			"type": "A Demo Type",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = idx.Index("177777", map[string]interface{}{
-		"type": "x",
-	})
+	err = idx.Index(
+		"177777", map[string]interface{}{
+			"type": "x",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = idx.Index("177778", map[string]interface{}{
-		"type": "A Demo Type",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = idx.Index("17140", map[string]interface{}{
-		"type": "A Demo Type",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = idx.Index("17000", map[string]interface{}{
-		"owner": "marty",
-		"type":  "x",
-	})
+	err = idx.Index(
+		"177778", map[string]interface{}{
+			"type": "A Demo Type",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = idx.Index("17141", map[string]interface{}{
-		"type": "A Demo Type",
-	})
+	err = idx.Index(
+		"17140", map[string]interface{}{
+			"type": "A Demo Type",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = idx.Index("17428", map[string]interface{}{
-		"owner": "marty",
-		"type":  "A Demo Type",
-	})
+	err = idx.Index(
+		"17000", map[string]interface{}{
+			"owner": "marty",
+			"type":  "x",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = idx.Index("17113", map[string]interface{}{
-		"owner": "marty",
-		"type":  "x",
-	})
+	err = idx.Index(
+		"17141", map[string]interface{}{
+			"type": "A Demo Type",
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = idx.Index(
+		"17428", map[string]interface{}{
+			"owner": "marty",
+			"type":  "A Demo Type",
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = idx.Index(
+		"17113", map[string]interface{}{
+			"owner": "marty",
+			"type":  "x",
+		},
+	)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1881,10 +1937,12 @@ func TestGeoDistanceIssue1301(t *testing.T) {
 	}()
 
 	for i, g := range []string{"wecpkbeddsmf", "wecpk8tne453", "wecpkb80s09t"} {
-		if err = idx.Index(strconv.Itoa(i), map[string]interface{}{
-			"ID":  i,
-			"GEO": g,
-		}); err != nil {
+		if err = idx.Index(
+			strconv.Itoa(i), map[string]interface{}{
+				"ID":  i,
+				"GEO": g,
+			},
+		); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -1909,20 +1967,24 @@ func TestGeoDistanceIssue1301(t *testing.T) {
 
 func TestSearchHighlightingWithRegexpReplacement(t *testing.T) {
 	idxMapping := NewIndexMapping()
-	if err := idxMapping.AddCustomCharFilter(regexp_char_filter.Name, map[string]interface{}{
-		"regexp":  `([a-z])\s+(\d)`,
-		"replace": "ooooo$1-$2",
-		"type":    regexp_char_filter.Name,
-	}); err != nil {
+	if err := idxMapping.AddCustomCharFilter(
+		regexp_char_filter.Name, map[string]interface{}{
+			"regexp":  `([a-z])\s+(\d)`,
+			"replace": "ooooo$1-$2",
+			"type":    regexp_char_filter.Name,
+		},
+	); err != nil {
 		t.Fatal(err)
 	}
-	if err := idxMapping.AddCustomAnalyzer("regexp_replace", map[string]interface{}{
-		"type":      custom.Name,
-		"tokenizer": "unicode",
-		"char_filters": []string{
-			regexp_char_filter.Name,
+	if err := idxMapping.AddCustomAnalyzer(
+		"regexp_replace", map[string]interface{}{
+			"type":      custom.Name,
+			"tokenizer": "unicode",
+			"char_filters": []string{
+				regexp_char_filter.Name,
+			},
 		},
-	}); err != nil {
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -2064,50 +2126,54 @@ func TestAnalyzerInheritance(t *testing.T) {
 	}
 
 	for i := range tests {
-		t.Run(fmt.Sprintf("%s", tests[i].name), func(t *testing.T) {
-			idxMapping := NewIndexMapping()
-			if err := idxMapping.UnmarshalJSON([]byte(tests[i].mappingStr)); err != nil {
-				t.Fatal(err)
-			}
-
-			tmpIndexPath := createTmpIndexPath(t)
-			idx, err := New(tmpIndexPath, idxMapping)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			defer func() {
-				if err := idx.Close(); err != nil {
+		t.Run(
+			fmt.Sprintf("%s", tests[i].name), func(t *testing.T) {
+				idxMapping := NewIndexMapping()
+				if err := idxMapping.UnmarshalJSON([]byte(tests[i].mappingStr)); err != nil {
 					t.Fatal(err)
 				}
-			}()
 
-			if err = idx.Index("doc", tests[i].doc); err != nil {
-				t.Fatal(err)
-			}
+				tmpIndexPath := createTmpIndexPath(t)
+				idx, err := New(tmpIndexPath, idxMapping)
+				if err != nil {
+					t.Fatal(err)
+				}
 
-			q := NewTermQuery(tests[i].queryTerm)
-			q.SetField(tests[i].queryField)
+				defer func() {
+					if err := idx.Close(); err != nil {
+						t.Fatal(err)
+					}
+				}()
 
-			res, err := idx.Search(NewSearchRequest(q))
-			if err != nil {
-				t.Fatal(err)
-			}
+				if err = idx.Index("doc", tests[i].doc); err != nil {
+					t.Fatal(err)
+				}
 
-			if len(res.Hits) != 1 {
-				t.Errorf("Unexpected number of hits: %v", len(res.Hits))
-			}
-		})
+				q := NewTermQuery(tests[i].queryTerm)
+				q.SetField(tests[i].queryField)
+
+				res, err := idx.Search(NewSearchRequest(q))
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if len(res.Hits) != 1 {
+					t.Errorf("Unexpected number of hits: %v", len(res.Hits))
+				}
+			},
+		)
 	}
 }
 
 func TestHightlightingWithHTMLCharacterFilter(t *testing.T) {
 	idxMapping := NewIndexMapping()
-	if err := idxMapping.AddCustomAnalyzer("custom-html", map[string]interface{}{
-		"type":         custom.Name,
-		"tokenizer":    "unicode",
-		"char_filters": []interface{}{html_char_filter.Name},
-	}); err != nil {
+	if err := idxMapping.AddCustomAnalyzer(
+		"custom-html", map[string]interface{}{
+			"type":         custom.Name,
+			"tokenizer":    "unicode",
+			"char_filters": []interface{}{html_char_filter.Name},
+		},
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -2135,9 +2201,11 @@ func TestHightlightingWithHTMLCharacterFilter(t *testing.T) {
 	}()
 
 	content := "<div> Welcome to blevesearch. </div>"
-	if err = idx.Index("doc", map[string]string{
-		"content": content,
-	}); err != nil {
+	if err = idx.Index(
+		"doc", map[string]string{
+			"content": content,
+		},
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -2169,13 +2237,17 @@ func TestHightlightingWithHTMLCharacterFilter(t *testing.T) {
 	gotFragment := searchResults.Hits[0].Fragments["content"][0]
 
 	if !reflect.DeepEqual(expectedLocation, gotLocation) {
-		t.Fatalf("Mismatch in locations, got: %v, expected: %v",
-			gotLocation, expectedLocation)
+		t.Fatalf(
+			"Mismatch in locations, got: %v, expected: %v",
+			gotLocation, expectedLocation,
+		)
 	}
 
 	if expectedFragment != gotFragment {
-		t.Fatalf("Mismatch in fragment, got: %v, expected: %v",
-			gotFragment, expectedFragment)
+		t.Fatalf(
+			"Mismatch in fragment, got: %v, expected: %v",
+			gotFragment, expectedFragment,
+		)
 	}
 }
 
@@ -2202,9 +2274,11 @@ func TestIPRangeQuery(t *testing.T) {
 	}()
 
 	ipContent := "192.168.10.11"
-	if err = idx.Index("doc", map[string]string{
-		"ip_content": ipContent,
-	}); err != nil {
+	if err = idx.Index(
+		"doc", map[string]string{
+			"ip_content": ipContent,
+		},
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -2461,9 +2535,9 @@ func TestCustomDateTimeParserLayoutValidation(t *testing.T) {
 			time.StampMilli,
 			time.StampMicro,
 			time.StampNano,
-			"2006-01-02 15:04:05", //time.DateTime
-			"2006-01-02",          //time.DateOnly
-			"15:04:05",            //time.TimeOnly
+			"2006-01-02 15:04:05", // time.DateTime
+			"2006-01-02",          // time.DateOnly
+			"15:04:05",            // time.TimeOnly
 
 			// Corrected layouts to the incorrect ones below.
 			"2006-01-02 03:04:05 -0700",
@@ -2549,24 +2623,28 @@ func TestCustomDateTimeParserLayoutValidation(t *testing.T) {
 func TestDateRangeStringQuery(t *testing.T) {
 	idxMapping := NewIndexMapping()
 
-	err := idxMapping.AddCustomDateTimeParser("customDT", map[string]interface{}{
-		"type": sanitized.Name,
-		"layouts": []interface{}{
-			"02/01/2006 15:04:05",
-			"2006/01/02 3:04PM",
+	err := idxMapping.AddCustomDateTimeParser(
+		"customDT", map[string]interface{}{
+			"type": sanitized.Name,
+			"layouts": []interface{}{
+				"02/01/2006 15:04:05",
+				"2006/01/02 3:04PM",
+			},
 		},
-	})
+	)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = idxMapping.AddCustomDateTimeParser("queryDT", map[string]interface{}{
-		"type": sanitized.Name,
-		"layouts": []interface{}{
-			"02/01/2006 3:04PM",
+	err = idxMapping.AddCustomDateTimeParser(
+		"queryDT", map[string]interface{}{
+			"type": sanitized.Name,
+			"layouts": []interface{}{
+				"02/01/2006 3:04PM",
+			},
 		},
-	})
+	)
 
 	if err != nil {
 		t.Fatal(err)
@@ -2842,24 +2920,28 @@ func TestDateRangeStringQuery(t *testing.T) {
 func TestDateRangeFacetQueriesWithCustomDateTimeParser(t *testing.T) {
 	idxMapping := NewIndexMapping()
 
-	err := idxMapping.AddCustomDateTimeParser("customDT", map[string]interface{}{
-		"type": sanitized.Name,
-		"layouts": []interface{}{
-			"02/01/2006 15:04:05",
-			"2006/01/02 3:04PM",
+	err := idxMapping.AddCustomDateTimeParser(
+		"customDT", map[string]interface{}{
+			"type": sanitized.Name,
+			"layouts": []interface{}{
+				"02/01/2006 15:04:05",
+				"2006/01/02 3:04PM",
+			},
 		},
-	})
+	)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = idxMapping.AddCustomDateTimeParser("queryDT", map[string]interface{}{
-		"type": sanitized.Name,
-		"layouts": []interface{}{
-			"02/01/2006 3:04PM",
+	err = idxMapping.AddCustomDateTimeParser(
+		"queryDT", map[string]interface{}{
+			"type": sanitized.Name,
+			"layouts": []interface{}{
+				"02/01/2006 3:04PM",
+			},
 		},
-	})
+	)
 
 	if err != nil {
 		t.Fatal(err)
@@ -3512,24 +3594,39 @@ func TestScoreBreakdown(t *testing.T) {
 			typ:   "disjunction",
 			expectHits: []testResult{
 				{
-					docID:          "doc1",
-					score:          0.3034548543819603,
-					scoreBreakdown: map[int]float64{0: 0.040398807605268316, 2: 0.040398807605268316, 5: 0.0669862776967768, 6: 0.040398807605268316, 7: 0.040398807605268316, 8: 0.0669862776967768, 10: 0.040398807605268316, 12: 0.040398807605268316, 14: 0.040398807605268316, 15: 0.040398807605268316, 16: 0.0669862776967768},
+					docID: "doc1",
+					score: 0.3034548543819603,
+					scoreBreakdown: map[int]float64{
+						0: 0.040398807605268316, 2: 0.040398807605268316, 5: 0.0669862776967768,
+						6: 0.040398807605268316, 7: 0.040398807605268316, 8: 0.0669862776967768,
+						10: 0.040398807605268316, 12: 0.040398807605268316, 14: 0.040398807605268316,
+						15: 0.040398807605268316, 16: 0.0669862776967768,
+					},
 				},
 				{
-					docID:          "doc2",
-					score:          0.14725661652397853,
-					scoreBreakdown: map[int]float64{0: 0.05470024557900147, 5: 0.09069985124905133, 7: 0.05470024557900147, 10: 0.05470024557900147, 13: 0.15681178542754148, 15: 0.05470024557900147},
+					docID: "doc2",
+					score: 0.14725661652397853,
+					scoreBreakdown: map[int]float64{
+						0: 0.05470024557900147, 5: 0.09069985124905133, 7: 0.05470024557900147, 10: 0.05470024557900147,
+						13: 0.15681178542754148, 15: 0.05470024557900147,
+					},
 				},
 				{
-					docID:          "doc3",
-					score:          0.12637916362550797,
-					scoreBreakdown: map[int]float64{2: 0.05470024557900147, 6: 0.05470024557900147, 8: 0.09069985124905133, 12: 0.05470024557900147, 14: 0.05470024557900147, 16: 0.09069985124905133},
+					docID: "doc3",
+					score: 0.12637916362550797,
+					scoreBreakdown: map[int]float64{
+						2: 0.05470024557900147, 6: 0.05470024557900147, 8: 0.09069985124905133, 12: 0.05470024557900147,
+						14: 0.05470024557900147, 16: 0.09069985124905133,
+					},
 				},
 				{
-					docID:          "doc4",
-					score:          0.15956816751152955,
-					scoreBreakdown: map[int]float64{0: 0.04737179972998534, 2: 0.04737179972998534, 6: 0.04737179972998534, 7: 0.04737179972998534, 10: 0.04737179972998534, 12: 0.04737179972998534, 14: 0.04737179972998534, 15: 0.04737179972998534},
+					docID: "doc4",
+					score: 0.15956816751152955,
+					scoreBreakdown: map[int]float64{
+						0: 0.04737179972998534, 2: 0.04737179972998534, 6: 0.04737179972998534, 7: 0.04737179972998534,
+						10: 0.04737179972998534, 12: 0.04737179972998534, 14: 0.04737179972998534,
+						15: 0.04737179972998534,
+					},
 				},
 			},
 		},
@@ -3540,9 +3637,11 @@ func TestScoreBreakdown(t *testing.T) {
 			typ:   "disjunction",
 			expectHits: []testResult{
 				{
-					docID:          "doc1",
-					score:          0.1340684440934241,
-					scoreBreakdown: map[int]float64{1: 0.05756326446708409, 2: 0.05756326446708409, 5: 0.09544709478559595, 6: 0.05756326446708409},
+					docID: "doc1",
+					score: 0.1340684440934241,
+					scoreBreakdown: map[int]float64{
+						1: 0.05756326446708409, 2: 0.05756326446708409, 5: 0.09544709478559595, 6: 0.05756326446708409,
+					},
 				},
 				{
 					docID:          "doc2",
@@ -3555,9 +3654,11 @@ func TestScoreBreakdown(t *testing.T) {
 					scoreBreakdown: map[int]float64{2: 0.0779410306721006, 6: 0.0779410306721006},
 				},
 				{
-					docID:          "doc4",
-					score:          0.07593627256602972,
-					scoreBreakdown: map[int]float64{1: 0.06749890894758198, 2: 0.06749890894758198, 6: 0.06749890894758198},
+					docID: "doc4",
+					score: 0.07593627256602972,
+					scoreBreakdown: map[int]float64{
+						1: 0.06749890894758198, 2: 0.06749890894758198, 6: 0.06749890894758198,
+					},
 				},
 			},
 		},
@@ -3586,7 +3687,11 @@ func TestScoreBreakdown(t *testing.T) {
 				t.Fatalf("expected docID %s, got %s", dtq.expectHits[i].docID, hit.ID)
 			}
 			if len(hit.ScoreBreakdown) != len(dtq.expectHits[i].scoreBreakdown) {
-				t.Fatalf("expected %d score breakdown, got %d", len(dtq.expectHits[i].scoreBreakdown), len(hit.ScoreBreakdown))
+				t.Fatalf(
+					"expected %d score breakdown, got %d",
+					len(dtq.expectHits[i].scoreBreakdown),
+					len(hit.ScoreBreakdown),
+				)
 			}
 			for j, score := range hit.ScoreBreakdown {
 				actualScore := roundToDecimalPlace(score, 3)

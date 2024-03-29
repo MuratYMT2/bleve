@@ -17,7 +17,7 @@ package document
 import (
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -44,7 +44,13 @@ func NewCompositeField(name string, defaultInclude bool, include []string, exclu
 	return NewCompositeFieldWithIndexingOptions(name, defaultInclude, include, exclude, DefaultCompositeIndexingOptions)
 }
 
-func NewCompositeFieldWithIndexingOptions(name string, defaultInclude bool, include []string, exclude []string, options index.FieldIndexingOptions) *CompositeField {
+func NewCompositeFieldWithIndexingOptions(
+	name string,
+	defaultInclude bool,
+	include []string,
+	exclude []string,
+	options index.FieldIndexingOptions,
+) *CompositeField {
 	rv := &CompositeField{
 		name:                 name,
 		options:              options,

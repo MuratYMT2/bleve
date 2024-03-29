@@ -18,8 +18,8 @@ import (
 	"bytes"
 	"regexp"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 const Name = "html"
@@ -42,7 +42,8 @@ func (s *CharFilter) Filter(input []byte) []byte {
 	return s.r.ReplaceAllFunc(
 		input, func(in []byte) []byte {
 			return bytes.Repeat(s.replacement, len(in))
-		})
+		},
+	)
 }
 
 func CharFilterConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.CharFilter, error) {

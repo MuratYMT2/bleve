@@ -20,8 +20,8 @@ import (
 	"math"
 	"reflect"
 
-	"github.com/blevesearch/bleve/v2/search"
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -66,8 +66,10 @@ func (s *PhraseSearcher) Size() int {
 	return sizeInBytes
 }
 
-func NewPhraseSearcher(ctx context.Context, indexReader index.IndexReader, terms []string,
-	fuzziness int, field string, boost float64, options search.SearcherOptions) (*PhraseSearcher, error) {
+func NewPhraseSearcher(
+	ctx context.Context, indexReader index.IndexReader, terms []string,
+	fuzziness int, field string, boost float64, options search.SearcherOptions,
+) (*PhraseSearcher, error) {
 
 	// turn flat terms []string into [][]string
 	mterms := make([][]string, len(terms))
@@ -77,8 +79,10 @@ func NewPhraseSearcher(ctx context.Context, indexReader index.IndexReader, terms
 	return NewMultiPhraseSearcher(ctx, indexReader, mterms, fuzziness, field, boost, options)
 }
 
-func NewMultiPhraseSearcher(ctx context.Context, indexReader index.IndexReader, terms [][]string,
-	fuzziness int, field string, boost float64, options search.SearcherOptions) (*PhraseSearcher, error) {
+func NewMultiPhraseSearcher(
+	ctx context.Context, indexReader index.IndexReader, terms [][]string,
+	fuzziness int, field string, boost float64, options search.SearcherOptions,
+) (*PhraseSearcher, error) {
 
 	options.IncludeTermVectors = true
 	var termPositionSearchers []search.Searcher
@@ -276,9 +280,11 @@ func (s *PhraseSearcher) checkCurrMustMatch(ctx *search.SearchContext) *search.D
 // satisfies the phrase constraints (possibly more than once).  if so,
 // the matching field term locations are appended to the provided
 // slice
-func (s *PhraseSearcher) checkCurrMustMatchField(ctx *search.SearchContext,
+func (s *PhraseSearcher) checkCurrMustMatchField(
+	ctx *search.SearchContext,
 	field string, tlm search.TermLocationMap,
-	ftls []search.FieldTermLocation) []search.FieldTermLocation {
+	ftls []search.FieldTermLocation,
+) []search.FieldTermLocation {
 	if s.path == nil {
 		s.path = make(phrasePath, 0, len(s.terms))
 	}
@@ -299,16 +305,18 @@ func (s *PhraseSearcher) checkCurrMustMatchField(ctx *search.SearchContext,
 	s.paths = findPhrasePaths(0, nil, s.terms, *tlmPtr, s.path[:0], 0, s.paths[:0])
 	for _, p := range s.paths {
 		for _, pp := range p {
-			ftls = append(ftls, search.FieldTermLocation{
-				Field: field,
-				Term:  pp.term,
-				Location: search.Location{
-					Pos:            pp.loc.Pos,
-					Start:          pp.loc.Start,
-					End:            pp.loc.End,
-					ArrayPositions: pp.loc.ArrayPositions,
+			ftls = append(
+				ftls, search.FieldTermLocation{
+					Field: field,
+					Term:  pp.term,
+					Location: search.Location{
+						Pos:            pp.loc.Pos,
+						Start:          pp.loc.Start,
+						End:            pp.loc.End,
+						ArrayPositions: pp.loc.ArrayPositions,
+					},
 				},
-			})
+			)
 		}
 	}
 	return ftls
@@ -378,8 +386,10 @@ func (p phrasePath) String() string {
 // rv - the final result being appended to by all the recursive calls
 //
 // returns slice of paths, or nil if invocation did not find any successful paths
-func findPhrasePaths(prevPos uint64, ap search.ArrayPositions, phraseTerms [][]string,
-	tlm search.TermLocationMap, p phrasePath, remainingSlop int, rv []phrasePath) []phrasePath {
+func findPhrasePaths(
+	prevPos uint64, ap search.ArrayPositions, phraseTerms [][]string,
+	tlm search.TermLocationMap, p phrasePath, remainingSlop int, rv []phrasePath,
+) []phrasePath {
 	// no more terms
 	if len(phraseTerms) < 1 {
 		// snapshot or copy the recursively built phrasePath p and

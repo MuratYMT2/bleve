@@ -17,7 +17,7 @@ package searcher
 import (
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -121,10 +121,22 @@ func TestFuzzySearch(t *testing.T) {
 		for err == nil && next != nil {
 			if i < len(test.results) {
 				if !next.IndexInternalID.Equals(test.results[i].IndexInternalID) {
-					t.Errorf("expected result %d to have id %s got %s for test %d", i, test.results[i].IndexInternalID, next.IndexInternalID, testIndex)
+					t.Errorf(
+						"expected result %d to have id %s got %s for test %d",
+						i,
+						test.results[i].IndexInternalID,
+						next.IndexInternalID,
+						testIndex,
+					)
 				}
 				if next.Score != test.results[i].Score {
-					t.Errorf("expected result %d to have score %v got %v for test %d", i, test.results[i].Score, next.Score, testIndex)
+					t.Errorf(
+						"expected result %d to have score %v got %v for test %d",
+						i,
+						test.results[i].Score,
+						next.Score,
+						testIndex,
+					)
 					t.Logf("scoring explanation: %s", next.Expl)
 				}
 			}

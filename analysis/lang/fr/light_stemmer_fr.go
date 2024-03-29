@@ -18,8 +18,8 @@ import (
 	"bytes"
 	"unicode"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 const LightStemmerName = "stemmer_fr_light"
@@ -109,7 +109,7 @@ func stem(input []rune) []rune {
 		input[inputLen-4] = 'q'
 		input[inputLen-3] = 'u'
 		input[inputLen-2] = 'e'
-		//s[len-1] = 'r' <-- unnecessary, already 'r'.
+		// s[len-1] = 'r' <-- unnecessary, already 'r'.
 		return norm(input)
 	}
 
@@ -297,7 +297,10 @@ func norm(input []rune) []rune {
 	return input
 }
 
-func FrenchLightStemmerFilterConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.TokenFilter, error) {
+func FrenchLightStemmerFilterConstructor(config map[string]interface{}, cache *registry.Cache) (
+	analysis.TokenFilter,
+	error,
+) {
 	return NewFrenchLightStemmerFilter(), nil
 }
 

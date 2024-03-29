@@ -19,8 +19,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/registry"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/registry"
 )
 
 const Name = "sanitizedgo"
@@ -112,9 +112,11 @@ func DateTimeParserConstructor(config map[string]interface{}, cache *registry.Ca
 		layoutStr, ok := layout.(string)
 		if ok {
 			if !validateLayout(layoutStr) {
-				return nil, fmt.Errorf("invalid datetime parser layout: %s,"+
-					" please refer to https://pkg.go.dev/time#pkg-constants for supported"+
-					" layouts", layoutStr)
+				return nil, fmt.Errorf(
+					"invalid datetime parser layout: %s,"+
+						" please refer to https://pkg.go.dev/time#pkg-constants for supported"+
+						" layouts", layoutStr,
+				)
 			}
 			layoutStrs = append(layoutStrs, layoutStr)
 		}

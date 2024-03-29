@@ -29,13 +29,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/analysis"
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/keyword"
-	"github.com/blevesearch/bleve/v2/analysis/analyzer/standard"
-	regexpTokenizer "github.com/blevesearch/bleve/v2/analysis/tokenizer/regexp"
-	"github.com/blevesearch/bleve/v2/document"
-	"github.com/blevesearch/bleve/v2/index/scorch/mergeplan"
-	"github.com/blevesearch/bleve/v2/mapping"
+	"github.com/MuratYMT2/bleve/v2/analysis"
+	"github.com/MuratYMT2/bleve/v2/analysis/analyzer/keyword"
+	"github.com/MuratYMT2/bleve/v2/analysis/analyzer/standard"
+	regexpTokenizer "github.com/MuratYMT2/bleve/v2/analysis/tokenizer/regexp"
+	"github.com/MuratYMT2/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/index/scorch/mergeplan"
+	"github.com/MuratYMT2/bleve/v2/mapping"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -755,7 +755,14 @@ func TestIndexInsertWithStore(t *testing.T) {
 	}
 
 	doc := document.NewDocument("1")
-	doc.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("test"), index.IndexField|index.StoreField))
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("test"),
+			index.IndexField|index.StoreField,
+		),
+	)
 	err = idx.Update(doc)
 	if err != nil {
 		t.Errorf("Error updating index: %v", err)
@@ -1081,9 +1088,11 @@ func TestIndexBatchWithCallbacks(t *testing.T) {
 	doc := document.NewDocument("3")
 	doc.AddField(document.NewTextField("name", []uint64{}, []byte("test3")))
 	batch.Update(doc)
-	batch.SetPersistedCallback(func(e error) {
-		wg.Done()
-	})
+	batch.SetPersistedCallback(
+		func(e error) {
+			wg.Done()
+		},
+	)
 
 	err = idx.Batch(batch)
 	if err != nil {
@@ -1141,9 +1150,29 @@ func TestIndexInsertUpdateDeleteWithMultipleTypesStored(t *testing.T) {
 	}
 
 	doc := document.NewDocument("1")
-	doc.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("test"), index.IndexField|index.StoreField))
-	doc.AddField(document.NewNumericFieldWithIndexingOptions("age", []uint64{}, 35.99, index.IndexField|index.StoreField))
-	df, err := document.NewDateTimeFieldWithIndexingOptions("unixEpoch", []uint64{}, time.Unix(0, 0), time.RFC3339, index.IndexField|index.StoreField)
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("test"),
+			index.IndexField|index.StoreField,
+		),
+	)
+	doc.AddField(
+		document.NewNumericFieldWithIndexingOptions(
+			"age",
+			[]uint64{},
+			35.99,
+			index.IndexField|index.StoreField,
+		),
+	)
+	df, err := document.NewDateTimeFieldWithIndexingOptions(
+		"unixEpoch",
+		[]uint64{},
+		time.Unix(0, 0),
+		time.RFC3339,
+		index.IndexField|index.StoreField,
+	)
 	if err != nil {
 		t.Error(err)
 	}
@@ -1233,8 +1262,22 @@ func TestIndexInsertUpdateDeleteWithMultipleTypesStored(t *testing.T) {
 
 	// now update the document, but omit one of the fields
 	doc = document.NewDocument("1")
-	doc.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("testup"), index.IndexField|index.StoreField))
-	doc.AddField(document.NewNumericFieldWithIndexingOptions("age", []uint64{}, 36.99, index.IndexField|index.StoreField))
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("testup"),
+			index.IndexField|index.StoreField,
+		),
+	)
+	doc.AddField(
+		document.NewNumericFieldWithIndexingOptions(
+			"age",
+			[]uint64{},
+			36.99,
+			index.IndexField|index.StoreField,
+		),
+	)
 	err = idx.Update(doc)
 	if err != nil {
 		t.Errorf("Error updating index: %v", err)
@@ -1351,9 +1394,29 @@ func TestIndexInsertFields(t *testing.T) {
 	}()
 
 	doc := document.NewDocument("1")
-	doc.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("test"), index.IndexField|index.StoreField))
-	doc.AddField(document.NewNumericFieldWithIndexingOptions("age", []uint64{}, 35.99, index.IndexField|index.StoreField))
-	dateField, err := document.NewDateTimeFieldWithIndexingOptions("unixEpoch", []uint64{}, time.Unix(0, 0), time.RFC3339, index.IndexField|index.StoreField)
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("test"),
+			index.IndexField|index.StoreField,
+		),
+	)
+	doc.AddField(
+		document.NewNumericFieldWithIndexingOptions(
+			"age",
+			[]uint64{},
+			35.99,
+			index.IndexField|index.StoreField,
+		),
+	)
+	dateField, err := document.NewDateTimeFieldWithIndexingOptions(
+		"unixEpoch",
+		[]uint64{},
+		time.Unix(0, 0),
+		time.RFC3339,
+		index.IndexField|index.StoreField,
+	)
 	if err != nil {
 		t.Error(err)
 	}
@@ -1425,8 +1488,22 @@ func TestIndexUpdateComposites(t *testing.T) {
 	}()
 
 	doc := document.NewDocument("1")
-	doc.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("test"), index.IndexField|index.StoreField))
-	doc.AddField(document.NewTextFieldWithIndexingOptions("title", []uint64{}, []byte("mister"), index.IndexField|index.StoreField))
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("test"),
+			index.IndexField|index.StoreField,
+		),
+	)
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"title",
+			[]uint64{},
+			[]byte("mister"),
+			index.IndexField|index.StoreField,
+		),
+	)
 	doc.AddField(document.NewCompositeFieldWithIndexingOptions("_all", true, nil, nil, index.IndexField))
 	err = idx.Update(doc)
 	if err != nil {
@@ -1435,8 +1512,22 @@ func TestIndexUpdateComposites(t *testing.T) {
 
 	// now lets update it
 	doc = document.NewDocument("1")
-	doc.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("testupdated"), index.IndexField|index.StoreField))
-	doc.AddField(document.NewTextFieldWithIndexingOptions("title", []uint64{}, []byte("misterupdated"), index.IndexField|index.StoreField))
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("testupdated"),
+			index.IndexField|index.StoreField,
+		),
+	)
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"title",
+			[]uint64{},
+			[]byte("misterupdated"),
+			index.IndexField|index.StoreField,
+		),
+	)
 	doc.AddField(document.NewCompositeFieldWithIndexingOptions("_all", true, nil, nil, index.IndexField))
 	err = idx.Update(doc)
 	if err != nil {
@@ -1508,9 +1599,31 @@ func TestIndexTermReaderCompositeFields(t *testing.T) {
 	}()
 
 	doc := document.NewDocument("1")
-	doc.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("test"), index.IndexField|index.StoreField|index.IncludeTermVectors))
-	doc.AddField(document.NewTextFieldWithIndexingOptions("title", []uint64{}, []byte("mister"), index.IndexField|index.StoreField|index.IncludeTermVectors))
-	doc.AddField(document.NewCompositeFieldWithIndexingOptions("_all", true, nil, nil, index.IndexField|index.IncludeTermVectors))
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("test"),
+			index.IndexField|index.StoreField|index.IncludeTermVectors,
+		),
+	)
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"title",
+			[]uint64{},
+			[]byte("mister"),
+			index.IndexField|index.StoreField|index.IncludeTermVectors,
+		),
+	)
+	doc.AddField(
+		document.NewCompositeFieldWithIndexingOptions(
+			"_all",
+			true,
+			nil,
+			nil,
+			index.IndexField|index.IncludeTermVectors,
+		),
+	)
 	err = idx.Update(doc)
 	if err != nil {
 		t.Errorf("Error updating index: %v", err)
@@ -1578,8 +1691,22 @@ func TestIndexDocValueReader(t *testing.T) {
 	}()
 
 	doc := document.NewDocument("1")
-	doc.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("test"), index.IndexField|index.StoreField|index.IncludeTermVectors))
-	doc.AddField(document.NewTextFieldWithIndexingOptions("title", []uint64{}, []byte("mister"), index.IndexField|index.StoreField|index.IncludeTermVectors))
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("test"),
+			index.IndexField|index.StoreField|index.IncludeTermVectors,
+		),
+	)
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"title",
+			[]uint64{},
+			[]byte("mister"),
+			index.IndexField|index.StoreField|index.IncludeTermVectors,
+		),
+	)
 	err = idx.Update(doc)
 	if err != nil {
 		t.Errorf("Error updating index: %v", err)
@@ -1608,9 +1735,11 @@ func TestIndexDocValueReader(t *testing.T) {
 		t.Error(err)
 	}
 
-	err = dvr.VisitDocValues(internalID, func(field string, term []byte) {
-		actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
-	})
+	err = dvr.VisitDocValues(
+		internalID, func(field string, term []byte) {
+			actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
+		},
+	)
 	if err != nil {
 		t.Error(err)
 	}
@@ -1744,7 +1873,14 @@ func TestConcurrentUpdate(t *testing.T) {
 		wg.Add(1)
 		go func(i int) {
 			doc := document.NewDocument("1")
-			doc.AddField(document.NewTextFieldWithIndexingOptions(strconv.Itoa(i), []uint64{}, []byte(strconv.Itoa(i)), index.StoreField))
+			doc.AddField(
+				document.NewTextFieldWithIndexingOptions(
+					strconv.Itoa(i),
+					[]uint64{},
+					[]byte(strconv.Itoa(i)),
+					index.StoreField,
+				),
+			)
 			err := idx.Update(doc)
 			if err != nil {
 				t.Errorf("Error updating index: %v", err)
@@ -1875,8 +2011,22 @@ func TestIndexDocValueReaderWithMultipleDocs(t *testing.T) {
 	}()
 
 	doc := document.NewDocument("1")
-	doc.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("test"), index.IndexField|index.StoreField|index.IncludeTermVectors))
-	doc.AddField(document.NewTextFieldWithIndexingOptions("title", []uint64{}, []byte("mister"), index.IndexField|index.StoreField|index.IncludeTermVectors))
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("test"),
+			index.IndexField|index.StoreField|index.IncludeTermVectors,
+		),
+	)
+	doc.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"title",
+			[]uint64{},
+			[]byte("mister"),
+			index.IndexField|index.StoreField|index.IncludeTermVectors,
+		),
+	)
 
 	err = idx.Update(doc)
 	if err != nil {
@@ -1899,9 +2049,11 @@ func TestIndexDocValueReaderWithMultipleDocs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = dvr.VisitDocValues(docNumber, func(field string, term []byte) {
-		actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
-	})
+	err = dvr.VisitDocValues(
+		docNumber, func(field string, term []byte) {
+			actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
+		},
+	)
 	if err != nil {
 		t.Error(err)
 	}
@@ -1918,8 +2070,22 @@ func TestIndexDocValueReaderWithMultipleDocs(t *testing.T) {
 	}
 
 	doc2 := document.NewDocument("2")
-	doc2.AddField(document.NewTextFieldWithIndexingOptions("name", []uint64{}, []byte("test2"), index.IndexField|index.StoreField|index.IncludeTermVectors))
-	doc2.AddField(document.NewTextFieldWithIndexingOptions("title", []uint64{}, []byte("mister2"), index.IndexField|index.StoreField|index.IncludeTermVectors))
+	doc2.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name",
+			[]uint64{},
+			[]byte("test2"),
+			index.IndexField|index.StoreField|index.IncludeTermVectors,
+		),
+	)
+	doc2.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"title",
+			[]uint64{},
+			[]byte("mister2"),
+			index.IndexField|index.StoreField|index.IncludeTermVectors,
+		),
+	)
 	err = idx.Update(doc2)
 	if err != nil {
 		t.Errorf("Error updating index: %v", err)
@@ -1940,9 +2106,11 @@ func TestIndexDocValueReaderWithMultipleDocs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = dvr.VisitDocValues(docNumber, func(field string, term []byte) {
-		actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
-	})
+	err = dvr.VisitDocValues(
+		docNumber, func(field string, term []byte) {
+			actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
+		},
+	)
 	if err != nil {
 		t.Error(err)
 	}
@@ -1959,8 +2127,22 @@ func TestIndexDocValueReaderWithMultipleDocs(t *testing.T) {
 	}
 
 	doc3 := document.NewDocument("3")
-	doc3.AddField(document.NewTextFieldWithIndexingOptions("name3", []uint64{}, []byte("test3"), index.IndexField|index.StoreField|index.IncludeTermVectors))
-	doc3.AddField(document.NewTextFieldWithIndexingOptions("title3", []uint64{}, []byte("mister3"), index.IndexField|index.StoreField|index.IncludeTermVectors))
+	doc3.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"name3",
+			[]uint64{},
+			[]byte("test3"),
+			index.IndexField|index.StoreField|index.IncludeTermVectors,
+		),
+	)
+	doc3.AddField(
+		document.NewTextFieldWithIndexingOptions(
+			"title3",
+			[]uint64{},
+			[]byte("mister3"),
+			index.IndexField|index.StoreField|index.IncludeTermVectors,
+		),
+	)
 	err = idx.Update(doc3)
 	if err != nil {
 		t.Errorf("Error updating index: %v", err)
@@ -1981,9 +2163,11 @@ func TestIndexDocValueReaderWithMultipleDocs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = dvr.VisitDocValues(docNumber, func(field string, term []byte) {
-		actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
-	})
+	err = dvr.VisitDocValues(
+		docNumber, func(field string, term []byte) {
+			actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
+		},
+	)
 	if err != nil {
 		t.Error(err)
 	}
@@ -2006,9 +2190,11 @@ func TestIndexDocValueReaderWithMultipleDocs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = dvr.VisitDocValues(docNumber, func(field string, term []byte) {
-		actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
-	})
+	err = dvr.VisitDocValues(
+		docNumber, func(field string, term []byte) {
+			actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
+		},
+	)
 	if err != nil {
 		t.Error(err)
 	}
@@ -2085,9 +2271,11 @@ func TestIndexDocValueReaderWithMultipleFieldOptions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = dvr.VisitDocValues(docNumber, func(field string, term []byte) {
-		actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
-	})
+	err = dvr.VisitDocValues(
+		docNumber, func(field string, term []byte) {
+			actualFieldTerms[field] = append(actualFieldTerms[field], string(term))
+		},
+	)
 	if err != nil {
 		t.Error(err)
 	}
@@ -2279,11 +2467,14 @@ func TestIndexForceMerge(t *testing.T) {
 		if atomic.LoadUint64(&si.stats.TotFileSegmentsAtRoot) == 1 {
 			break
 		}
-		err := si.ForceMerge(ctx, &mergeplan.MergePlanOptions{
-			MaxSegmentsPerTier:   1,
-			MaxSegmentSize:       10000,
-			SegmentsPerMergeTask: 10,
-			FloorSegmentSize:     10000})
+		err := si.ForceMerge(
+			ctx, &mergeplan.MergePlanOptions{
+				MaxSegmentsPerTier:   1,
+				MaxSegmentSize:       10000,
+				SegmentsPerMergeTask: 10,
+				FloorSegmentSize:     10000,
+			},
+		)
 		if err != nil {
 			t.Errorf("ForceMerge failed, err: %v", err)
 		}
@@ -2291,16 +2482,21 @@ func TestIndexForceMerge(t *testing.T) {
 
 	// verify the final root segment count
 	if atomic.LoadUint64(&si.stats.TotFileSegmentsAtRoot) != 1 {
-		t.Errorf("expected a single root file segments, got: %d",
-			atomic.LoadUint64(&si.stats.TotFileSegmentsAtRoot))
+		t.Errorf(
+			"expected a single root file segments, got: %d",
+			atomic.LoadUint64(&si.stats.TotFileSegmentsAtRoot),
+		)
 	}
 
 	// verify with an invalid merge plan
-	err = si.ForceMerge(ctx, &mergeplan.MergePlanOptions{
-		MaxSegmentsPerTier:   1,
-		MaxSegmentSize:       1 << 33,
-		SegmentsPerMergeTask: 10,
-		FloorSegmentSize:     10000})
+	err = si.ForceMerge(
+		ctx, &mergeplan.MergePlanOptions{
+			MaxSegmentsPerTier:   1,
+			MaxSegmentSize:       1 << 33,
+			SegmentsPerMergeTask: 10,
+			FloorSegmentSize:     10000,
+		},
+	)
 	if err != mergeplan.ErrMaxSegmentSizeTooLarge {
 		t.Errorf("ForceMerge expected to fail with ErrMaxSegmentSizeTooLarge")
 	}
@@ -2407,19 +2603,24 @@ func TestCancelIndexForceMerge(t *testing.T) {
 		}
 	}()
 
-	err = si.ForceMerge(ctx, &mergeplan.MergePlanOptions{
-		MaxSegmentsPerTier:   1,
-		MaxSegmentSize:       10000,
-		SegmentsPerMergeTask: 5,
-		FloorSegmentSize:     10000})
+	err = si.ForceMerge(
+		ctx, &mergeplan.MergePlanOptions{
+			MaxSegmentsPerTier:   1,
+			MaxSegmentSize:       10000,
+			SegmentsPerMergeTask: 5,
+			FloorSegmentSize:     10000,
+		},
+	)
 	if err != nil {
 		t.Errorf("ForceMerge failed, err: %v", err)
 	}
 
 	// verify the final root file segment count or forceMerge completion
 	if atomic.LoadUint64(&si.stats.TotFileSegmentsAtRoot) == 1 {
-		t.Errorf("expected many files at root, but got: %d segments",
-			atomic.LoadUint64(&si.stats.TotFileSegmentsAtRoot))
+		t.Errorf(
+			"expected many files at root, but got: %d segments",
+			atomic.LoadUint64(&si.stats.TotFileSegmentsAtRoot),
+		)
 	}
 
 	err = idx.Close()
@@ -2506,9 +2707,11 @@ func TestIndexSeekBackwardsStats(t *testing.T) {
 	}
 
 	if idx.(*Scorch).stats.TotTermSearchersStarted != idx.(*Scorch).stats.TotTermSearchersFinished {
-		t.Errorf("expected term searchers started %d to equal term searchers finished %d",
+		t.Errorf(
+			"expected term searchers started %d to equal term searchers finished %d",
 			idx.(*Scorch).stats.TotTermSearchersStarted,
-			idx.(*Scorch).stats.TotTermSearchersFinished)
+			idx.(*Scorch).stats.TotTermSearchersFinished,
+		)
 	}
 }
 

@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/blevesearch/bleve/v2/document"
+	"github.com/MuratYMT2/bleve/v2/document"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -337,16 +337,22 @@ func TestGetProtectedSnapshots(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		protectedEpochs := getProtectedSnapshots(RollbackSamplingInterval,
-			test.numSnapshotsToKeep, test.metaData)
+		protectedEpochs := getProtectedSnapshots(
+			RollbackSamplingInterval,
+			test.numSnapshotsToKeep, test.metaData,
+		)
 		if len(protectedEpochs) != test.expCount {
-			t.Errorf("%d test: %s, getProtectedSnapshots expected to return %d "+
-				"snapshots, but got: %d", i, test.title, test.expCount, len(protectedEpochs))
+			t.Errorf(
+				"%d test: %s, getProtectedSnapshots expected to return %d "+
+					"snapshots, but got: %d", i, test.title, test.expCount, len(protectedEpochs),
+			)
 		}
 		for _, e := range test.expEpochs {
 			if _, found := protectedEpochs[e]; !found {
-				t.Errorf("%d test: %s, %d epoch expected to be protected, "+
-					"but missing from protected list: %v", i, test.title, e, protectedEpochs)
+				t.Errorf(
+					"%d test: %s, %d epoch expected to be protected, "+
+						"but missing from protected list: %v", i, test.title, e, protectedEpochs,
+				)
 			}
 		}
 	}

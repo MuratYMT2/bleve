@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -32,9 +32,12 @@ var DisjunctionMaxClauseCount = 0
 // slice implementation to a heap implementation.
 var DisjunctionHeapTakeover = 10
 
-func NewDisjunctionSearcher(ctx context.Context, indexReader index.IndexReader,
-	qsearchers []search.Searcher, min float64, options search.SearcherOptions) (
-	search.Searcher, error) {
+func NewDisjunctionSearcher(
+	ctx context.Context, indexReader index.IndexReader,
+	qsearchers []search.Searcher, min float64, options search.SearcherOptions,
+) (
+	search.Searcher, error,
+) {
 	return newDisjunctionSearcher(ctx, indexReader, qsearchers, min, options, true)
 }
 
@@ -43,9 +46,11 @@ func optionsDisjunctionOptimizable(options search.SearcherOptions) bool {
 	return rv
 }
 
-func newDisjunctionSearcher(ctx context.Context, indexReader index.IndexReader,
+func newDisjunctionSearcher(
+	ctx context.Context, indexReader index.IndexReader,
 	qsearchers []search.Searcher, min float64, options search.SearcherOptions,
-	limit bool) (search.Searcher, error) {
+	limit bool,
+) (search.Searcher, error) {
 
 	var disjOverKNN bool
 	if ctx != nil {
@@ -66,8 +71,10 @@ func newDisjunctionSearcher(ctx context.Context, indexReader index.IndexReader,
 		// and the requested min is simple
 		if len(qsearchers) > 1 && min <= 1 &&
 			optionsDisjunctionOptimizable(options) {
-			rv, err := optimizeCompositeSearcher(ctx, "disjunction:unadorned",
-				indexReader, qsearchers, options)
+			rv, err := optimizeCompositeSearcher(
+				ctx, "disjunction:unadorned",
+				indexReader, qsearchers, options,
+			)
 			if err != nil || rv != nil {
 				return rv, err
 			}
@@ -75,16 +82,22 @@ func newDisjunctionSearcher(ctx context.Context, indexReader index.IndexReader,
 	}
 
 	if len(qsearchers) > DisjunctionHeapTakeover {
-		return newDisjunctionHeapSearcher(ctx, indexReader, qsearchers, min, options,
-			limit)
+		return newDisjunctionHeapSearcher(
+			ctx, indexReader, qsearchers, min, options,
+			limit,
+		)
 	}
-	return newDisjunctionSliceSearcher(ctx, indexReader, qsearchers, min, options,
-		limit)
+	return newDisjunctionSliceSearcher(
+		ctx, indexReader, qsearchers, min, options,
+		limit,
+	)
 }
 
-func optimizeCompositeSearcher(ctx context.Context, optimizationKind string,
+func optimizeCompositeSearcher(
+	ctx context.Context, optimizationKind string,
 	indexReader index.IndexReader, qsearchers []search.Searcher,
-	options search.SearcherOptions) (search.Searcher, error) {
+	options search.SearcherOptions,
+) (search.Searcher, error) {
 	var octx index.OptimizableContext
 
 	for _, searcher := range qsearchers {
@@ -114,8 +127,10 @@ func optimizeCompositeSearcher(ctx context.Context, optimizationKind string,
 		return nil, nil
 	}
 
-	return newTermSearcherFromReader(indexReader, tfr,
-		[]byte(optimizationKind), "*", 1.0, options)
+	return newTermSearcherFromReader(
+		indexReader, tfr,
+		[]byte(optimizationKind), "*", 1.0, options,
+	)
 }
 
 func tooManyClauses(count int) bool {
@@ -126,6 +141,8 @@ func tooManyClauses(count int) bool {
 }
 
 func tooManyClausesErr(field string, count int) error {
-	return fmt.Errorf("TooManyClauses over field: `%s` [%d > maxClauseCount,"+
-		" which is set to %d]", field, count, DisjunctionMaxClauseCount)
+	return fmt.Errorf(
+		"TooManyClauses over field: `%s` [%d > maxClauseCount,"+
+			" which is set to %d]", field, count, DisjunctionMaxClauseCount,
+	)
 }

@@ -17,7 +17,7 @@ package registry
 import (
 	"fmt"
 
-	"github.com/blevesearch/bleve/v2/search/highlight"
+	"github.com/MuratYMT2/bleve/v2/search/highlight"
 )
 
 func RegisterHighlighter(name string, constructor HighlighterConstructor) {
@@ -61,7 +61,12 @@ func (c *HighlighterCache) HighlighterNamed(name string, cache *Cache) (highligh
 	return item.(highlight.Highlighter), nil
 }
 
-func (c *HighlighterCache) DefineHighlighter(name string, typ string, config map[string]interface{}, cache *Cache) (highlight.Highlighter, error) {
+func (c *HighlighterCache) DefineHighlighter(
+	name string,
+	typ string,
+	config map[string]interface{},
+	cache *Cache,
+) (highlight.Highlighter, error) {
 	item, err := c.DefineItem(name, typ, config, cache, HighlighterBuild)
 	if err != nil {
 		if err == ErrAlreadyDefined {

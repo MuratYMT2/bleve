@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/blevesearch/bleve/v2/search"
+	"github.com/MuratYMT2/bleve/v2/search"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -30,7 +30,14 @@ func TestTermScorer(t *testing.T) {
 	var queryTerm = []byte("beer")
 	var queryField = "desc"
 	var queryBoost = 1.0
-	scorer := NewTermQueryScorer(queryTerm, queryField, queryBoost, docTotal, docTerm, search.SearcherOptions{Explain: true})
+	scorer := NewTermQueryScorer(
+		queryTerm,
+		queryField,
+		queryBoost,
+		docTotal,
+		docTerm,
+		search.SearcherOptions{Explain: true},
+	)
 	idf := 1.0 + math.Log(float64(docTotal)/float64(docTerm+1.0))
 
 	tests := []struct {
@@ -175,7 +182,14 @@ func TestTermScorerWithQueryNorm(t *testing.T) {
 	var queryTerm = []byte("beer")
 	var queryField = "desc"
 	var queryBoost = 3.0
-	scorer := NewTermQueryScorer(queryTerm, queryField, queryBoost, docTotal, docTerm, search.SearcherOptions{Explain: true})
+	scorer := NewTermQueryScorer(
+		queryTerm,
+		queryField,
+		queryBoost,
+		docTotal,
+		docTerm,
+		search.SearcherOptions{Explain: true},
+	)
 	idf := 1.0 + math.Log(float64(docTotal)/float64(docTerm+1.0))
 
 	scorer.SetQueryNorm(2.0)

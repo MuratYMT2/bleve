@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/blevesearch/bleve/v2/size"
+	"github.com/MuratYMT2/bleve/v2/size"
 	index "github.com/blevesearch/bleve_index_api"
 )
 
@@ -328,7 +328,8 @@ func (dm *DocumentMatch) Complete(prealloc []Location) []Location {
 
 			tlm[ftl.Term] = append(locs, loc)
 
-			dm.FieldTermLocations[i] = FieldTermLocation{ // recycle
+			dm.FieldTermLocations[i] = FieldTermLocation{
+				// recycle
 				Location: Location{
 					ArrayPositions: ftl.Location.ArrayPositions[:0],
 				},
