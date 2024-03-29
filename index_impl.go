@@ -627,7 +627,7 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 					facetBuilder.AddRange(dr.Name, start, end)
 				}
 				facetsBuilder.Add(facetName, facetBuilder)
-			} else if facetRequest.NumericRanges != nil {
+			} else if facetRequest.NumericMinMaxAgg != nil {
 				facetBuilder := facet.NewNumericMinMaxAggFacetBuilder(facetRequest.Field, facetRequest.Size)
 				facetsBuilder.Add(facetName, facetBuilder)
 			} else {
