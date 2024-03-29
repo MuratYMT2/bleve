@@ -59,7 +59,12 @@ func (dr *dateTimeRange) ParseDates(dateTimeParser analysis.DateTimeParser) (sta
 	if dr.Start.IsZero() && dr.startString != nil {
 		s, _, parseError := dateTimeParser.ParseDateTime(*dr.startString)
 		if parseError != nil {
-			return start, end, fmt.Errorf("error parsing start date '%s' for date range name '%s': %v", *dr.startString, dr.Name, parseError)
+			return start, end, fmt.Errorf(
+				"error parsing start date '%s' for date range name '%s': %v",
+				*dr.startString,
+				dr.Name,
+				parseError,
+			)
 		}
 		start = s
 	}
@@ -67,7 +72,12 @@ func (dr *dateTimeRange) ParseDates(dateTimeParser analysis.DateTimeParser) (sta
 	if dr.End.IsZero() && dr.endString != nil {
 		e, _, parseError := dateTimeParser.ParseDateTime(*dr.endString)
 		if parseError != nil {
-			return start, end, fmt.Errorf("error parsing end date '%s' for date range name '%s': %v", *dr.endString, dr.Name, parseError)
+			return start, end, fmt.Errorf(
+				"error parsing end date '%s' for date range name '%s': %v",
+				*dr.endString,
+				dr.Name,
+				parseError,
+			)
 		}
 		end = e
 	}
@@ -129,14 +139,20 @@ type numericRange struct {
 	Max  *float64 `json:"max,omitempty"`
 }
 
+type numericMinMaxAgg struct {
+	Min *float64 `json:"min,omitempty"`
+	Max *float64 `json:"max,omitempty"`
+}
+
 // A FacetRequest describes a facet or aggregation
 // of the result document set you would like to be
 // built.
 type FacetRequest struct {
-	Size           int              `json:"size"`
-	Field          string           `json:"field"`
-	NumericRanges  []*numericRange  `json:"numeric_ranges,omitempty"`
-	DateTimeRanges []*dateTimeRange `json:"date_ranges,omitempty"`
+	Size             int               `json:"size"`
+	Field            string            `json:"field"`
+	NumericRanges    []*numericRange   `json:"numeric_ranges,omitempty"`
+	DateTimeRanges   []*dateTimeRange  `json:"date_ranges,omitempty"`
+	NumericMinMaxAgg *numericMinMaxAgg `json:"numeric_min_max_ranges,omitempty"`
 }
 
 // NewFacetRequest creates a facet on the specified
@@ -152,8 +168,8 @@ func NewFacetRequest(field string, size int) *FacetRequest {
 func (fr *FacetRequest) Validate() error {
 	nrCount := len(fr.NumericRanges)
 	drCount := len(fr.DateTimeRanges)
-	if nrCount > 0 && drCount > 0 {
-		return fmt.Errorf("facet can only contain numeric ranges or date ranges, not both")
+	if nrCount > 0 && drCount > 0 && fr.NumericMinMaxAgg != nil {
+		return fmt.Errorf("facet can only contain numeric ranges or date ranges or MinMaxAgg, not both")
 	}
 
 	if nrCount > 0 {
@@ -164,7 +180,10 @@ func (fr *FacetRequest) Validate() error {
 			}
 			nrNames[nr.Name] = struct{}{}
 			if nr.Min == nil && nr.Max == nil {
-				return fmt.Errorf("numeric range query must specify either min, max or both for range name '%s'", nr.Name)
+				return fmt.Errorf(
+					"numeric range query must specify either min, max or both for range name '%s'",
+					nr.Name,
+				)
 			}
 		}
 
@@ -187,7 +206,10 @@ func (fr *FacetRequest) Validate() error {
 					return fmt.Errorf("ParseDates err: %v, using date time parser named %s", err, defaultDateTimeParser)
 				}
 				if start.IsZero() && end.IsZero() {
-					return fmt.Errorf("date range query must specify either start, end or both for range name '%s'", dr.Name)
+					return fmt.Errorf(
+						"date range query must specify either start, end or both for range name '%s'",
+						dr.Name,
+					)
 				}
 			}
 		}
@@ -213,8 +235,10 @@ func (fr *FacetRequest) AddDateTimeRangeString(name string, start, end *string) 
 	if fr.DateTimeRanges == nil {
 		fr.DateTimeRanges = make([]*dateTimeRange, 0, 1)
 	}
-	fr.DateTimeRanges = append(fr.DateTimeRanges,
-		&dateTimeRange{Name: name, startString: start, endString: end})
+	fr.DateTimeRanges = append(
+		fr.DateTimeRanges,
+		&dateTimeRange{Name: name, startString: start, endString: end},
+	)
 }
 
 // AddDateTimeRangeString adds a bucket to a field
@@ -224,8 +248,10 @@ func (fr *FacetRequest) AddDateTimeRangeStringWithParser(name string, start, end
 	if fr.DateTimeRanges == nil {
 		fr.DateTimeRanges = make([]*dateTimeRange, 0, 1)
 	}
-	fr.DateTimeRanges = append(fr.DateTimeRanges,
-		&dateTimeRange{Name: name, startString: start, endString: end, DateTimeParser: parser})
+	fr.DateTimeRanges = append(
+		fr.DateTimeRanges,
+		&dateTimeRange{Name: name, startString: start, endString: end, DateTimeParser: parser},
+	)
 }
 
 // AddNumericRange adds a bucket to a field
@@ -237,6 +263,10 @@ func (fr *FacetRequest) AddNumericRange(name string, min, max *float64) {
 		fr.NumericRanges = make([]*numericRange, 0, 1)
 	}
 	fr.NumericRanges = append(fr.NumericRanges, &numericRange{Name: name, Min: min, Max: max})
+}
+
+func (fr *FacetRequest) AddNumericMinMaxAgg() {
+	fr.NumericMinMaxAgg = &numericMinMaxAgg{}
 }
 
 // FacetsRequest groups together all the
@@ -468,7 +498,13 @@ func (sr *SearchResult) String() string {
 	rv := ""
 	if sr.Total > 0 {
 		if sr.Request != nil && sr.Request.Size > 0 {
-			rv = fmt.Sprintf("%d matches, showing %d through %d, took %s\n", sr.Total, sr.Request.From+1, sr.Request.From+len(sr.Hits), sr.Took)
+			rv = fmt.Sprintf(
+				"%d matches, showing %d through %d, took %s\n",
+				sr.Total,
+				sr.Request.From+1,
+				sr.Request.From+len(sr.Hits),
+				sr.Took,
+			)
 			for i, hit := range sr.Hits {
 				rv += fmt.Sprintf("%5d. %s (%f)\n", i+sr.Request.From+1, hit.ID, hit.Score)
 				for fragmentField, fragments := range hit.Fragments {

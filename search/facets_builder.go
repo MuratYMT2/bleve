@@ -193,6 +193,12 @@ func (tf *TermFacets) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+type NumericMinMaxAggFacet struct {
+	Min   *float64 `json:"min,omitempty"`
+	Max   *float64 `json:"max,omitempty"`
+	Count int      `json:"count"`
+}
+
 type NumericRangeFacet struct {
 	Name  string   `json:"name"`
 	Min   *float64 `json:"min,omitempty"`
@@ -300,13 +306,14 @@ func (drf DateRangeFacets) Less(i, j int) bool {
 }
 
 type FacetResult struct {
-	Field         string             `json:"field"`
-	Total         int                `json:"total"`
-	Missing       int                `json:"missing"`
-	Other         int                `json:"other"`
-	Terms         *TermFacets        `json:"terms,omitempty"`
-	NumericRanges NumericRangeFacets `json:"numeric_ranges,omitempty"`
-	DateRanges    DateRangeFacets    `json:"date_ranges,omitempty"`
+	Field            string                 `json:"field"`
+	Total            int                    `json:"total"`
+	Missing          int                    `json:"missing"`
+	Other            int                    `json:"other"`
+	Terms            *TermFacets            `json:"terms,omitempty"`
+	NumericRanges    NumericRangeFacets     `json:"numeric_ranges,omitempty"`
+	DateRanges       DateRangeFacets        `json:"date_ranges,omitempty"`
+	NumericMinMaxAgg *NumericMinMaxAggFacet `json:"numeric_min_max_agg,omitempty"`
 }
 
 func (fr *FacetResult) Size() int {

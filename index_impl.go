@@ -64,7 +64,13 @@ func indexStorePath(path string) string {
 	return path + string(os.PathSeparator) + storePath
 }
 
-func newIndexUsing(path string, mapping mapping.IndexMapping, indexType string, kvstore string, kvconfig map[string]interface{}) (*indexImpl, error) {
+func newIndexUsing(
+	path string,
+	mapping mapping.IndexMapping,
+	indexType string,
+	kvstore string,
+	kvconfig map[string]interface{},
+) (*indexImpl, error) {
 	// first validate the mapping
 	err := mapping.Validate()
 	if err != nil {
@@ -392,9 +398,11 @@ func init() {
 
 // memNeededForSearch is a helper function that returns an estimate of RAM
 // needed to execute a search request.
-func memNeededForSearch(req *SearchRequest,
+func memNeededForSearch(
+	req *SearchRequest,
 	searcher search.Searcher,
-	topnCollector *collector.TopNCollector) uint64 {
+	topnCollector *collector.TopNCollector,
+) uint64 {
 
 	backingSize := req.Size + req.From + 1
 	if req.Size+req.From > collector.PreAllocSizeSkipCap {
@@ -433,7 +441,10 @@ func memNeededForSearch(req *SearchRequest,
 	return uint64(estimate)
 }
 
-func (i *indexImpl) preSearch(ctx context.Context, req *SearchRequest, reader index.IndexReader) (*SearchResult, error) {
+func (i *indexImpl) preSearch(ctx context.Context, req *SearchRequest, reader index.IndexReader) (
+	*SearchResult,
+	error,
+) {
 	var knnHits []*search.DocumentMatch
 	var err error
 	if requestHasKNN(req) {
@@ -534,8 +545,10 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 		totalSearchCost += bytesRead
 	}
 
-	ctx = context.WithValue(ctx, search.SearchIOStatsCallbackKey,
-		search.SearchIOStatsCallbackFunc(sendBytesRead))
+	ctx = context.WithValue(
+		ctx, search.SearchIOStatsCallbackKey,
+		search.SearchIOStatsCallbackFunc(sendBytesRead),
+	)
 
 	var bufPool *s2.GeoBufferPool
 	getBufferPool := func() *s2.GeoBufferPool {
@@ -546,14 +559,18 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 		return bufPool
 	}
 
-	ctx = context.WithValue(ctx, search.GeoBufferPoolCallbackKey,
-		search.GeoBufferPoolCallbackFunc(getBufferPool))
+	ctx = context.WithValue(
+		ctx, search.GeoBufferPoolCallbackKey,
+		search.GeoBufferPoolCallbackFunc(getBufferPool),
+	)
 
-	searcher, err := req.Query.Searcher(ctx, indexReader, i.m, search.SearcherOptions{
-		Explain:            req.Explain,
-		IncludeTermVectors: req.IncludeLocations || req.Highlight != nil,
-		Score:              req.Score,
-	})
+	searcher, err := req.Query.Searcher(
+		ctx, indexReader, i.m, search.SearcherOptions{
+			Explain:            req.Explain,
+			IncludeTermVectors: req.IncludeLocations || req.Highlight != nil,
+			Score:              req.Score,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -595,13 +612,23 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 					}
 					start, end, err := dr.ParseDates(dateTimeParser)
 					if err != nil {
-						return nil, fmt.Errorf("ParseDates err: %v, using date time parser named %s", err, dateTimeParserName)
+						return nil, fmt.Errorf(
+							"ParseDates err: %v, using date time parser named %s",
+							err,
+							dateTimeParserName,
+						)
 					}
 					if start.IsZero() && end.IsZero() {
-						return nil, fmt.Errorf("date range query must specify either start, end or both for date range name '%s'", dr.Name)
+						return nil, fmt.Errorf(
+							"date range query must specify either start, end or both for date range name '%s'",
+							dr.Name,
+						)
 					}
 					facetBuilder.AddRange(dr.Name, start, end)
 				}
+				facetsBuilder.Add(facetName, facetBuilder)
+			} else if facetRequest.NumericRanges != nil {
+				facetBuilder := facet.NewNumericMinMaxAggFacetBuilder(facetRequest.Field, facetRequest.Size)
 				facetsBuilder.Add(facetName, facetBuilder)
 			} else {
 				// build terms facet
@@ -712,9 +739,11 @@ func (i *indexImpl) SearchInContext(ctx context.Context, req *SearchRequest) (sr
 	return rv, nil
 }
 
-func LoadAndHighlightFields(hit *search.DocumentMatch, req *SearchRequest,
+func LoadAndHighlightFields(
+	hit *search.DocumentMatch, req *SearchRequest,
 	indexName string, r index.IndexReader,
-	highlighter highlight.Highlighter) (error, uint64) {
+	highlighter highlight.Highlighter,
+) (error, uint64) {
 	var totalStoredFieldsBytes uint64
 	if len(req.Fields) > 0 || highlighter != nil {
 		doc, err := r.Document(hit.ID)
@@ -723,52 +752,54 @@ func LoadAndHighlightFields(hit *search.DocumentMatch, req *SearchRequest,
 				totalStoredFieldsBytes = doc.StoredFieldsBytes()
 				fieldsToLoad := deDuplicate(req.Fields)
 				for _, f := range fieldsToLoad {
-					doc.VisitFields(func(docF index.Field) {
-						if f == "*" || docF.Name() == f {
-							var value interface{}
-							switch docF := docF.(type) {
-							case index.TextField:
-								value = docF.Text()
-							case index.NumericField:
-								num, err := docF.Number()
-								if err == nil {
-									value = num
-								}
-							case index.DateTimeField:
-								datetime, layout, err := docF.DateTime()
-								if err == nil {
-									if layout == "" {
-										// layout not set probably means it was indexed as a timestamp
-										value = strconv.FormatInt(datetime.UnixNano(), 10)
-									} else {
-										value = datetime.Format(layout)
-									}
-								}
-							case index.BooleanField:
-								boolean, err := docF.Boolean()
-								if err == nil {
-									value = boolean
-								}
-							case index.GeoPointField:
-								lon, err := docF.Lon()
-								if err == nil {
-									lat, err := docF.Lat()
+					doc.VisitFields(
+						func(docF index.Field) {
+							if f == "*" || docF.Name() == f {
+								var value interface{}
+								switch docF := docF.(type) {
+								case index.TextField:
+									value = docF.Text()
+								case index.NumericField:
+									num, err := docF.Number()
 									if err == nil {
-										value = []float64{lon, lat}
+										value = num
+									}
+								case index.DateTimeField:
+									datetime, layout, err := docF.DateTime()
+									if err == nil {
+										if layout == "" {
+											// layout not set probably means it was indexed as a timestamp
+											value = strconv.FormatInt(datetime.UnixNano(), 10)
+										} else {
+											value = datetime.Format(layout)
+										}
+									}
+								case index.BooleanField:
+									boolean, err := docF.Boolean()
+									if err == nil {
+										value = boolean
+									}
+								case index.GeoPointField:
+									lon, err := docF.Lon()
+									if err == nil {
+										lat, err := docF.Lat()
+										if err == nil {
+											value = []float64{lon, lat}
+										}
+									}
+								case index.GeoShapeField:
+									v, err := docF.GeoShape()
+									if err == nil {
+										value = v
 									}
 								}
-							case index.GeoShapeField:
-								v, err := docF.GeoShape()
-								if err == nil {
-									value = v
+
+								if value != nil {
+									hit.AddFieldValue(docF.Name(), value)
 								}
 							}
-
-							if value != nil {
-								hit.AddFieldValue(docF.Name(), value)
-							}
-						}
-					})
+						},
+					)
 				}
 			}
 			if highlighter != nil {
@@ -1076,8 +1107,10 @@ func (i *indexImpl) CopyTo(d index.Directory) (err error) {
 	return i.meta.CopyTo(d)
 }
 
-func (f FileSystemDirectory) GetWriter(filePath string) (io.WriteCloser,
-	error) {
+func (f FileSystemDirectory) GetWriter(filePath string) (
+	io.WriteCloser,
+	error,
+) {
 	dir, file := filepath.Split(filePath)
 	if dir != "" {
 		err := os.MkdirAll(filepath.Join(string(f), dir), os.ModePerm)
@@ -1086,6 +1119,8 @@ func (f FileSystemDirectory) GetWriter(filePath string) (io.WriteCloser,
 		}
 	}
 
-	return os.OpenFile(filepath.Join(string(f), dir, file),
-		os.O_RDWR|os.O_CREATE, 0600)
+	return os.OpenFile(
+		filepath.Join(string(f), dir, file),
+		os.O_RDWR|os.O_CREATE, 0600,
+	)
 }
