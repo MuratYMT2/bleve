@@ -1,4 +1,4 @@
-module github.com/blevesearch/bleve/v2
+module github.com/MuratYMT2/bleve/v2
 
 go 1.20
 
